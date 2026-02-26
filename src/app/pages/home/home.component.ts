@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { HeroComponent } from '../../components/hero/hero.component';
 import { VitrinaComponent } from '../../components/vitrina/vitrina.component';
 import { PorDecadaComponent } from '../../components/por-decada/por-decada.component';
@@ -13,12 +13,11 @@ import { Categoria } from '../../models/categoria.model';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HeroComponent, VitrinaComponent, PorDecadaComponent, BandaHonorComponent],
+  imports: [CommonModule, RouterLink, HeroComponent, VitrinaComponent, PorDecadaComponent, BandaHonorComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  private router = inject(Router);
   private tiendaService = inject(TiendaService);
 
   readonly vitrinaProduct: RetroProduct = VITRINA_PRODUCT;
@@ -27,10 +26,6 @@ export class HomeComponent {
   carritoItems: RetroProduct[] = [];
 
   readonly categorias: Categoria[] = this.tiendaService.getCategorias();
-
-  irACategoria(slug: string): void {
-    this.router.navigate(['/categoria', slug]);
-  }
 
   onDecadeChange(decade: string): void {
     console.log('Década seleccionada:', decade);
