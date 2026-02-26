@@ -84,6 +84,132 @@
   color: #00e676;
 }
 
+/* Auth nav */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: 0.4rem;
+  padding-left: 1rem;
+  border-left: 1px solid #222;
+}
+
+.btn-login {
+  color: #fff;
+  border: 1px solid #fff;
+  background: transparent;
+  padding: 5px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  border-radius: 2px;
+}
+
+.btn-login:hover {
+  border-color: #00ff87;
+  color: #00ff87;
+}
+
+.btn-admin {
+  color: #00ff87;
+  border: 1px solid #00ff87;
+  background: transparent;
+  padding: 5px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-admin:hover {
+  background: #00ff87;
+  color: #000;
+}
+
+/* Menú cuenta */
+.cuenta-menu {
+  position: relative;
+}
+
+.btn-cuenta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #e0e0e0;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-cuenta:hover {
+  border-color: #00ff87;
+  color: #00ff87;
+}
+
+.btn-cuenta:hover + .cuenta-dropdown,
+.cuenta-menu:hover .cuenta-dropdown {
+  display: flex;
+}
+
+.cuenta-dropdown {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-radius: 3px;
+  min-width: 180px;
+  padding: 0.7rem;
+  gap: 0.6rem;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.cuenta-email {
+  font-size: 0.72rem;
+  color: #555;
+  letter-spacing: 0.5px;
+  word-break: break-all;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid #333;
+  color: #ccc;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.2s, color 0.2s;
+  width: 100%;
+}
+
+.btn-logout:hover {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
 .cart-badge {
   position: absolute;
   top: -4px;

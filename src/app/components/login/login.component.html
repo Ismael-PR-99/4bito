@@ -1,0 +1,102 @@
+<!-- Fondo animado con líneas geométricas -->
+<div class="login-bg">
+  <!-- Grid pattern -->
+  <div class="bg-grid"></div>
+
+  <!-- Partículas flotantes -->
+  <span
+    *ngFor="let p of particulas"
+    class="particula"
+    [style.left.%]="p.x"
+    [style.top.%]="p.y"
+    [style.animation-delay.s]="p.delay"
+    [style.animation-duration.s]="p.dur"
+  ></span>
+
+  <!-- Overlay de éxito -->
+  <div class="exito-overlay" *ngIf="loginExitoso" [@exito]>
+    <div class="exito-ring"></div>
+    <div class="exito-inner">
+      <svg viewBox="0 0 24 24" fill="none" class="check-icon">
+        <polyline points="20 6 9 17 4 12" stroke="#000" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="exito-texto">ACCESO CONCEDIDO</p>
+  </div>
+
+  <!-- Card principal -->
+  <div class="login-card" [@cardEntrada] [@shake]="shakeState">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <img src="logo.svg" alt="4BITO" class="logo-img" />
+    </div>
+
+    <!-- Título con efecto glitch -->
+    <h2 class="login-title" data-text="BIENVENIDO DE NUEVO">
+      BIENVENIDO DE NUEVO
+    </h2>
+    <p class="login-sub">Accede a tu cuenta RETRO SPORTS</p>
+
+    <!-- Error -->
+    <div class="error-msg" *ngIf="error" [@fadeIn]>
+      <span class="error-icon">⚠</span>&nbsp;{{ error }}
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="onSubmit()" class="login-form">
+
+      <div class="input-group" [class.has-value]="email.length > 0">
+        <span class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
+            <rect x="2" y="4" width="20" height="16" rx="2"
+              stroke="currentColor" stroke-width="1.6"/>
+            <path d="M2 8l10 6 10-6"
+              stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="EMAIL"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="input-group" [class.has-value]="password.length > 0">
+        <span class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
+            <rect x="5" y="11" width="14" height="10" rx="2"
+              stroke="currentColor" stroke-width="1.6"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"
+              stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="CONTRASEÑA"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn-login" [class.success]="loginExitoso" [disabled]="cargando || loginExitoso">
+        <span *ngIf="!cargando && !loginExitoso">ENTRAR</span>
+        <span class="btn-loader" *ngIf="cargando">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </span>
+        <span *ngIf="loginExitoso">✓</span>
+      </button>
+    </form>
+
+    <p class="register-link">
+      ¿No tienes cuenta?&nbsp;<a [routerLink]="['/registro']">REGÍSTRATE</a>
+    </p>
+
+  </div>
+</div>
