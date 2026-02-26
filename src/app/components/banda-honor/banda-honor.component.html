@@ -1,0 +1,28 @@
+<section class="banda">
+  <h2 class="banda__title">Banda de Honor</h2>
+  <p class="banda__sub">Las piezas más buscadas de todos los tiempos</p>
+
+  <ol class="banda__list">
+    <li class="banda__item" *ngFor="let p of ranked(); let i = index">
+      <span class="banda__rank" [class.gold]="i < 3">{{ i + 1 }}</span>
+
+      <div class="banda__img-wrap">
+        <img [src]="p.imageUrl" [alt]="p.name" class="banda__img" />
+      </div>
+
+      <div class="banda__details">
+        <p class="banda__name">{{ p.name }}</p>
+        <p class="banda__meta">{{ p.country }} · {{ p.year }}</p>
+        <div class="banda__bar-wrap">
+          <div class="banda__bar" [style.width]="barWidth(p.unitsSold)"></div>
+        </div>
+      </div>
+
+      <div class="banda__right">
+        <p class="banda__price">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+        <p class="banda__sold">{{ p.unitsSold | number }} uds.</p>
+        <button class="banda__btn" (click)="onView(p)">Ver</button>
+      </div>
+    </li>
+  </ol>
+</section>

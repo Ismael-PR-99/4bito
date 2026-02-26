@@ -1,1 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --font-display: 'Big Shoulders Stencil Display', sans-serif;
+  --font-body: 'Teko', sans-serif;
+}
+
+html, body {
+  font-family: var(--font-body);
+  line-height: 1.6;
+  background: #fff;
+}
+
+/* Títulos de sección, categorías, hero */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/* Navegación, botones, etiquetas, precios, banners */
+nav, button, .badge, .label, .price, .banner, p, span, a, li {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Texto secundario, descripciones */
+.text-secondary, .description, input::placeholder {
+  font-family: var(--font-body);
+  font-weight: 400;
+}

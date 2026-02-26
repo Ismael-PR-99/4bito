@@ -1,0 +1,68 @@
+<section class="hero">
+
+  <!-- Fondo: grid -->
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <!-- Línea verde superior -->
+  <div class="hero-topline" aria-hidden="true"></div>
+
+  <!-- Año gigante de fondo -->
+  <div class="year-bg" aria-hidden="true">{{ activeDecade() }}</div>
+
+  <!-- Stats derecha -->
+  <aside class="hero-stats" aria-label="Estadísticas">
+    <div class="stat" *ngFor="let s of stats">
+      <span class="stat__value">{{ s.value }}</span>
+      <span class="stat__label">{{ s.label }}</span>
+    </div>
+  </aside>
+
+  <!-- Selector de décadas izquierda -->
+  <aside class="hero-decades" aria-label="Selector de décadas">
+    <span class="decades__label">Década</span>
+    <button
+      *ngFor="let d of decades"
+      class="decade-btn"
+      [class.active]="d === activeDecade()"
+      (click)="setDecade(d)"
+    >{{ d }}</button>
+  </aside>
+
+  <!-- Contenido central -->
+  <div class="hero-content">
+    <p class="hero-eyebrow">Tienda retro deportiva</p>
+
+    <h1
+      class="hero-h1"
+      [attr.data-text]="'4BITO RETRO SPORTS'"
+      aria-label="4BITO RETRO SPORTS"
+    >
+      <span class="h1-line h1-line--1">4BITO</span>
+      <span class="h1-line h1-line--2 accent">RETRO</span>
+      <span class="h1-line h1-line--3">SPORTS</span>
+    </h1>
+
+    <p class="hero-sub">
+      Equipaciones&nbsp;·&nbsp;Objetos de culto&nbsp;·&nbsp;Desde los 70s hasta los 00s
+    </p>
+
+    <div class="hero-cta">
+      <button class="btn btn--primary">Ver colección</button>
+      <button class="btn btn--ghost">Novedades</button>
+    </div>
+  </div>
+
+  <!-- Ticker inferior -->
+  <div class="hero-ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span class="ticker-item" *ngFor="let item of tickerItems">
+        <span class="ticker-dot">●</span> {{ item }}
+      </span>
+      <!-- Track duplicado para loop infinito -->
+      <span class="ticker-item" *ngFor="let item of tickerItems">
+        <span class="ticker-dot">●</span> {{ item }}
+      </span>
+    </div>
+  </div>
+
+</section>

@@ -1,0 +1,31 @@
+<!-- Hero -->
+<app-hero (decadeChange)="onDecadeChange($event)"></app-hero>
+
+<!-- Grid de categorías -->
+<main class="main-content">
+  <div class="container">
+    <div class="categorias-grid">
+      <a [href]="categoria.link" class="categoria-card" *ngFor="let categoria of categorias">
+        <img [src]="categoria.imagen" [alt]="categoria.titulo" class="categoria-img" />
+        <div class="categoria-overlay">
+          <h3 class="categoria-titulo">{{ categoria.titulo }}</h3>
+        </div>
+      </a>
+    </div>
+  </div>
+</main>
+
+<!-- Vitrina: Pieza de la semana -->
+<app-vitrina
+  [product]="vitrinaProduct"
+  (addToCart)="onAddToCart($event)"
+></app-vitrina>
+
+<!-- Por Década -->
+<app-por-decada [products]="allProducts"></app-por-decada>
+
+<!-- Banda de Honor -->
+<app-banda-honor
+  [products]="allProducts"
+  (viewProduct)="onViewProduct($event)"
+></app-banda-honor>

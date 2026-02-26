@@ -1,0 +1,198 @@
+/* ─── BANDA DE HONOR ─── */
+.banda {
+  padding: 4rem 2rem;
+  background: #0a0a0a;
+  color: #fff;
+}
+
+.banda__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-align: center;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.banda__sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-bottom: 2.5rem;
+}
+
+/* Lista */
+.banda__list {
+  list-style: none;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.banda__item {
+  display: grid;
+  grid-template-columns: 80px 70px 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #1e1e1e;
+  transition: background 0.2s;
+}
+
+.banda__item:hover {
+  background: #111;
+}
+
+/* Ranking */
+.banda__rank {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #2d2d2d;
+  text-align: center;
+  min-width: 60px;
+  transition: color 0.2s;
+}
+
+.banda__rank.gold {
+  color: #f5c518;
+}
+
+/* Imagen */
+.banda__img-wrap {
+  width: 70px;
+  height: 70px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.banda__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* Detalles */
+.banda__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.banda__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.banda__meta {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #555;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin: 0;
+}
+
+.banda__bar-wrap {
+  height: 4px;
+  background: #1e1e1e;
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+}
+
+.banda__bar {
+  height: 100%;
+  background: #00d084;
+  transition: width 0.6s ease;
+}
+
+/* Right */
+.banda__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.banda__price {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  margin: 0;
+}
+
+.banda__sold {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: #555;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin: 0;
+}
+
+.banda__btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #aaa;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.3rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  margin-top: 0.25rem;
+}
+
+.banda__btn:hover {
+  border-color: #00d084;
+  color: #00d084;
+}
+
+@media (max-width: 640px) {
+  .banda__item {
+    grid-template-columns: 50px 55px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .banda__right {
+    grid-column: 3;
+    grid-row: 2;
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .banda__rank {
+    font-size: 2.5rem;
+  }
+}

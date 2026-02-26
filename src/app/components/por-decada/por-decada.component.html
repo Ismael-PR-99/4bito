@@ -1,0 +1,36 @@
+<section class="decada">
+  <h2 class="decada__title">Por Década</h2>
+
+  <!-- Filtros -->
+  <div class="decada__filters">
+    <button
+      *ngFor="let d of decades"
+      class="decada__filter-btn"
+      [class.active]="d === activeDecade()"
+      (click)="setDecade(d)"
+    >
+      {{ d }}
+    </button>
+  </div>
+
+  <!-- Grid -->
+  <div class="decada__grid">
+    <div class="decada__card" *ngFor="let p of filteredProducts()">
+      <div class="decada__card-img" [style.background-image]="'url(' + p.imageUrl + ')'">
+        <div class="decada__overlay">
+          <p class="decada__country">{{ p.country }}</p>
+          <p class="decada__year">{{ p.year }}</p>
+        </div>
+      </div>
+      <div class="decada__card-body">
+        <p class="decada__name">{{ p.name }}</p>
+        <p class="decada__price">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="decada__empty" *ngIf="filteredProducts().length === 0">
+      <p>No hay productos para esta década aún.</p>
+    </div>
+  </div>
+</section>
