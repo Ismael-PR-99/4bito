@@ -6,10 +6,10 @@
       <h1>{{ title }}</h1>
     </div>
     <nav class="nav">
-      <a href="#">FÚTBOL</a>
-      <a href="#">CASUAL</a>
-      <a href="#">OBJETOS</a>
-      <a href="#">NOVEDADES</a>
+      <a [routerLink]="['/categoria', 'retro-selecciones']" routerLinkActive="active">FÚTBOL</a>
+      <a [routerLink]="['/categoria', 'retro-chaquetas']" routerLinkActive="active">CASUAL</a>
+      <a [routerLink]="['/categoria', 'retro-objetos']" routerLinkActive="active">OBJETOS</a>
+      <a [routerLink]="['/']" [routerLinkActiveOptions]="{exact:true}" routerLinkActive="active">NOVEDADES</a>
       <button class="cart-btn" (click)="carritoCount = carritoCount + 1">
         <lucide-icon name="shopping-cart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
         <span class="cart-badge" *ngIf="carritoCount > 0">{{ carritoCount }}</span>

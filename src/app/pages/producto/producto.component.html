@@ -1,0 +1,29 @@
+<div class="producto-page">
+  <div class="producto-header">
+    <button class="btn-back" (click)="volver()">← Volver</button>
+  </div>
+
+  <div class="producto-detalle" *ngIf="producto; else noEncontrado">
+    <div class="producto-img-wrap">
+      <img [src]="producto.imageUrl" [alt]="producto.nombre" />
+    </div>
+    <div class="producto-info">
+      <h1 class="producto-nombre">{{ producto.nombre }}</h1>
+      <p class="producto-equipo">{{ producto.equipo }} &middot; {{ producto.anio }}</p>
+      <p class="producto-descripcion">{{ producto.descripcion }}</p>
+      <div class="producto-precios">
+        <span class="precio-actual">{{ producto.precio }}€</span>
+        <span class="precio-original" *ngIf="producto.precioOriginal">{{ producto.precioOriginal }}€</span>
+      </div>
+      <div class="producto-tallas">
+        <span class="talla" *ngFor="let talla of producto.tallas">{{ talla }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noEncontrado>
+    <div class="empty-state">
+      <p>Producto no encontrado.</p>
+    </div>
+  </ng-template>
+</div>

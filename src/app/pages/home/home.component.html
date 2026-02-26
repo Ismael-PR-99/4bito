@@ -5,12 +5,16 @@
 <main class="main-content">
   <div class="container">
     <div class="categorias-grid">
-      <a [href]="categoria.link" class="categoria-card" *ngFor="let categoria of categorias">
-        <img [src]="categoria.imagen" [alt]="categoria.titulo" class="categoria-img" />
+      <div
+        class="categoria-card"
+        *ngFor="let categoria of categorias"
+        (click)="irACategoria(categoria.slug)"
+      >
+        <img [src]="categoria.imageUrl" [alt]="categoria.nombre" class="categoria-img" />
         <div class="categoria-overlay">
-          <h3 class="categoria-titulo">{{ categoria.titulo }}</h3>
+          <h3 class="categoria-titulo">{{ categoria.nombre }}</h3>
         </div>
-      </a>
+      </div>
     </div>
   </div>
 </main>

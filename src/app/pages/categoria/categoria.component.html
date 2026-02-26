@@ -1,0 +1,27 @@
+<div class="cat-page">
+  <div class="cat-header">
+    <button class="btn-back" (click)="volver()">← Volver</button>
+    <h1 class="cat-title">{{ categoria?.nombre }}</h1>
+  </div>
+
+  <div class="productos-grid">
+    <div
+      class="producto-card"
+      *ngFor="let producto of productos"
+      (click)="irAProducto(producto.id)"
+    >
+      <div class="producto-img-wrap">
+        <img [src]="producto.imageUrl" [alt]="producto.nombre" class="producto-img" />
+      </div>
+      <div class="producto-info">
+        <span class="producto-nombre">{{ producto.nombre }}</span>
+        <span class="producto-precio">{{ producto.precio }}€</span>
+      </div>
+    </div>
+
+    <!-- Estado vacío mientras no hay productos -->
+    <div class="empty-state" *ngIf="productos.length === 0">
+      <p>Próximamente — estamos añadiendo piezas a esta colección.</p>
+    </div>
+  </div>
+</div>

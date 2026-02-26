@@ -64,6 +64,10 @@
   color: #00d084;
 }
 
+.nav a.active {
+  color: #00e676;
+}
+
 .cart-btn {
   position: relative;
   background: transparent;
