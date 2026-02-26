@@ -104,7 +104,7 @@ export class RegistroComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.error = err?.error?.mensaje || 'Error al crear la cuenta. Inténtalo de nuevo.';
+        this.error = err?.error?.mensaje || err?.error?.error || 'Error al crear la cuenta. Inténtalo de nuevo.';
         this.triggerShake();
       },
     });

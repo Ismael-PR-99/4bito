@@ -94,7 +94,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.cargando = false;
-        this.error = err?.error?.mensaje || 'Credenciales incorrectas.';
+        this.error = err?.error?.mensaje || err?.error?.error || 'Credenciales incorrectas.';
         this.triggerShake();
       },
     });

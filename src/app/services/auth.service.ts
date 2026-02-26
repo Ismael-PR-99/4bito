@@ -18,7 +18,7 @@ export interface RegistroResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost/4bito-api/auth';
+  private apiUrl = 'http://localhost/4bito/4bito-api/auth';
 
   constructor(private http: HttpClient) {}
 
