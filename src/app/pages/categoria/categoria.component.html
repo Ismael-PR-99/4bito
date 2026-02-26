@@ -2,9 +2,24 @@
   <div class="cat-header">
     <button class="btn-back" (click)="volver()">← Volver</button>
     <h1 class="cat-title">{{ categoria?.nombre }}</h1>
+
+    <!-- Botón visible SOLO para admin en Retro Selecciones -->
+    <button
+      *ngIf="esAdmin && esRetroSelecciones"
+      class="btn-admin-add"
+      (click)="abrirModal()"
+    >
+      + Añadir Camiseta
+    </button>
   </div>
 
-  <div class="productos-grid">
+  <!-- Spinner mientras carga -->
+  <div class="loading-state" *ngIf="cargando">
+    <span class="loader-dots"><span></span><span></span><span></span></span>
+    <p>Cargando colección…</p>
+  </div>
+
+  <div class="productos-grid" *ngIf="!cargando">
     <div
       class="producto-card"
       *ngFor="let producto of productos"
@@ -19,9 +34,17 @@
       </div>
     </div>
 
-    <!-- Estado vacío mientras no hay productos -->
+    <!-- Estado vacío -->
     <div class="empty-state" *ngIf="productos.length === 0">
       <p>Próximamente — estamos añadiendo piezas a esta colección.</p>
     </div>
   </div>
 </div>
+
+<!-- Modal: solo se monta cuando está abierto -->
+<ng-container *ngIf="mostrarModal">
+  <app-anadir-producto
+    (cerrar)="cerrarModal()"
+    (productoCreado)="onProductoCreado($event)"
+  ></app-anadir-producto>
+</ng-container>
