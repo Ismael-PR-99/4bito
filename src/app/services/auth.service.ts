@@ -53,14 +53,8 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload?.rol === 'admin';
-    } catch {
-      return false;
-    }
+    const usuario = this.getUsuario();
+    return usuario?.rol === 'admin';
   }
 
   getUsuario(): { id: number; nombre: string; email: string; rol: string } | null {

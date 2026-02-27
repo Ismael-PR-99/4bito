@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Categoria } from '../models/categoria.model';
-import { Producto } from '../models/producto.model';
 
 @Injectable({ providedIn: 'root' })
 export class TiendaService {
@@ -16,22 +15,11 @@ export class TiendaService {
     { id: '8', slug: 'san-valentin',      nombre: 'San Valentín Retro',imageUrl: 'images/retro_San_Valentin.jpg' },
   ];
 
-  private productos: Producto[] = [];
-  // Array vacío por ahora — se rellenará con datos reales más adelante
-
   getCategorias(): Categoria[] {
     return this.categorias;
   }
 
   getCategoriaBySlug(slug: string): Categoria | undefined {
     return this.categorias.find(c => c.slug === slug);
-  }
-
-  getProductosByCategoria(slug: string): Producto[] {
-    return this.productos.filter(p => p.categoriaSlug === slug);
-  }
-
-  getProductoById(id: string): Producto | undefined {
-    return this.productos.find(p => p.id === id);
   }
 }
