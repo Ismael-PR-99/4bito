@@ -140,6 +140,7 @@ select {
   box-sizing: border-box;
   transition: border-color 0.2s;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 input:focus,
