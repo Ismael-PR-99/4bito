@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once '../../config/database.php';
-require_once '../../middleware/admin.php';
+require_once '../config/database.php';
+require_once '../middleware/admin.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -22,16 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 requireAdmin();
 
 // ── Validar campos de texto ────────────────────────────────────────────────
-$name   = trim($_POST['name']   ?? '');
-$team   = trim($_POST['team']   ?? '');
-$league = trim($_POST['league'] ?? '');
-$price  = $_POST['price']  ?? '';
-$year   = $_POST['year']   ?? '';
-$sizes  = $_POST['sizes']  ?? '';   // JSON string: [{"size":"S","stock":5},...]
+$name     = trim($_POST['name']   ?? '');
+$team     = trim($_POST['team']   ?? '');
+$league   = trim($_POST['league'] ?? '');
+$price    = $_POST['price']    ?? '';
+$year     = $_POST['year']     ?? '';
+$category = trim($_POST['category'] ?? '');
+$sizes    = $_POST['sizes']    ?? '';   // JSON string: [{"size":"S","stock":5},...]
 
-if (empty($name) || empty($team) || empty($league) || $price === '' || $year === '') {
+if (empty($name) || empty($team) || empty($league) || $price === '' || $year === '' || empty($category)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Los campos name, team, league, price y year son obligatorios']);
+    echo json_encode(['error' => 'Los campos name, team, league, price, year y category son obligatorios']);
     exit();
 }
 
@@ -95,7 +96,7 @@ if (!move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
     exit();
 }
 
-$imageUrl = 'http://localhost/4bito/4bito-api/uploads/' . $filename;
+$imageUrl = 'http://localhost/4bito/uploads/' . $filename;
 
 // ── Insertar en base de datos ──────────────────────────────────────────────
 try {
@@ -113,7 +114,7 @@ try {
         ':year'      => (int) $year,
         ':league'    => $league,
         ':image_url' => $imageUrl,
-        ':category'  => 'retro-selecciones',
+        ':category'  => $category,
         ':sizes'     => json_encode($sizesDecoded),
     ]);
 
@@ -130,7 +131,7 @@ try {
             'year'     => (int) $year,
             'league'   => $league,
             'imageUrl' => $imageUrl,
-            'category' => 'retro-selecciones',
+            'category' => $category,
             'sizes'    => $sizesDecoded,
         ],
     ]);
