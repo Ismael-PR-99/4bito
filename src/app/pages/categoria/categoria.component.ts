@@ -11,15 +11,15 @@ import { Producto } from '../../models/producto.model';
 /** Convierte la respuesta de la API al modelo interno Producto */
 function apiToProducto(p: ProductoApi): Producto {
   return {
-    id:          String(p.id),
-    nombre:      p.name,
+    id:            String(p.id),
+    nombre:        p.name,
     categoriaSlug: p.category,
-    precio:      p.price,
-    imageUrl:    p.imageUrl,
-    tallas:      p.sizes.map(s => s.size),
-    descripcion: `${p.team} — ${p.league}`,
-    anio:        p.year,
-    equipo:      p.team,
+    precio:        p.price,
+    imageUrl:      p.imageUrl,
+    tallas:        p.sizes.map(s => s.size),
+    descripcion:   `${p.team} — ${p.league}`,
+    anio:          p.year,
+    equipo:        p.team,
   };
 }
 
@@ -42,19 +42,10 @@ export class CategoriaComponent implements OnInit {
   cargando:     boolean = false;
   mostrarModal: boolean = false;
   slugActual:   string  = '';
-
-  /** Solo retro-selecciones tiene endpoint real en este momento */
-  private readonly CATEGORIAS_API = ['retro-selecciones'];
-
-  get esAdmin(): boolean {
-    return this.authService.isAdmin();
-  }
-
-  get esRetroSelecciones(): boolean {
-    return this.slugActual === 'retro-selecciones';
-  }
+  esAdmin:      boolean = false;
 
   ngOnInit(): void {
+    this.esAdmin = this.authService.isAdmin();
     this.route.paramMap.subscribe(params => {
       this.slugActual = params.get('slug') ?? '';
       this.categoria  = this.tiendaService.getCategoriaBySlug(this.slugActual);
@@ -63,28 +54,23 @@ export class CategoriaComponent implements OnInit {
   }
 
   cargarProductos(): void {
-    if (this.CATEGORIAS_API.includes(this.slugActual)) {
-      this.cargando = true;
-      this.productosService.getByCategory(this.slugActual).subscribe({
-        next: lista => {
-          this.productos = lista.map(apiToProducto);
-          this.cargando  = false;
-        },
-        error: () => {
-          this.productos = [];
-          this.cargando  = false;
-        },
-      });
-    } else {
-      this.productos = this.tiendaService.getProductosByCategoria(this.slugActual);
-    }
+    this.cargando = true;
+    this.productosService.getByCategory(this.slugActual).subscribe({
+      next: lista => {
+        this.productos = lista.map(apiToProducto);
+        this.cargando  = false;
+      },
+      error: () => {
+        this.productos = [];
+        this.cargando  = false;
+      },
+    });
   }
 
   abrirModal(): void  { this.mostrarModal = true; }
   cerrarModal(): void { this.mostrarModal = false; }
 
   onProductoCreado(nuevo: ProductoApi): void {
-    // Añadir al inicio de la lista sin recargar toda la página
     this.productos = [apiToProducto(nuevo), ...this.productos];
   }
 

@@ -35,6 +35,13 @@ export class ProductosService {
       .pipe(map(res => res.productos));
   }
 
+  /** Obtiene un producto por su ID */
+  getById(id: number): Observable<ProductoApi> {
+    return this.http
+      .get<{ producto: ProductoApi }>(`${this.baseUrl}/get.php?id=${id}`)
+      .pipe(map(res => res.producto));
+  }
+
   /** Crea un producto (requiere rol admin). Recibe FormData con imagen. */
   crear(formData: FormData): Observable<{ mensaje: string; producto: ProductoApi }> {
     const token = this.auth.getToken();

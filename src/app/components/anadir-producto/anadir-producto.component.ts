@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Output,
+  Input,
   inject,
   OnInit,
 } from '@angular/core';
@@ -24,6 +25,7 @@ import { ProductosService, ProductoApi } from '../../services/productos.service'
   styleUrl: './anadir-producto.component.css',
 })
 export class AnadirProductoComponent implements OnInit {
+  @Input()  categoriaSlug: string = '';
   @Output() cerrar         = new EventEmitter<void>();
   @Output() productoCreado = new EventEmitter<ProductoApi>();
 
@@ -113,13 +115,14 @@ export class AnadirProductoComponent implements OnInit {
 
     const fd = new FormData();
     const v  = this.form.value;
-    fd.append('name',   v.name);
-    fd.append('team',   v.team);
-    fd.append('league', v.league);
-    fd.append('price',  String(v.price));
-    fd.append('year',   String(v.year));
-    fd.append('sizes',  JSON.stringify(v.sizes));
-    fd.append('image',  this.imagenFile);
+    fd.append('name',     v.name);
+    fd.append('team',     v.team);
+    fd.append('league',   v.league);
+    fd.append('price',    String(v.price));
+    fd.append('year',     String(v.year));
+    fd.append('category', this.categoriaSlug);
+    fd.append('sizes',    JSON.stringify(v.sizes));
+    fd.append('image',    this.imagenFile);
 
     this.productosService.crear(fd).subscribe({
       next: (res: { mensaje: string; producto: ProductoApi }) => {

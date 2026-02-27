@@ -5,11 +5,11 @@
 
     <!-- Botón visible SOLO para admin en Retro Selecciones -->
     <button
-      *ngIf="esAdmin && esRetroSelecciones"
+      *ngIf="esAdmin"
       class="btn-admin-add"
       (click)="abrirModal()"
     >
-      + Añadir Camiseta
+      + Añadir Producto
     </button>
   </div>
 
@@ -44,6 +44,7 @@
 <!-- Modal: solo se monta cuando está abierto -->
 <ng-container *ngIf="mostrarModal">
   <app-anadir-producto
+    [categoriaSlug]="slugActual"
     (cerrar)="cerrarModal()"
     (productoCreado)="onProductoCreado($event)"
   ></app-anadir-producto>
