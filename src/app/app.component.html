@@ -24,11 +24,11 @@
         <ng-container *ngIf="loggedIn">
           <a *ngIf="esAdmin" [routerLink]="['/admin']" class="btn-admin">ADMIN</a>
           <div class="cuenta-menu">
-            <button class="btn-cuenta">
+            <button class="btn-cuenta" (click)="toggleMenu()">
               <lucide-icon name="user" [size]="18" [strokeWidth]="1.5"></lucide-icon>
               <span>{{ nombreCorto }}</span>
             </button>
-            <div class="cuenta-dropdown">
+            <div class="cuenta-dropdown" [class.open]="menuAbierto">
               <span class="cuenta-email">{{ usuario?.email }}</span>
               <button class="btn-logout" (click)="logout()">CERRAR SESIÓN</button>
             </div>

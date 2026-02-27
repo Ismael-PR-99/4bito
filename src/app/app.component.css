@@ -160,11 +160,6 @@
   color: #00ff87;
 }
 
-.btn-cuenta:hover + .cuenta-dropdown,
-.cuenta-menu:hover .cuenta-dropdown {
-  display: flex;
-}
-
 .cuenta-dropdown {
   display: none;
   flex-direction: column;
@@ -179,6 +174,10 @@
   gap: 0.6rem;
   z-index: 200;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.cuenta-dropdown.open {
+  display: flex;
 }
 
 .cuenta-email {
