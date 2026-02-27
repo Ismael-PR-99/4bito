@@ -28,6 +28,20 @@
       <div class="producto-img-wrap">
         <img [src]="producto.imageUrl" [alt]="producto.nombre" class="producto-img" />
       </div>
+
+      <!-- Botones de acción admin (fuera del img-wrap para no ser recortados) -->
+      <div class="card-acciones" *ngIf="esAdmin">
+        <button
+          class="btn-accion btn-accion-editar"
+          title="Editar producto"
+          (click)="$event.stopPropagation(); editarProducto(producto)"
+        >&#9998;</button>
+        <button
+          class="btn-accion btn-accion-eliminar"
+          title="Eliminar producto"
+          (click)="$event.stopPropagation(); eliminarProducto(producto.id)"
+        >&#128465;</button>
+      </div>
       <div class="producto-info">
         <span class="producto-nombre">{{ producto.nombre }}</span>
         <span class="producto-precio">{{ producto.precio }}€</span>
@@ -48,4 +62,13 @@
     (cerrar)="cerrarModal()"
     (productoCreado)="onProductoCreado($event)"
   ></app-anadir-producto>
+</ng-container>
+
+<!-- Modal: editar producto -->
+<ng-container *ngIf="productoEditando">
+  <app-editar-producto
+    [producto]="$any(productoEditando)"
+    (cerrar)="cerrarModalEditar()"
+    (productoActualizado)="onProductoActualizado($event)"
+  ></app-editar-producto>
 </ng-container>

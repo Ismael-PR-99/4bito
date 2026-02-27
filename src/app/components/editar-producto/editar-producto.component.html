@@ -1,0 +1,156 @@
+<!-- Overlay backdrop -->
+<div class="modal-backdrop" (click)="cancelar()"></div>
+
+<!-- Panel del formulario -->
+<div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+  <div class="modal-header">
+    <h2 class="modal-title" id="modal-title">
+      <span class="modal-icon">✏</span> Editar Producto
+    </h2>
+    <button class="btn-close" type="button" (click)="cancelar()" aria-label="Cerrar modal">✕</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="modal-body">
+
+    <!-- ── Fila 1: nombre + equipo ─────────────────────────────────── -->
+    <div class="form-row two-col">
+      <div class="form-field">
+        <label for="e-name">Nombre de la camiseta *</label>
+        <input
+          id="e-name"
+          type="text"
+          formControlName="name"
+          [class.invalid]="ctrl('name').invalid && ctrl('name').touched"
+        />
+        <span class="field-error" *ngIf="ctrl('name').invalid && ctrl('name').touched">Mínimo 3 caracteres</span>
+      </div>
+      <div class="form-field">
+        <label for="e-team">Equipo / Selección *</label>
+        <input
+          id="e-team"
+          type="text"
+          formControlName="team"
+          [class.invalid]="ctrl('team').invalid && ctrl('team').touched"
+        />
+        <span class="field-error" *ngIf="ctrl('team').invalid && ctrl('team').touched">Campo obligatorio</span>
+      </div>
+    </div>
+
+    <!-- ── Fila 2: liga + año ──────────────────────────────────────── -->
+    <div class="form-row two-col">
+      <div class="form-field">
+        <label for="e-league">Liga / Competición *</label>
+        <input
+          id="e-league"
+          type="text"
+          formControlName="league"
+          [class.invalid]="ctrl('league').invalid && ctrl('league').touched"
+        />
+        <span class="field-error" *ngIf="ctrl('league').invalid && ctrl('league').touched">Campo obligatorio</span>
+      </div>
+      <div class="form-field">
+        <label for="e-year">Año *</label>
+        <input
+          id="e-year"
+          type="number"
+          formControlName="year"
+          min="1900"
+          [max]="anioActual"
+          [class.invalid]="ctrl('year').invalid && ctrl('year').touched"
+        />
+        <span class="field-error" *ngIf="ctrl('year').invalid && ctrl('year').touched">Año entre 1900 y {{ anioActual }}</span>
+      </div>
+    </div>
+
+    <!-- ── Precio ──────────────────────────────────────────────────── -->
+    <div class="form-row">
+      <div class="form-field half">
+        <label for="e-price">Precio (€) *</label>
+        <input
+          id="e-price"
+          type="number"
+          formControlName="price"
+          min="0.01"
+          step="0.01"
+          [class.invalid]="ctrl('price').invalid && ctrl('price').touched"
+        />
+        <span class="field-error" *ngIf="ctrl('price').invalid && ctrl('price').touched">Precio debe ser mayor que 0</span>
+      </div>
+    </div>
+
+    <!-- ── Imagen ──────────────────────────────────────────────────── -->
+    <div class="form-field">
+      <label>Imagen <span class="label-optional">(déjala en blanco para mantener la actual)</span></label>
+      <div class="upload-area" [class.has-preview]="imagenPreview">
+        <input
+          type="file"
+          id="e-image-upload"
+          accept="image/jpeg,image/png,image/webp"
+          class="file-input"
+          (change)="onFileChange($event)"
+        />
+        <label for="e-image-upload" class="upload-label">
+          <ng-container *ngIf="!imagenPreview">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 10l-4-4-4 4M12 6v10"/>
+            </svg>
+            <span>Haz clic para cambiar la imagen</span>
+            <small>JPG, PNG o WEBP — máx. 5 MB</small>
+          </ng-container>
+          <ng-container *ngIf="imagenPreview">
+            <img [src]="imagenPreview" alt="Preview" class="img-preview" />
+            <span class="change-img">Cambiar imagen</span>
+          </ng-container>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── Tallas ─────────────────────────────────────────────────── -->
+    <div class="form-field">
+      <div class="sizes-header">
+        <label>Tallas y stock *</label>
+        <button type="button" class="btn-add-size" (click)="addTalla()">+ Añadir talla</button>
+      </div>
+      <div class="sizes-list" formArrayName="sizes">
+        <div
+          class="size-row"
+          *ngFor="let talla of sizes.controls; let i = index"
+          [formGroupName]="i"
+        >
+          <select formControlName="size" [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched">
+            <option value="" disabled>Talla</option>
+            <option *ngFor="let t of TALLAS_DISPONIBLES" [value]="t">{{ t }}</option>
+          </select>
+          <input
+            type="number"
+            formControlName="stock"
+            placeholder="Stock"
+            min="0"
+            [class.invalid]="talla.get('stock')!.invalid && talla.get('stock')!.touched"
+          />
+          <button
+            type="button"
+            class="btn-remove-size"
+            (click)="removeTalla(i)"
+            [disabled]="sizes.length === 1"
+            aria-label="Eliminar talla"
+          >✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Error global ───────────────────────────────────────────── -->
+    <div class="error-global" *ngIf="errorMsg" role="alert">{{ errorMsg }}</div>
+
+    <!-- ── Acciones ───────────────────────────────────────────────── -->
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="cancelar()" [disabled]="enviando">Cancelar</button>
+      <button type="submit" class="btn-submit" [disabled]="enviando">
+        <span *ngIf="!enviando">Guardar cambios</span>
+        <span *ngIf="enviando" class="spinner-dots"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+
+  </form>
+</div>

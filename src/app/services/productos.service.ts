@@ -52,4 +52,30 @@ export class ProductosService {
       { headers }
     );
   }
+
+  /** Actualiza un producto (requiere rol admin). Recibe FormData (imagen opcional). */
+  actualizar(id: string, formData: FormData): Observable<{ mensaje: string; producto: ProductoApi }> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    formData.append('id', id);
+    return this.http.post<{ mensaje: string; producto: ProductoApi }>(
+      `${this.baseUrl}/update.php`,
+      formData,
+      { headers }
+    );
+  }
+
+  /** Elimina un producto (requiere rol admin). */
+  eliminar(id: string): Observable<{ mensaje: string; id: number }> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+    return this.http.post<{ mensaje: string; id: number }>(
+      `${this.baseUrl}/delete.php`,
+      { id },
+      { headers }
+    );
+  }
 }

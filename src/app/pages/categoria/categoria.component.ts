@@ -5,6 +5,7 @@ import { TiendaService } from '../../services/tienda.service';
 import { AuthService } from '../../services/auth.service';
 import { ProductosService, ProductoApi } from '../../services/productos.service';
 import { AnadirProductoComponent } from '../../components/anadir-producto/anadir-producto.component';
+import { EditarProductoComponent } from '../../components/editar-producto/editar-producto.component';
 import { Categoria } from '../../models/categoria.model';
 import { Producto } from '../../models/producto.model';
 
@@ -26,7 +27,7 @@ function apiToProducto(p: ProductoApi): Producto {
 @Component({
   selector: 'app-categoria',
   standalone: true,
-  imports: [CommonModule, AnadirProductoComponent],
+  imports: [CommonModule, AnadirProductoComponent, EditarProductoComponent],
   templateUrl: './categoria.component.html',
   styleUrl: './categoria.component.css',
 })
@@ -37,12 +38,13 @@ export class CategoriaComponent implements OnInit {
   private authService      = inject(AuthService);
   private productosService = inject(ProductosService);
 
-  categoria:    Categoria | undefined;
-  productos:    Producto[] = [];
-  cargando:     boolean = false;
-  mostrarModal: boolean = false;
-  slugActual:   string  = '';
-  esAdmin:      boolean = false;
+  categoria:       Categoria | undefined;
+  productos:       Producto[] = [];
+  cargando:        boolean = false;
+  mostrarModal:    boolean = false;
+  productoEditando: Producto | null = null;
+  slugActual:      string  = '';
+  esAdmin:         boolean = false;
 
   ngOnInit(): void {
     this.esAdmin = this.authService.isAdmin();
@@ -67,11 +69,36 @@ export class CategoriaComponent implements OnInit {
     });
   }
 
+
+
   abrirModal(): void  { this.mostrarModal = true; }
   cerrarModal(): void { this.mostrarModal = false; }
 
   onProductoCreado(nuevo: ProductoApi): void {
     this.productos = [apiToProducto(nuevo), ...this.productos];
+  }
+
+  editarProducto(producto: Producto): void {
+    this.productoEditando = producto;
+  }
+
+  cerrarModalEditar(): void {
+    this.productoEditando = null;
+  }
+
+  onProductoActualizado(actualizado: ProductoApi): void {
+    const p = apiToProducto(actualizado);
+    this.productos = this.productos.map(x => x.id === p.id ? p : x);
+  }
+
+  eliminarProducto(id: string): void {
+    if (!confirm('¿Seguro que quieres eliminar este producto? Esta acción no se puede deshacer.')) return;
+    this.productosService.eliminar(id).subscribe({
+      next: () => {
+        this.productos = this.productos.filter(p => p.id !== id);
+      },
+      error: () => alert('Error al eliminar el producto'),
+    });
   }
 
   volver(): void {
