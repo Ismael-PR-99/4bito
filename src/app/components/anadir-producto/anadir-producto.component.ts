@@ -40,6 +40,14 @@ export class AnadirProductoComponent implements OnInit {
   readonly TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   readonly anioActual = new Date().getFullYear();
 
+  esCategoriaConMedidas(slug: string): boolean {
+    return ['retro-cuadros', 'retro-objetos'].includes(slug);
+  }
+
+  get conMedidas(): boolean {
+    return this.esCategoriaConMedidas(this.categoriaSlug);
+  }
+
   ngOnInit(): void {
     this.form = this.fb.group({
       name:   ['', [Validators.required, Validators.minLength(3)]],

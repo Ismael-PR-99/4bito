@@ -68,6 +68,7 @@
 <ng-container *ngIf="productoEditando">
   <app-editar-producto
     [producto]="$any(productoEditando)"
+    [categoriaSlug]="slugActual"
     (cerrar)="cerrarModalEditar()"
     (productoActualizado)="onProductoActualizado($event)"
   ></app-editar-producto>

@@ -27,6 +27,7 @@ import { Producto } from '../../models/producto.model';
 })
 export class EditarProductoComponent implements OnInit {
   @Input()  producto!: Producto;
+  @Input()  categoriaSlug: string = '';
   @Output() cerrar              = new EventEmitter<void>();
   @Output() productoActualizado = new EventEmitter<ProductoApi>();
 
@@ -40,6 +41,14 @@ export class EditarProductoComponent implements OnInit {
   errorMsg  = '';
   readonly TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   readonly anioActual = new Date().getFullYear();
+
+  esCategoriaConMedidas(slug: string): boolean {
+    return ['retro-cuadros', 'retro-objetos'].includes(slug);
+  }
+
+  get conMedidas(): boolean {
+    return this.esCategoriaConMedidas(this.categoriaSlug || this.producto?.categoriaSlug || '');
+  }
 
   ngOnInit(): void {
     // Prellenar el formulario con los datos actuales del producto

@@ -79,6 +79,14 @@ export class ProductoComponent implements OnInit {
     this.errorTalla = false;
   }
 
+  esCategoriaConMedidas(slug: string): boolean {
+    return ['retro-cuadros', 'retro-objetos'].includes(slug);
+  }
+
+  get conMedidas(): boolean {
+    return this.esCategoriaConMedidas(this.producto?.categoriaSlug ?? '');
+  }
+
   cambiarCantidad(delta: number): void {
     const nueva = this.cantidad + delta;
     if (nueva >= 1 && nueva <= 10) {

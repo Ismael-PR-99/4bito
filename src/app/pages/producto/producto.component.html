@@ -18,9 +18,9 @@
         <span class="precio-original" *ngIf="producto.precioOriginal">{{ producto.precioOriginal }}&#8364;</span>
       </div>
 
-      <!-- Selector de talla -->
+      <!-- Selector de talla / medida -->
       <div class="seccion-tallas">
-        <p class="seccion-label">TALLA <span class="talla-seleccionada-tag" *ngIf="tallaSeleccionada">{{ tallaSeleccionada }}</span></p>
+        <p class="seccion-label">{{ conMedidas ? 'MEDIDA' : 'TALLA' }} <span class="talla-seleccionada-tag" *ngIf="tallaSeleccionada">{{ tallaSeleccionada }}</span></p>
         <div class="tallas-grid">
           <button
             *ngFor="let talla of producto.tallas"
@@ -29,7 +29,7 @@
             (click)="seleccionarTalla(talla)"
           >{{ talla }}</button>
         </div>
-        <p class="error-talla" *ngIf="errorTalla">Selecciona una talla</p>
+        <p class="error-talla" *ngIf="errorTalla">{{ conMedidas ? 'Selecciona una medida' : 'Selecciona una talla' }}</p>
       </div>
 
       <!-- Selector de cantidad -->

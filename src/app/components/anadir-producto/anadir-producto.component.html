@@ -6,7 +6,7 @@
 
   <div class="modal-header">
     <h2 class="modal-title" id="modal-title">
-      <span class="modal-icon">+</span> Nueva Camiseta
+      <span class="modal-icon">+</span> {{ conMedidas ? 'Nuevo Producto' : 'Nueva Camiseta' }}
     </h2>
     <button class="btn-close" type="button" (click)="cancelar()" aria-label="Cerrar modal">✕</button>
   </div>
@@ -16,7 +16,7 @@
     <!-- ── Fila 1: nombre + equipo ─────────────────────────────────── -->
     <div class="form-row two-col">
       <div class="form-field">
-        <label for="name">Nombre de la camiseta *</label>
+        <label for="name">{{ conMedidas ? 'Nombre del producto' : 'Nombre de la camiseta' }} *</label>
         <input
           id="name"
           type="text"
@@ -126,8 +126,8 @@
     <!-- ── Tallas ─────────────────────────────────────────────────── -->
     <div class="form-field">
       <div class="sizes-header">
-        <label>Tallas y stock *</label>
-        <button type="button" class="btn-add-size" (click)="addTalla()">+ Añadir talla</button>
+        <label>{{ conMedidas ? 'Medidas y stock' : 'Tallas y stock' }} *</label>
+        <button type="button" class="btn-add-size" (click)="addTalla()">{{ conMedidas ? '+ Añadir medida' : '+ Añadir talla' }}</button>
       </div>
 
       <div class="sizes-list" formArrayName="sizes">
@@ -136,10 +136,20 @@
           *ngFor="let talla of sizes.controls; let i = index"
           [formGroupName]="i"
         >
-          <select formControlName="size" [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched">
-            <option value="" disabled>Talla</option>
-            <option *ngFor="let t of TALLAS_DISPONIBLES" [value]="t">{{ t }}</option>
-          </select>
+          <ng-container *ngIf="conMedidas; else seleccionTalla">
+            <input
+              type="text"
+              formControlName="size"
+              placeholder="Medida (ej: 30x40cm)"
+              [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched"
+            />
+          </ng-container>
+          <ng-template #seleccionTalla>
+            <select formControlName="size" [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched">
+              <option value="" disabled>Talla</option>
+              <option *ngFor="let t of TALLAS_DISPONIBLES" [value]="t">{{ t }}</option>
+            </select>
+          </ng-template>
 
           <input
             type="number"
@@ -171,7 +181,7 @@
         Cancelar
       </button>
       <button type="submit" class="btn-submit" [disabled]="enviando">
-        <span *ngIf="!enviando">Guardar camiseta</span>
+        <span *ngIf="!enviando">{{ conMedidas ? 'Guardar producto' : 'Guardar camiseta' }}</span>
         <span *ngIf="enviando" class="spinner-dots">
           <span></span><span></span><span></span>
         </span>

@@ -16,7 +16,7 @@
     <!-- ── Fila 1: nombre + equipo ─────────────────────────────────── -->
     <div class="form-row two-col">
       <div class="form-field">
-        <label for="e-name">Nombre de la camiseta *</label>
+        <label for="e-name">{{ conMedidas ? 'Nombre del producto' : 'Nombre de la camiseta' }} *</label>
         <input
           id="e-name"
           type="text"
@@ -109,8 +109,8 @@
     <!-- ── Tallas ─────────────────────────────────────────────────── -->
     <div class="form-field">
       <div class="sizes-header">
-        <label>Tallas y stock *</label>
-        <button type="button" class="btn-add-size" (click)="addTalla()">+ Añadir talla</button>
+        <label>{{ conMedidas ? 'Medidas y stock' : 'Tallas y stock' }} *</label>
+        <button type="button" class="btn-add-size" (click)="addTalla()">{{ conMedidas ? '+ Añadir medida' : '+ Añadir talla' }}</button>
       </div>
       <div class="sizes-list" formArrayName="sizes">
         <div
@@ -118,10 +118,20 @@
           *ngFor="let talla of sizes.controls; let i = index"
           [formGroupName]="i"
         >
-          <select formControlName="size" [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched">
-            <option value="" disabled>Talla</option>
-            <option *ngFor="let t of TALLAS_DISPONIBLES" [value]="t">{{ t }}</option>
-          </select>
+          <ng-container *ngIf="conMedidas; else seleccionTallaEditar">
+            <input
+              type="text"
+              formControlName="size"
+              placeholder="Medida (ej: 30x40cm)"
+              [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched"
+            />
+          </ng-container>
+          <ng-template #seleccionTallaEditar>
+            <select formControlName="size" [class.invalid]="talla.get('size')!.invalid && talla.get('size')!.touched">
+              <option value="" disabled>Talla</option>
+              <option *ngFor="let t of TALLAS_DISPONIBLES" [value]="t">{{ t }}</option>
+            </select>
+          </ng-template>
           <input
             type="number"
             formControlName="stock"
