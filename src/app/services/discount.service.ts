@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, map, tap } from 'rxjs';
+import { Observable, BehaviorSubject, map, tap, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ProductosService } from './productos.service';
 
@@ -57,28 +57,33 @@ export class DiscountService {
     discountPercent: number;
     finalPrice: number;
     validUntil: string;
-  }): Observable<{ ok: boolean; piezaId: number }> {
+  }): Observable<PiezaSemana | null> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
-    return this.http.post<{ ok: boolean; piezaId: number }>(
-      `${this.apiUrl}/set.php`,
-      payload,
-      { headers }
-    ).pipe(
-      tap(() => {
-        // Actualizar store local inmediatamente
-        this.productos.applyLocalDiscount(
-          payload.productId,
-          payload.discountPercent,
-          payload.finalPrice
-        );
-        // Recargar pieza activa para actualizar el stream
-        this.cargarPieza().subscribe();
-      })
-    );
+
+    // Incluir el token en el body como fallback para entornos WAMP/CGI
+    // donde Apache puede filtrar el header Authorization
+    const body = { ...payload, _token: token };
+
+    // Capturar la pieza anterior para resetear su descuento en el store
+    const prevPieza = this._pieza$.getValue();
+
+    return this.http
+      .post<{ ok: boolean; piezaId: number }>(`${this.apiUrl}/set.php`, body, { headers })
+      .pipe(
+        // Encadenar: tras el POST exitoso, recargar la pieza desde la BD
+        switchMap(() => {
+          // Resetear descuento del producto ANTERIOR en el store local
+          if (prevPieza && prevPieza.productId !== payload.productId) {
+            this.productos.resetLocalDiscount(prevPieza.productId);
+          }
+          // Recargar pieza y store de productos desde la BD
+          return this.cargarPieza();
+        })
+      );
   }
 
   /** Desactiva piezas expiradas (sin autenticación — expiración automática) */

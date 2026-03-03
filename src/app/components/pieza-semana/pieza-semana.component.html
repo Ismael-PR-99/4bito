@@ -26,7 +26,7 @@
   @if (!cargando() && pieza()) {
     <div class="ps__card">
       <div class="ps__img-wrap">
-        <img [src]="'/' + pieza()!.imageUrl" [alt]="pieza()!.name" class="ps__img" />
+        <img [src]="pieza()!.imageUrl" [alt]="pieza()!.name" class="ps__img" />
         <span class="ps__badge">-{{ badgePercent() }}%</span>
       </div>
 

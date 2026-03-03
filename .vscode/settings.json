@@ -1,0 +1,36 @@
+{
+  // ── TypeScript ─────────────────────────────────────
+  "typescript.tsdk": "node_modules/typescript/lib",
+
+  // ── Excluir node_modules del análisis de errores ──
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+
+  // ── Ocultar node_modules del panel de Problemas ───
+  "problems.decorations.enabled": true,
+
+  // ── PHP: desactivar validador básico de VS Code ───
+  // (Intelephense ya cubre esto sin falsos positivos de require_once)
+  "php.validate.enable": false,
+
+  // ── Intelephense: rutas stubs para evitar falsos positivos ──
+  "intelephense.diagnostics.undefinedTypes": false,
+  "intelephense.diagnostics.undefinedFunctions": false,
+  "intelephense.diagnostics.undefinedConstants": false,
+  "intelephense.diagnostics.undefinedClassConstants": false,
+  "intelephense.diagnostics.undefinedMethods": false,
+  "intelephense.diagnostics.undefinedProperties": false,
+  "intelephense.diagnostics.undefinedVariables": false,
+
+  // ── Excluir node_modules de búsquedas y watcher ───
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true
+  },
+
+  // ── Evitar que VS Code analice tsconfig.json dentro de node_modules ──
+  "typescript.surveyor.enabled": false
+}

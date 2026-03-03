@@ -105,10 +105,17 @@ export class AdminComponent implements OnInit {
       next: () => {
         this.guardando.set(false);
         this.guardadoOk.set(true);
+        // Recargar lista completa de productos para reflejar descuentos actualizados
+        this.productos.getAllProducts().subscribe(list => this.allProducts.set(list));
       },
       error: (err) => {
         this.guardando.set(false);
-        this.errorGuardar.set(err?.error?.error ?? 'Error al guardar. Verifica tu sesión.');
+        const serverMsg = err?.error?.error ?? err?.message ?? '';
+        this.errorGuardar.set(
+          serverMsg
+            ? `Error: ${serverMsg}`
+            : 'Error al guardar. Verifica que tu sesión siga activa.'
+        );
       },
     });
   }
