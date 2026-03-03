@@ -52,20 +52,15 @@
   background: #111;
 }
 
-/* Ranking */
+/* Ranking — colores individuales via [style.color] */
 .banda__rank {
   font-family: var(--font-display);
   font-size: 3.5rem;
   font-weight: 900;
   line-height: 1;
-  color: #2d2d2d;
   text-align: center;
   min-width: 60px;
   transition: color 0.2s;
-}
-
-.banda__rank.gold {
-  color: #f5c518;
 }
 
 /* Imagen */
@@ -196,3 +191,24 @@
     font-size: 2.5rem;
   }
 }
+
+/* ─── Skeleton ─── */
+@keyframes shimmer {
+  from { background-position:  200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.sk {
+  background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 2px;
+}
+.sk-rank  { width: 48px; height: 48px; border-radius: 4px; }
+.sk-img   { width: 70px;  height: 70px; flex-shrink: 0; }
+.sk-line  { height: 10px; margin-bottom: 6px; }
+.sk-line--wide   { width: 70%; }
+.sk-line--narrow { width: 40%; }
+.sk-line--price  { width: 60px; height: 18px; }
+.sk-bar   { width: 100%; height: 4px; margin-top: 4px; }
+.skeleton-row { opacity: 0.6; }

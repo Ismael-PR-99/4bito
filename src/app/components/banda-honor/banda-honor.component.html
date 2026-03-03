@@ -1,10 +1,27 @@
 <section class="banda">
-  <h2 class="banda__title">Banda de Honor</h2>
-  <p class="banda__sub">Las piezas más buscadas de todos los tiempos</p>
+  <h2 class="banda__title">Banda de Precios</h2>
+  <p class="banda__sub">Las piezas más exclusivas de nuestra colección</p>
 
-  <ol class="banda__list">
+  <!-- Skeleton -->
+  <ol class="banda__list" *ngIf="cargando()">
+    <li class="banda__item skeleton-row" *ngFor="let s of [1,2,3,4,5]">
+      <div class="sk sk-rank"></div>
+      <div class="sk sk-img"></div>
+      <div class="banda__details">
+        <div class="sk sk-line sk-line--wide"></div>
+        <div class="sk sk-line sk-line--narrow"></div>
+        <div class="sk sk-bar"></div>
+      </div>
+      <div class="banda__right">
+        <div class="sk sk-line sk-line--price"></div>
+      </div>
+    </li>
+  </ol>
+
+  <ol class="banda__list" *ngIf="!cargando()">
     <li class="banda__item" *ngFor="let p of ranked(); let i = index">
-      <span class="banda__rank" [class.gold]="i < 3">{{ i + 1 }}</span>
+
+      <span class="banda__rank" [style.color]="rankColor(i)">{{ i + 1 }}</span>
 
       <div class="banda__img-wrap">
         <img [src]="p.imageUrl" [alt]="p.name" class="banda__img" />
@@ -12,17 +29,17 @@
 
       <div class="banda__details">
         <p class="banda__name">{{ p.name }}</p>
-        <p class="banda__meta">{{ p.country }} · {{ p.year }}</p>
+        <p class="banda__meta">{{ p.team }} &middot; {{ p.year }}</p>
         <div class="banda__bar-wrap">
-          <div class="banda__bar" [style.width]="barWidth(p.unitsSold)"></div>
+          <div class="banda__bar" [style.width]="barWidth(p.price)"></div>
         </div>
       </div>
 
       <div class="banda__right">
-        <p class="banda__price">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</p>
-        <p class="banda__sold">{{ p.unitsSold | number }} uds.</p>
-        <button class="banda__btn" (click)="onView(p)">Ver</button>
+        <p class="banda__price">{{ p.price }}&euro;</p>
+        <button class="banda__btn" (click)="goTo(p.id)">Ver</button>
       </div>
+
     </li>
   </ol>
 </section>
