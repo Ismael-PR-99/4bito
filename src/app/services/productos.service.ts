@@ -24,7 +24,8 @@ export interface TallaForm {
 
 @Injectable({ providedIn: 'root' })
 export class ProductosService {
-  private readonly baseUrl = 'http://localhost/4bito/4bito-api/products';
+  private readonly baseUrl    = 'http://localhost/4bito/4bito-api/products';
+  private readonly decadesUrl = 'http://localhost/4bito/4bito-api/decades';
   private http    = inject(HttpClient);
   private auth    = inject(AuthService);
 
@@ -77,5 +78,19 @@ export class ProductosService {
       { id },
       { headers }
     );
+  }
+
+  /** Devuelve las décadas activas desde la BD */
+  getDecades(): Observable<string[]> {
+    return this.http
+      .get<{ decades: string[] }>(`${this.decadesUrl}/list.php`)
+      .pipe(map(res => res.decades));
+  }
+
+  /** Devuelve productos filtrados por década (ej: '90s') */
+  getByDecade(decade: string): Observable<ProductoApi[]> {
+    return this.http
+      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?decade=${decade}`)
+      .pipe(map(res => res.productos));
   }
 }

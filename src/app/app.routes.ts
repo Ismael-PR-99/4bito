@@ -34,6 +34,11 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
   },
   {
+    path: 'decada/:decade',
+    loadComponent: () =>
+      import('./pages/decada/decada.component').then(m => m.DecadaComponent),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

@@ -1,0 +1,42 @@
+<div class="decada-page">
+
+  <div class="decada-header">
+    <a class="btn-back" routerLink="/">← Volver</a>
+    <h1 class="decada-title">Colección {{ decade() }}</h1>
+  </div>
+
+  <!-- Spinner -->
+  <div class="loading-state" *ngIf="cargando()">
+    <span class="loader-dots"><span></span><span></span><span></span></span>
+    <p>Cargando colección…</p>
+  </div>
+
+  <!-- Error -->
+  <p class="error-msg" *ngIf="error()">{{ error() }}</p>
+
+  <!-- Grid de productos -->
+  <div class="productos-grid" *ngIf="!cargando() && !error()">
+
+    <a
+      class="producto-card"
+      *ngFor="let p of products()"
+      [routerLink]="['/producto', p.id]"
+    >
+      <div class="producto-img-wrap">
+        <img [src]="p.imageUrl" [alt]="p.name" class="producto-img" loading="lazy" />
+      </div>
+      <div class="producto-info">
+        <span class="producto-nombre">{{ p.name }}</span>
+        <span class="producto-meta">{{ p.team }} &bull; {{ p.year }}</span>
+        <span class="producto-precio">{{ p.price }}€</span>
+      </div>
+    </a>
+
+    <!-- Estado vacío -->
+    <div class="empty-state" *ngIf="products().length === 0">
+      <p>No hay productos disponibles para los {{ decade() }}.</p>
+    </div>
+
+  </div>
+
+</div>

@@ -1,34 +1,56 @@
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
+  OnInit,
+  inject,
   signal,
-  computed,
 } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { RetroProduct } from '../../models/product.model';
-
-type Decade = '70s' | '80s' | '90s' | '00s';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { ProductosService, ProductoApi } from '../../services/productos.service';
 
 @Component({
   selector: 'app-por-decada',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe],
+  imports: [CommonModule, RouterLink],
   templateUrl: './por-decada.component.html',
   styleUrl: './por-decada.component.css',
 })
-export class PorDecadaComponent {
-  @Input() products: RetroProduct[] = [];
+export class PorDecadaComponent implements OnInit {
+  private productosService = inject(ProductosService);
 
-  readonly decades: Decade[] = ['70s', '80s', '90s', '00s'];
-  readonly activeDecade = signal<Decade>('90s');
+  decades           = signal<string[]>([]);
+  activeDecade      = signal<string>('');
+  products          = signal<ProductoApi[]>([]);
+  cargandoDecadas   = signal<boolean>(true);
+  cargandoProductos = signal<boolean>(false);
 
-  readonly filteredProducts = computed(() =>
-    this.products.filter((p) => p.decade === this.activeDecade())
-  );
+  ngOnInit(): void {
+    this.productosService.getDecades().subscribe({
+      next: list => {
+        this.decades.set(list);
+        this.cargandoDecadas.set(false);
+        if (list.length > 0) {
+          this.setDecade(list[0]);
+        }
+      },
+      error: () => this.cargandoDecadas.set(false),
+    });
+  }
 
-  setDecade(d: Decade): void {
-    this.activeDecade.set(d);
+  setDecade(decade: string): void {
+    if (decade === this.activeDecade()) return;
+    this.activeDecade.set(decade);
+    this.cargandoProductos.set(true);
+    this.productosService.getByDecade(decade).subscribe({
+      next: list => {
+        this.products.set(list);
+        this.cargandoProductos.set(false);
+      },
+      error: () => {
+        this.products.set([]);
+        this.cargandoProductos.set(false);
+      },
+    });
   }
 }
+

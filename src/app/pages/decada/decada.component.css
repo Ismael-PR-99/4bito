@@ -1,0 +1,134 @@
+/* ───────── Página Década ───────── */
+.decada-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.decada-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.btn-back {
+  font-size: 0.9rem;
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.btn-back:hover { color: #fff; }
+
+.decada-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ───────── Grid ───────── */
+.productos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.producto-card {
+  background: #1a1a1a;
+  border-radius: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.25s, box-shadow 0.25s;
+  cursor: pointer;
+}
+.producto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.producto-img-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #111;
+}
+.producto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.producto-card:hover .producto-img { transform: scale(1.05); }
+
+.producto-info {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.producto-nombre {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.producto-meta {
+  font-size: 0.75rem;
+  color: #888;
+}
+.producto-precio {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00d084;
+  margin-top: 0.25rem;
+}
+
+/* ───────── Estados ───────── */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 0;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.loader-dots { display: flex; gap: 6px; }
+.loader-dots span {
+  width: 8px;
+  height: 8px;
+  background: #00d084;
+  border-radius: 50%;
+  animation: dot-bounce 0.6s infinite alternate;
+}
+.loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-8px); }
+}
+
+.error-msg {
+  text-align: center;
+  color: #ff6b6b;
+  padding: 2rem;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #666;
+  padding: 3rem;
+}
+
+/* ───────── Responsive ───────── */
+@media (max-width: 1024px) {
+  .productos-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) {
+  .productos-grid { grid-template-columns: repeat(2, 1fr); }
+  .decada-title { font-size: 1.4rem; }
+}

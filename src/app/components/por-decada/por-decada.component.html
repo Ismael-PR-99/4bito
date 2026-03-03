@@ -1,10 +1,15 @@
 <section class="decada">
   <h2 class="decada__title">Por Década</h2>
 
-  <!-- Filtros -->
-  <div class="decada__filters">
+  <!-- Spinner décadas -->
+  <div class="decada__loading" *ngIf="cargandoDecadas()">
+    <span class="loader-dots"><span></span><span></span><span></span></span>
+  </div>
+
+  <!-- Filtros dinámicos desde BD -->
+  <div class="decada__filters" *ngIf="!cargandoDecadas()">
     <button
-      *ngFor="let d of decades"
+      *ngFor="let d of decades()"
       class="decada__filter-btn"
       [class.active]="d === activeDecade()"
       (click)="setDecade(d)"
@@ -14,23 +19,35 @@
   </div>
 
   <!-- Grid -->
-  <div class="decada__grid">
-    <div class="decada__card" *ngFor="let p of filteredProducts()">
-      <div class="decada__card-img" [style.background-image]="'url(' + p.imageUrl + ')'">
-        <div class="decada__overlay">
-          <p class="decada__country">{{ p.country }}</p>
-          <p class="decada__year">{{ p.year }}</p>
-        </div>
-      </div>
-      <div class="decada__card-body">
-        <p class="decada__name">{{ p.name }}</p>
-        <p class="decada__price">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</p>
-      </div>
+  <div class="decada__grid" *ngIf="!cargandoDecadas()">
+
+    <!-- Spinner productos -->
+    <div class="decada__spinner" *ngIf="cargandoProductos()">
+      <span class="loader-dots"><span></span><span></span><span></span></span>
     </div>
 
-    <!-- Empty state -->
-    <div class="decada__empty" *ngIf="filteredProducts().length === 0">
-      <p>No hay productos para esta década aún.</p>
-    </div>
+    <ng-container *ngIf="!cargandoProductos()">
+      <a
+        class="decada__card"
+        *ngFor="let p of products()"
+        [routerLink]="['/producto', p.id]"
+      >
+        <div class="decada__card-img" [style.background-image]="'url(' + p.imageUrl + ')'">
+          <div class="decada__overlay">
+            <p class="decada__country">{{ p.team }}</p>
+            <p class="decada__year">{{ p.year }}</p>
+          </div>
+        </div>
+        <div class="decada__card-body">
+          <p class="decada__name">{{ p.name }}</p>
+          <p class="decada__price">{{ p.price }}€</p>
+        </div>
+      </a>
+
+      <!-- Empty state -->
+      <div class="decada__empty" *ngIf="products().length === 0">
+        <p>No hay productos para esta década aún.</p>
+      </div>
+    </ng-container>
   </div>
 </section>
