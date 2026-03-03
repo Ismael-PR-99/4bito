@@ -27,8 +27,10 @@ export class HomeComponent {
 
   readonly categorias: Categoria[] = this.tiendaService.getCategorias();
 
+  selectedDecade: string = '';
+
   onDecadeChange(decade: string): void {
-    console.log('Década seleccionada:', decade);
+    this.selectedDecade = decade;
   }
 
   onAddToCart(product: RetroProduct): void {
