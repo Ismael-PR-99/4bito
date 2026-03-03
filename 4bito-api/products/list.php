@@ -19,13 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 $category = trim($_GET['category'] ?? '');
 $decade   = trim($_GET['decade']   ?? '');
-
-// Se requiere al menos uno de los dos
-if (empty($category) && empty($decade)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Se requiere el parámetro category o decade']);
-    exit();
-}
+$isNew    = isset($_GET['new']) && $_GET['new'] === '1';
+$sort     = trim($_GET['sort'] ?? 'newest'); // newest | price-asc | price-desc
 
 // Convierte "90s" → [1990, 1999], "00s" → [2000, 2009], etc.
 function decadeToRange(string $dec): ?array {
@@ -42,7 +37,7 @@ try {
     $params = [];
 
     if (!empty($category)) {
-        $where[]            = 'category = :category';
+        $where[]             = 'category = :category';
         $params[':category'] = $category;
     }
 
@@ -53,15 +48,27 @@ try {
             echo json_encode(['error' => 'Formato de décade inválido (ej: 90s)']);
             exit();
         }
-        $where[]             = 'year BETWEEN :year_from AND :year_to';
+        $where[]              = 'year BETWEEN :year_from AND :year_to';
         $params[':year_from'] = $range[0];
         $params[':year_to']   = $range[1];
     }
 
-    $sql  = "SELECT id, name, price, team, year, league, image_url, category, sizes
+    if ($isNew) {
+        $where[] = '(is_new = 1 OR created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY))';
+    }
+
+    $whereSQL = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
+
+    $orderSQL = match($sort) {
+        'price-asc'  => 'ORDER BY price ASC',
+        'price-desc' => 'ORDER BY price DESC',
+        default      => 'ORDER BY created_at DESC',
+    };
+
+    $sql  = "SELECT id, name, price, team, year, league, image_url, category, sizes, is_new, created_at
              FROM productos
-             WHERE " . implode(' AND ', $where) . "
-             ORDER BY created_at DESC";
+             $whereSQL
+             $orderSQL";
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -77,6 +84,7 @@ try {
             'imageUrl' => $row['image_url'],
             'category' => $row['category'],
             'sizes'    => json_decode($row['sizes'], true) ?? [],
+            'isNew'    => (bool) $row['is_new'],
         ];
     }, $rows);
 

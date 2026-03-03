@@ -14,7 +14,10 @@ export interface ProductoApi {
   imageUrl: string;
   category: string;
   sizes: { size: string; stock: number }[];
+  isNew?: boolean;
 }
+
+export type SortOption = 'newest' | 'price-asc' | 'price-desc';
 
 // ── Modelo de talla en el formulario ──────────────────────────────────────
 export interface TallaForm {
@@ -88,9 +91,40 @@ export class ProductosService {
   }
 
   /** Devuelve productos filtrados por década (ej: '90s') */
-  getByDecade(decade: string): Observable<ProductoApi[]> {
+  getByDecade(decade: string, sort: SortOption = 'newest'): Observable<ProductoApi[]> {
     return this.http
-      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?decade=${decade}`)
+      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?decade=${decade}&sort=${sort}`)
+      .pipe(map(res => res.productos));
+  }
+
+  /** Devuelve todos los productos sin filtro */
+  getAllProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
+    return this.http
+      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?sort=${sort}`)
+      .pipe(map(res => res.productos));
+  }
+
+  /** Devuelve novedades (is_new=1 o últimos 30 días) */
+  getNewProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
+    return this.http
+      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?new=1&sort=${sort}`)
+      .pipe(map(res => res.productos));
+  }
+
+  /** Devuelve productos con múltiples filtros combinables */
+  getFiltered(params: {
+    decade?: string;
+    category?: string;
+    isNew?: boolean;
+    sort?: SortOption;
+  }): Observable<ProductoApi[]> {
+    const q = new URLSearchParams();
+    if (params.decade)   q.set('decade',   params.decade);
+    if (params.category) q.set('category', params.category);
+    if (params.isNew)    q.set('new', '1');
+    if (params.sort)     q.set('sort',     params.sort);
+    return this.http
+      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?${q.toString()}`)
       .pipe(map(res => res.productos));
   }
 }

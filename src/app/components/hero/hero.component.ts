@@ -4,8 +4,10 @@ import {
   EventEmitter,
   OnDestroy,
   signal,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero',
@@ -15,6 +17,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './hero.component.css',
 })
 export class HeroComponent implements OnDestroy {
+  private router = inject(Router);
+
   @Output() decadeChange = new EventEmitter<string>();
 
   readonly decades = ['70s', '80s', '90s', '00s'];
@@ -40,6 +44,14 @@ export class HeroComponent implements OnDestroy {
   setDecade(decade: string): void {
     this.activeDecade.set(decade);
     this.decadeChange.emit(decade);
+  }
+
+  goToCollection(): void {
+    this.router.navigate(['/coleccion']);
+  }
+
+  goToNew(): void {
+    this.router.navigate(['/coleccion'], { queryParams: { new: 1 } });
   }
 
   ngOnDestroy(): void {}

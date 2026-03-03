@@ -1,0 +1,126 @@
+<div class="col-page">
+
+  <!-- ── Header ── -->
+  <header class="col-header">
+    <div class="col-header__left">
+      <a class="btn-back" routerLink="/">← Inicio</a>
+      <h1 class="col-title">{{ titulo() }}</h1>
+      <span class="col-badge new-badge" *ngIf="isNew()">NEW IN</span>
+    </div>
+
+    <div class="col-header__right" *ngIf="!cargando()">
+      <span class="col-count">{{ products().length }} productos</span>
+      <button class="btn-clear" *ngIf="hasFilters()" (click)="clearFilters()">
+        ✕ Limpiar filtros
+      </button>
+    </div>
+  </header>
+
+  <div class="col-layout">
+
+    <!-- ── Sidebar ── -->
+    <aside class="col-sidebar">
+
+      <!-- Ordenación -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title">Ordenar por</h3>
+        <ul class="sidebar-list">
+          <li
+            *ngFor="let opt of sortOptions"
+            class="sidebar-item"
+            [class.active]="sort() === opt.value"
+            (click)="setSort(opt.value)"
+          >
+            {{ opt.label }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Novedades toggle -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title">Destacados</h3>
+        <ul class="sidebar-list">
+          <li
+            class="sidebar-item"
+            [class.active]="isNew()"
+            (click)="toggleNew()"
+          >
+            🆕 Novedades
+          </li>
+        </ul>
+      </div>
+
+      <!-- Décadas -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title">Década</h3>
+        <ul class="sidebar-list">
+          <li
+            *ngFor="let d of decades"
+            class="sidebar-item"
+            [class.active]="activeDecade() === d"
+            (click)="setDecade(d)"
+          >
+            {{ d }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Categorías -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title">Categoría</h3>
+        <ul class="sidebar-list">
+          <li
+            *ngFor="let cat of categorias"
+            class="sidebar-item"
+            [class.active]="activeCategory() === cat.slug"
+            (click)="setCategory(cat.slug)"
+          >
+            {{ cat.nombre }}
+          </li>
+        </ul>
+      </div>
+
+    </aside>
+
+    <!-- ── Grid ── -->
+    <main class="col-main">
+
+      <!-- Spinner -->
+      <div class="col-loading" *ngIf="cargando()">
+        <span class="loader-dots"><span></span><span></span><span></span></span>
+        <p>Cargando productos…</p>
+      </div>
+
+      <!-- Error -->
+      <p class="col-error" *ngIf="error()">{{ error() }}</p>
+
+      <!-- Grid de productos -->
+      <div class="col-grid" *ngIf="!cargando() && !error()">
+
+        <a
+          class="prod-card"
+          *ngFor="let p of products()"
+          [routerLink]="['/producto', p.id]"
+        >
+          <div class="prod-img-wrap">
+            <img [src]="p.imageUrl" [alt]="p.name" loading="lazy" />
+            <span class="prod-new-tag" *ngIf="p.isNew">NEW</span>
+          </div>
+          <div class="prod-info">
+            <span class="prod-name">{{ p.name }}</span>
+            <span class="prod-meta">{{ p.team }} · {{ p.year }}</span>
+            <span class="prod-price">{{ p.price }}€</span>
+          </div>
+        </a>
+
+        <!-- Empty state -->
+        <div class="col-empty" *ngIf="products().length === 0">
+          <p>No hay productos para esta selección.</p>
+          <button class="btn-clear-lg" (click)="clearFilters()">Ver toda la colección</button>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
