@@ -10,6 +10,10 @@
       <a [routerLink]="['/categoria', 'retro-chaquetas']" routerLinkActive="active">CASUAL</a>
       <a [routerLink]="['/categoria', 'retro-objetos']" routerLinkActive="active">OBJETOS</a>
       <a [routerLink]="['/']" [routerLinkActiveOptions]="{exact:true}" routerLinkActive="active">NOVEDADES</a>
+
+      <!-- Marcadores en vivo -->
+      <app-live-scores-dropdown></app-live-scores-dropdown>
+
       <button class="cart-btn" (click)="carritoCount = carritoCount + 1">
         <lucide-icon name="shopping-cart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
         <span class="cart-badge" *ngIf="carritoCount > 0">{{ carritoCount }}</span>

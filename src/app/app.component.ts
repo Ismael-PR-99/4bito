@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule, ShoppingCart, User, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import { AuthService } from './services/auth.service';
+import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent],
   providers: [
     { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User }) }
   ],
