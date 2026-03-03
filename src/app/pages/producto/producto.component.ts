@@ -15,16 +15,19 @@ interface CarritoItem {
 }
 
 function apiToProducto(p: ProductoApi): Producto {
+  const hasDiscount = p.discountPercent != null && p.discountPercent > 0 && p.discountedPrice != null;
   return {
-    id:            String(p.id),
-    nombre:        p.name,
-    categoriaSlug: p.category,
-    precio:        p.price,
-    imageUrl:      p.imageUrl,
-    tallas:        p.sizes.map(s => s.size),
-    descripcion:   `${p.team} — ${p.league}`,
-    anio:          p.year,
-    equipo:        p.team,
+    id:             String(p.id),
+    nombre:         p.name,
+    categoriaSlug:  p.category,
+    precio:         hasDiscount ? p.discountedPrice! : p.price,
+    precioOriginal: hasDiscount ? p.price : undefined,
+    discountPercent: hasDiscount ? p.discountPercent : undefined,
+    imageUrl:       p.imageUrl,
+    tallas:         p.sizes.map(s => s.size),
+    descripcion:    `${p.team} — ${p.league}`,
+    anio:           p.year,
+    equipo:         p.team,
   };
 }
 

@@ -97,6 +97,21 @@
   text-decoration: line-through;
 }
 
+.precio-actual--rebajado {
+  color: #00ff6a;
+}
+
+.precio-badge {
+  background: #00ff6a;
+  color: #000;
+  font-size: .8rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: .25rem .55rem;
+  border-radius: 2px;
+  align-self: center;
+}
+
 /* Etiqueta de sección */
 .seccion-label {
   font-family: var(--font-body);

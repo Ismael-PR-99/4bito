@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, BehaviorSubject, map, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // ── Modelo de producto tal como llega de la API ────────────────────────────
@@ -8,6 +8,8 @@ export interface ProductoApi {
   id: number;
   name: string;
   price: number;
+  discountPercent?: number;
+  discountedPrice?: number | null;
   team: string;
   year: number;
   league: string;
@@ -31,6 +33,26 @@ export class ProductosService {
   private readonly decadesUrl = 'http://localhost/4bito/4bito-api/decades';
   private http    = inject(HttpClient);
   private auth    = inject(AuthService);
+
+  /** BehaviorSubject como fuente única de verdad para todos los productos cargados */
+  private readonly _store$ = new BehaviorSubject<ProductoApi[]>([]);
+
+  /** Stream público al que se suscriben los componentes */
+  readonly products$ = this._store$.asObservable();
+
+  /** Actualiza el precio de descuento de un producto en el store local sin recargar */
+  applyLocalDiscount(productId: number, discountPercent: number, discountedPrice: number | null): void {
+    const updated = this._store$.getValue().map(p => {
+      if (p.id !== productId) return p;
+      return { ...p, discountPercent, discountedPrice };
+    });
+    this._store$.next(updated);
+  }
+
+  /** Resetea el descuento de un producto en el store local */
+  resetLocalDiscount(productId: number): void {
+    this.applyLocalDiscount(productId, 0, null);
+  }
 
   /** Devuelve los productos de una categoría desde la API */
   getByCategory(category: string): Observable<ProductoApi[]> {
@@ -97,11 +119,14 @@ export class ProductosService {
       .pipe(map(res => res.productos));
   }
 
-  /** Devuelve todos los productos sin filtro */
+  /** Devuelve todos los productos sin filtro y actualiza el store */
   getAllProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
     return this.http
       .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?sort=${sort}`)
-      .pipe(map(res => res.productos));
+      .pipe(
+        map(res => res.productos),
+        tap(list => this._store$.next(list))
+      );
   }
 
   /** Devuelve novedades (is_new=1 o últimos 30 días) */
@@ -128,3 +153,4 @@ export class ProductosService {
       .pipe(map(res => res.productos));
   }
 }
+

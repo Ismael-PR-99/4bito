@@ -4,6 +4,7 @@ export interface Producto {
   categoriaSlug: string;
   precio: number;
   precioOriginal?: number;
+  discountPercent?: number;
   imageUrl: string;
   tallas: string[];
   descripcion: string;

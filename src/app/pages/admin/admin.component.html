@@ -1,0 +1,164 @@
+<div class="admin-wrap">
+
+  <!-- ── Header ─────────────────────────────────────── -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <span class="brand-logo">4BITO</span>
+      <span class="brand-sub">PANEL DE ADMINISTRACIÓN</span>
+    </div>
+    <div class="admin-user">
+      <span class="user-name">{{ usuario?.nombre }}</span>
+      <span class="user-rol">{{ usuario?.rol?.toUpperCase() }}</span>
+    </div>
+    <div class="admin-actions">
+      <a [routerLink]="['/']" class="btn-ghost">← TIENDA</a>
+      <button class="btn-logout" (click)="cerrarSesion()">CERRAR SESIÓN</button>
+    </div>
+  </header>
+
+  <!-- ── Main content ───────────────────────────────── -->
+  <main class="admin-main">
+
+    <!-- ══════════════════════════════════════════════════
+         PIEZA DE LA SEMANA
+    ══════════════════════════════════════════════════ -->
+    <section class="admin-section">
+      <h2 class="section-title">
+        <span class="section-icon">⭐</span>
+        PIEZA DE LA SEMANA
+      </h2>
+      <p class="section-desc">
+        Selecciona un producto, aplica un descuento y establece su vigencia.
+        El cambio se propagará en tiempo real a toda la tienda.
+      </p>
+
+      <!-- Pieza activa actual -->
+      @if (piezaActual | async; as pieza) {
+        <div class="pieza-activa">
+          <span class="pieza-activa__label">ACTIVA AHORA</span>
+          <div class="pieza-activa__info">
+            <img [src]="'/' + pieza.imageUrl" [alt]="pieza.name" class="pieza-activa__img" />
+            <div>
+              <p class="pieza-activa__name">{{ pieza.name }}</p>
+              <p class="pieza-activa__meta">
+                -{{ pieza.discountPercent }}% · 
+                <span class="price-final">{{ pieza.finalPrice | currency:'EUR' }}</span> 
+                <span class="price-orig">{{ pieza.originalPrice | currency:'EUR' }}</span>
+              </p>
+              <p class="pieza-activa__hasta">Válida hasta {{ pieza.validUntil | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Paso 1: Buscador -->
+      <div class="ps-panel">
+        <h3 class="ps-step">① SELECCIONAR PRODUCTO</h3>
+
+        <div class="ps-search-wrap">
+          <input
+            class="ps-search"
+            type="text"
+            placeholder="Buscar por nombre o equipo..."
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+          />
+        </div>
+
+        @if (!productosLoaded()) {
+          <p class="ps-loading">Cargando productos...</p>
+        }
+
+        @if (productosLoaded() && !selectedProduct()) {
+          <div class="ps-product-list">
+            @for (p of productosFiltrados(); track p.id) {
+              <button class="ps-product-item" (click)="selectProduct(p)">
+                <img [src]="p.imageUrl" [alt]="p.name" class="ps-prod-thumb" />
+                <span class="ps-prod-name">{{ p.name }}</span>
+                <span class="ps-prod-price">{{ p.price | currency:'EUR' }}</span>
+              </button>
+            }
+            @if (productosFiltrados().length === 0) {
+              <p class="ps-empty">Sin resultados para "{{ searchQuery() }}"</p>
+            }
+          </div>
+        }
+
+        @if (selectedProduct(); as prod) {
+          <div class="ps-selected">
+            <button class="ps-selected__change" (click)="selectedProduct.set(null)">✕ Cambiar producto</button>
+            <div class="ps-selected__card">
+              <img [src]="prod.imageUrl" [alt]="prod.name" class="ps-selected__img" />
+              <div class="ps-selected__info">
+                <p class="ps-selected__name">{{ prod.name }}</p>
+                <p class="ps-selected__meta">{{ prod.team }} · {{ prod.year }} · {{ prod.league }}</p>
+                <p class="ps-selected__base">Precio base: <strong>{{ prod.price | currency:'EUR' }}</strong></p>
+              </div>
+            </div>
+
+            <!-- Paso 2: Descuento + Preview -->
+            <div class="ps-discount-block">
+              <h3 class="ps-step">② DESCUENTO</h3>
+              <div class="ps-discount-row">
+                <label class="ps-label">% DE DESCUENTO</label>
+                <div class="ps-discount-input-wrap">
+                  <input
+                    class="ps-discount-input"
+                    type="number"
+                    min="0"
+                    max="90"
+                    step="1"
+                    [value]="discountInput()"
+                    (input)="onDiscountChange($any($event.target).value)"
+                    placeholder="0"
+                  />
+                  <span class="ps-percent-sign">%</span>
+                </div>
+              </div>
+
+              @if (precioFinal() !== null && discountInput() > 0) {
+                <div class="ps-preview">
+                  <span class="ps-preview__label">PRECIO FINAL:</span>
+                  <span class="ps-preview__final">{{ precioFinal() | currency:'EUR':'symbol':'1.2-2' }}</span>
+                  <span class="ps-preview__original">{{ prod.price | currency:'EUR':'symbol':'1.2-2' }}</span>
+                  <span class="ps-preview__badge">-{{ discountInput() | number:'1.0-0' }}%</span>
+                </div>
+              }
+            </div>
+
+            <!-- Paso 3: Fecha -->
+            <div class="ps-date-block">
+              <h3 class="ps-step">③ VÁLIDO HASTA</h3>
+              <input
+                class="ps-date-input"
+                type="datetime-local"
+                [value]="validUntil()"
+                (input)="validUntil.set($any($event.target).value)"
+              />
+            </div>
+
+            <!-- Feedback -->
+            @if (errorGuardar()) {
+              <p class="ps-error">⚠ {{ errorGuardar() }}</p>
+            }
+            @if (guardadoOk()) {
+              <p class="ps-ok">✓ ¡Pieza de la Semana guardada correctamente!</p>
+            }
+
+            <!-- Botón guardar -->
+            <button
+              class="ps-btn-submit"
+              [disabled]="guardando() || discountInput() <= 0 || !validUntil()"
+              (click)="establecerPieza()"
+            >
+              {{ guardando() ? 'GUARDANDO...' : '⭐ ESTABLECER COMO PIEZA DE LA SEMANA' }}
+            </button>
+
+          </div>
+        }
+
+      </div>
+    </section>
+
+  </main>
+</div>

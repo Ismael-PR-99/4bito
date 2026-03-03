@@ -1,8 +1,9 @@
-import { Component, ViewEncapsulation, inject, HostListener } from '@angular/core';
+import { Component, ViewEncapsulation, inject, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule, ShoppingCart, User, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import { AuthService } from './services/auth.service';
+import { DiscountService } from './services/discount.service';
 import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
 
 @Component({
@@ -15,19 +16,27 @@ import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/l
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = '4BITO RETRO SPORTS';
   carritoCount = 0;
   menuAbierto = false;
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
+  private auth     = inject(AuthService);
+  private router   = inject(Router);
+  private discount = inject(DiscountService);
 
   get loggedIn(): boolean { return this.auth.isLoggedIn(); }
   get esAdmin(): boolean { return this.auth.isAdmin(); }
   get usuario() { return this.auth.getUsuario(); }
   get nombreCorto(): string {
     return this.usuario?.nombre?.split(' ')[0] ?? 'MI CUENTA';
+  }
+
+  ngOnInit(): void {
+    // 1. Verificar y desactivar piezas expiradas automáticamente
+    this.discount.desactivarExpiradas().subscribe();
+    // 2. Cargar la pieza activa en el BehaviorSubject global
+    this.discount.cargarPieza().subscribe();
   }
 
   toggleMenu(): void {

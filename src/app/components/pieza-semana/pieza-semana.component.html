@@ -1,0 +1,55 @@
+<section class="pieza-semana" aria-label="Pieza de la Semana">
+  <div class="ps__header">
+    <span class="ps__eyebrow">OFERTA ESPECIAL</span>
+    <h2 class="ps__title">PIEZA DE LA <span class="ps__accent">SEMANA</span></h2>
+  </div>
+
+  <!-- Skeleton -->
+  @if (cargando()) {
+    <div class="ps__skeleton">
+      <div class="sk-img shimmer"></div>
+      <div class="sk-body">
+        <div class="sk-line long shimmer"></div>
+        <div class="sk-line short shimmer"></div>
+        <div class="sk-prices shimmer"></div>
+        <div class="sk-btn shimmer"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Sin pieza activa -->
+  @if (!cargando() && !pieza()) {
+    <p class="ps__empty">No hay ninguna pieza destacada esta semana.</p>
+  }
+
+  <!-- Pieza activa -->
+  @if (!cargando() && pieza()) {
+    <div class="ps__card">
+      <div class="ps__img-wrap">
+        <img [src]="'/' + pieza()!.imageUrl" [alt]="pieza()!.name" class="ps__img" />
+        <span class="ps__badge">-{{ badgePercent() }}%</span>
+      </div>
+
+      <div class="ps__info">
+        <p class="ps__team">{{ pieza()!.team }} · {{ pieza()!.year }}</p>
+        <h3 class="ps__name">{{ pieza()!.name }}</h3>
+        <p class="ps__league">{{ pieza()!.league }} · {{ pieza()!.category }}</p>
+
+        <div class="ps__prices">
+          <span class="ps__price-final">{{ pieza()!.finalPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+          <span class="ps__price-original">{{ pieza()!.originalPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+        </div>
+
+        <p class="ps__countdown">
+          @if (diasRestantes() > 0) {
+            ⏱ Oferta válida {{ diasRestantes() }} día{{ diasRestantes() !== 1 ? 's' : '' }} más
+          } @else {
+            ⚠️ Oferta expirada
+          }
+        </p>
+
+        <button class="ps__btn" (click)="verProducto()">VER PRODUCTO</button>
+      </div>
+    </div>
+  }
+</section>

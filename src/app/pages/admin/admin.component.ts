@@ -1,48 +1,121 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { DiscountService } from '../../services/discount.service';
+import { ProductosService, ProductoApi } from '../../services/productos.service';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink],
-  template: `
-    <div class="admin-page">
-      <div class="admin-card">
-        <div class="admin-header">
-          <span class="logo-text">4BITO</span>
-          <span class="logo-sub">PANEL DE ADMINISTRACIÓN</span>
-        </div>
-        <p>Bienvenido, <strong>{{ usuario?.nombre }}</strong>.</p>
-        <p class="rol-badge">ROL: {{ usuario?.rol?.toUpperCase() }}</p>
-        <button class="btn-logout" (click)="cerrarSesion()">CERRAR SESIÓN</button>
-        <a [routerLink]="['/']" class="btn-home">← Volver a la tienda</a>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .admin-page { min-height: 100vh; background: #000; display: flex; align-items: center; justify-content: center; }
-    .admin-card { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 4px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 0 40px rgba(0,255,135,.06); }
-    .admin-header { display: flex; flex-direction: column; margin-bottom: 2rem; gap: 2px; }
-    .logo-text { font-family: 'Impact','Arial Black',sans-serif; font-size: 2rem; color: #00ff87; letter-spacing: 4px; }
-    .logo-sub { font-size: .65rem; letter-spacing: 3px; color: #555; text-transform: uppercase; }
-    p { color: #ccc; margin-bottom: .7rem; font-size: .95rem; }
-    p strong { color: #00ff87; }
-    .rol-badge { display: inline-block; background: rgba(0,255,135,.1); border: 1px solid rgba(0,255,135,.3); color: #00ff87; padding: .3rem .8rem; border-radius: 2px; font-size: .75rem; letter-spacing: 2px; }
-    .btn-logout { display: block; width: 100%; margin-top: 1.5rem; background: #00ff87; color: #000; border: none; border-radius: 3px; padding: .8rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-size: .85rem; cursor: pointer; transition: background .2s; }
-    .btn-logout:hover { background: #00e87a; }
-    .btn-home { display: block; margin-top: .8rem; color: #555; font-size: .8rem; text-decoration: none; letter-spacing: 1px; }
-    .btn-home:hover { color: #00ff87; }
-  `]
+  imports: [CommonModule, RouterLink, FormsModule],
+  templateUrl: './admin.component.html',
+  styleUrl: './admin.component.css',
 })
-export class AdminComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
+export class AdminComponent implements OnInit {
+  private auth      = inject(AuthService);
+  private router    = inject(Router);
+  private discount  = inject(DiscountService);
+  private productos = inject(ProductosService);
+
   usuario = this.auth.getUsuario();
+
+  // ── Pieza de la Semana ────────────────────────────
+  allProducts     = signal<ProductoApi[]>([]);
+  productosLoaded = signal<boolean>(false);
+  searchQuery     = signal<string>('');
+  selectedProduct = signal<ProductoApi | null>(null);
+  discountInput   = signal<number>(0);
+  validUntil      = signal<string>('');
+  guardando       = signal<boolean>(false);
+  guardadoOk      = signal<boolean>(false);
+  errorGuardar    = signal<string>('');
+
+  piezaActual = this.discount.pieza$;
+
+  readonly productosFiltrados = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    if (!q) return this.allProducts().slice(0, 30);
+    return this.allProducts().filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.team.toLowerCase().includes(q)
+    ).slice(0, 20);
+  });
+
+  readonly precioFinal = computed(() => {
+    const p = this.selectedProduct();
+    if (!p) return null;
+    const desc = this.discountInput();
+    if (desc < 0 || desc > 90) return null;
+    return +(p.price - (p.price * desc / 100)).toFixed(2);
+  });
+
+  ngOnInit(): void {
+    this.productos.getAllProducts().subscribe({
+      next: list => {
+        this.allProducts.set(list);
+        this.productosLoaded.set(true);
+      },
+    });
+
+    // Fecha mínima: mañana
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    this.validUntil.set(tomorrow.toISOString().slice(0, 16));
+  }
+
+  selectProduct(p: ProductoApi): void {
+    this.selectedProduct.set(p);
+    this.searchQuery.set('');
+    this.discountInput.set(0);
+    this.guardadoOk.set(false);
+    this.errorGuardar.set('');
+  }
+
+  onDiscountChange(val: string): void {
+    const n = parseFloat(val);
+    this.discountInput.set(isNaN(n) ? 0 : Math.min(90, Math.max(0, n)));
+  }
+
+  establecerPieza(): void {
+    const p     = this.selectedProduct();
+    const final = this.precioFinal();
+    const fecha = this.validUntil();
+
+    if (!p || final === null || !fecha) {
+      this.errorGuardar.set('Completa todos los campos.');
+      return;
+    }
+
+    if (this.discountInput() <= 0) {
+      this.errorGuardar.set('El descuento debe ser mayor que 0%.');
+      return;
+    }
+
+    this.guardando.set(true);
+    this.errorGuardar.set('');
+
+    this.discount.establecerPieza({
+      productId: p.id,
+      discountPercent: this.discountInput(),
+      finalPrice: final,
+      validUntil: fecha.replace('T', ' ') + ':00',
+    }).subscribe({
+      next: () => {
+        this.guardando.set(false);
+        this.guardadoOk.set(true);
+      },
+      error: (err) => {
+        this.guardando.set(false);
+        this.errorGuardar.set(err?.error?.error ?? 'Error al guardar. Verifica tu sesión.');
+      },
+    });
+  }
 
   cerrarSesion(): void {
     this.auth.logout();
     this.router.navigate(['/login']);
   }
 }
+

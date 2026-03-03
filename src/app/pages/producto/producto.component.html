@@ -14,8 +14,11 @@
       <p class="producto-descripcion">{{ producto.descripcion }}</p>
 
       <div class="producto-precios">
-        <span class="precio-actual">{{ producto.precio }}&#8364;</span>
+        <span class="precio-actual" [class.precio-actual--rebajado]="producto.precioOriginal">{{ producto.precio }}&#8364;</span>
         <span class="precio-original" *ngIf="producto.precioOriginal">{{ producto.precioOriginal }}&#8364;</span>
+        <span class="precio-badge" *ngIf="producto.precioOriginal">
+          -{{ ((1 - producto.precio / producto.precioOriginal!) * 100).toFixed(0) }}%
+        </span>
       </div>
 
       <!-- Selector de talla / medida -->

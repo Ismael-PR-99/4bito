@@ -95,10 +95,19 @@
           <div class="prod-img-wrap">
             <img [src]="p.imageUrl" [alt]="p.name" loading="lazy" />
             <span class="prod-new-tag" *ngIf="p.isNew">NEW</span>
+            <span class="prod-discount-badge" *ngIf="p.discountPercent && p.discountPercent > 0">
+              -{{ p.discountPercent | number:'1.0-0' }}%
+            </span>
           </div>
           <div class="prod-info">
             <span class="prod-name">{{ p.name }}</span>
-            <span class="prod-price">{{ p.price }}&euro;</span>
+            <ng-container *ngIf="p.discountPercent && p.discountPercent > 0; else sinDescuento">
+              <span class="prod-price prod-price--discounted">{{ p.discountedPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span class="prod-price--original">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </ng-container>
+            <ng-template #sinDescuento>
+              <span class="prod-price">{{ p.price }}&euro;</span>
+            </ng-template>
           </div>
         </a>
 

@@ -65,7 +65,7 @@ try {
         default      => 'ORDER BY created_at DESC',
     };
 
-    $sql  = "SELECT id, name, price, team, year, league, image_url, category, sizes, is_new, created_at
+    $sql  = "SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, created_at
              FROM productos
              $whereSQL
              $orderSQL";
@@ -75,16 +75,18 @@ try {
 
     $productos = array_map(function ($row) {
         return [
-            'id'       => (int) $row['id'],
-            'name'     => $row['name'],
-            'price'    => (float) $row['price'],
-            'team'     => $row['team'],
-            'year'     => (int) $row['year'],
-            'league'   => $row['league'],
-            'imageUrl' => $row['image_url'],
-            'category' => $row['category'],
-            'sizes'    => json_decode($row['sizes'], true) ?? [],
-            'isNew'    => (bool) $row['is_new'],
+            'id'              => (int) $row['id'],
+            'name'            => $row['name'],
+            'price'           => (float) $row['price'],
+            'discountPercent' => (float) ($row['discount_percent'] ?? 0),
+            'discountedPrice' => $row['discounted_price'] !== null ? (float) $row['discounted_price'] : null,
+            'team'            => $row['team'],
+            'year'            => (int) $row['year'],
+            'league'          => $row['league'],
+            'imageUrl'        => $row['image_url'],
+            'category'        => $row['category'],
+            'sizes'           => json_decode($row['sizes'], true) ?? [],
+            'isNew'           => (bool) $row['is_new'],
         ];
     }, $rows);
 

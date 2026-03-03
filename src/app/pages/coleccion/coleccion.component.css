@@ -252,6 +252,30 @@
   border-radius: 2px;
 }
 
+.prod-discount-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #00ff6a;
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 2px;
+}
+
+.prod-price--discounted {
+  color: #00ff6a;
+  font-weight: 900;
+}
+
+.prod-price--original {
+  font-size: 11px;
+  color: #444;
+  text-decoration: line-through;
+}
+
 .prod-info {
   padding: 12px;
   display: flex;

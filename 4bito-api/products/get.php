@@ -28,7 +28,7 @@ if (empty($id) || !is_numeric($id)) {
 try {
     $db   = (new Database())->getConnection();
     $stmt = $db->prepare(
-        "SELECT id, name, price, team, year, league, image_url, category, sizes
+        "SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes
          FROM productos
          WHERE id = :id
          LIMIT 1"
@@ -45,15 +45,17 @@ try {
     http_response_code(200);
     echo json_encode([
         'producto' => [
-            'id'       => (int) $row['id'],
-            'name'     => $row['name'],
-            'price'    => (float) $row['price'],
-            'team'     => $row['team'],
-            'year'     => (int) $row['year'],
-            'league'   => $row['league'],
-            'imageUrl' => $row['image_url'],
-            'category' => $row['category'],
-            'sizes'    => json_decode($row['sizes'], true) ?? [],
+            'id'              => (int) $row['id'],
+            'name'            => $row['name'],
+            'price'           => (float) $row['price'],
+            'discountPercent' => (float) ($row['discount_percent'] ?? 0),
+            'discountedPrice' => $row['discounted_price'] !== null ? (float) $row['discounted_price'] : null,
+            'team'            => $row['team'],
+            'year'            => (int) $row['year'],
+            'league'          => $row['league'],
+            'imageUrl'        => $row['image_url'],
+            'category'        => $row['category'],
+            'sizes'           => json_decode($row['sizes'], true) ?? [],
         ],
     ]);
 

@@ -31,12 +31,21 @@
         <p class="banda__name">{{ p.name }}</p>
         <p class="banda__meta">{{ p.team }} &middot; {{ p.year }}</p>
         <div class="banda__bar-wrap">
-          <div class="banda__bar" [style.width]="barWidth(p.price)"></div>
+          <div class="banda__bar" [style.width]="barWidth(p.price, p.discountedPrice)"></div>
         </div>
       </div>
 
       <div class="banda__right">
-        <p class="banda__price">{{ p.price }}&euro;</p>
+        <div class="banda__price-wrap">
+          <ng-container *ngIf="p.discountPercent && p.discountPercent > 0; else normalPrice">
+            <p class="banda__price banda__price--final">{{ p.discountedPrice | currency:'EUR':'symbol':'1.2-2' }}</p>
+            <p class="banda__price--original">{{ p.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+            <span class="banda__discount-badge">-{{ p.discountPercent | number:'1.0-0' }}%</span>
+          </ng-container>
+          <ng-template #normalPrice>
+            <p class="banda__price">{{ p.price }}&euro;</p>
+          </ng-template>
+        </div>
         <button class="banda__btn" (click)="goTo(p.id)">Ver</button>
       </div>
 
