@@ -7,15 +7,10 @@ header("Content-Type: application/json; charset=UTF-8");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
 
 require_once '../config/database.php';
-require_once '../middleware/auth.php';
+require_once '../middleware/admin.php';
 
 // Solo admin puede establecer la pieza de la semana
-$user = requireAuth();
-if ($user['rol'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Acceso denegado']);
-    exit();
-}
+$user = requireAdmin();
 
 $body = json_decode(file_get_contents('php://input'), true);
 $productId       = isset($body['productId'])       ? (int) $body['productId']       : 0;

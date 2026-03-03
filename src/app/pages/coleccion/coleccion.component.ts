@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductosService, ProductoApi, SortOption } from '../../services/productos.service';
 import { TiendaService } from '../../services/tienda.service';
@@ -7,7 +7,7 @@ import { TiendaService } from '../../services/tienda.service';
 @Component({
   selector: 'app-coleccion',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CurrencyPipe, DecimalPipe],
   templateUrl: './coleccion.component.html',
   styleUrls: ['./coleccion.component.css'],
 })

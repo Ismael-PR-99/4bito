@@ -1,12 +1,14 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   inject,
   signal,
   computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription, skip } from 'rxjs';
 import { DiscountService, PiezaSemana } from '../../services/discount.service';
 
 @Component({
@@ -16,12 +18,15 @@ import { DiscountService, PiezaSemana } from '../../services/discount.service';
   templateUrl: './pieza-semana.component.html',
   styleUrl: './pieza-semana.component.css',
 })
-export class PiezaSemanaComponent implements OnInit {
+export class PiezaSemanaComponent implements OnInit, OnDestroy {
   private discount = inject(DiscountService);
   private router   = inject(Router);
+  private sub?: Subscription;
 
-  pieza   = signal<PiezaSemana | null>(null);
+  pieza    = signal<PiezaSemana | null>(null);
   cargando = signal<boolean>(true);
+  /** true mientras espera la primera respuesta real de la API */
+  private loaded = false;
 
   /** Días restantes hasta expiración */
   readonly diasRestantes = computed(() => {
@@ -38,17 +43,30 @@ export class PiezaSemanaComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.discount.pieza$.subscribe(p => {
+    // skip(1) para ignorar el null inicial del BehaviorSubject y esperar el valor real de la API
+    this.sub = this.discount.pieza$.pipe(skip(1)).subscribe(p => {
       this.pieza.set(p);
       this.cargando.set(false);
+      this.loaded = true;
     });
 
-    // Disparar carga si el stream aún está en null
-    if (this.pieza() === null && this.cargando()) {
-      this.discount.cargarPieza().subscribe({
-        error: () => this.cargando.set(false),
-      });
-    }
+    // Siempre disparar la carga desde este componente como fallback
+    this.discount.cargarPieza().subscribe({
+      next: p => {
+        if (!this.loaded) {
+          this.pieza.set(p);
+          this.cargando.set(false);
+          this.loaded = true;
+        }
+      },
+      error: () => {
+        if (!this.loaded) this.cargando.set(false);
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 
   verProducto(): void {
