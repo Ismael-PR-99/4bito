@@ -3,25 +3,27 @@
   <!-- ── Header ── -->
   <header class="col-header">
     <div class="col-header__left">
-      <a class="btn-back" routerLink="/">← Inicio</a>
-      <h1 class="col-title">{{ titulo() }}</h1>
-      <span class="col-badge new-badge" *ngIf="isNew()">NEW IN</span>
+      <a class="btn-back" routerLink="/">← INICIO</a>
+      <h1 class="col-title">{{ titulo() }}<span class="col-badge new-badge" *ngIf="isNew()">&nbsp;NEW IN</span></h1>
     </div>
-
-    <div class="col-header__right" *ngIf="!cargando()">
-      <span class="col-count">{{ products().length }} productos</span>
-      <button class="btn-clear" *ngIf="hasFilters()" (click)="clearFilters()">
-        ✕ Limpiar filtros
+    <div class="col-header__right">
+      <span class="col-count" *ngIf="!cargando()">{{ products().length }} PRODUCTOS</span>
+      <button class="btn-clear" *ngIf="hasFilters() && !cargando()" (click)="clearFilters()">
+        ✕ LIMPIAR FILTROS
       </button>
     </div>
   </header>
+
+  <!-- ── Banner ── -->
+  <div class="col-banner">
+    <span class="col-banner__text">⚡ HASTA 50% DE DESCUENTO EN PIEZAS SELECCIONADAS &nbsp;·&nbsp; ENTREGA 24/48H &nbsp;·&nbsp; COLECCIONES EXCLUSIVAS RETRO</span>
+  </div>
 
   <div class="col-layout">
 
     <!-- ── Sidebar ── -->
     <aside class="col-sidebar">
 
-      <!-- Ordenación -->
       <div class="sidebar-block">
         <h3 class="sidebar-title">Ordenar por</h3>
         <ul class="sidebar-list">
@@ -30,27 +32,19 @@
             class="sidebar-item"
             [class.active]="sort() === opt.value"
             (click)="setSort(opt.value)"
-          >
-            {{ opt.label }}
-          </li>
+          >{{ opt.label }}</li>
         </ul>
       </div>
 
-      <!-- Novedades toggle -->
       <div class="sidebar-block">
         <h3 class="sidebar-title">Destacados</h3>
         <ul class="sidebar-list">
-          <li
-            class="sidebar-item"
-            [class.active]="isNew()"
-            (click)="toggleNew()"
-          >
-            🆕 Novedades
+          <li class="sidebar-item" [class.active]="isNew()" (click)="toggleNew()">
+            Novedades
           </li>
         </ul>
       </div>
 
-      <!-- Décadas -->
       <div class="sidebar-block">
         <h3 class="sidebar-title">Década</h3>
         <ul class="sidebar-list">
@@ -59,13 +53,10 @@
             class="sidebar-item"
             [class.active]="activeDecade() === d"
             (click)="setDecade(d)"
-          >
-            {{ d }}
-          </li>
+          >{{ d }}</li>
         </ul>
       </div>
 
-      <!-- Categorías -->
       <div class="sidebar-block">
         <h3 class="sidebar-title">Categoría</h3>
         <ul class="sidebar-list">
@@ -74,33 +65,37 @@
             class="sidebar-item"
             [class.active]="activeCategory() === cat.slug"
             (click)="setCategory(cat.slug)"
-          >
-            {{ cat.nombre }}
-          </li>
+          >{{ cat.nombre }}</li>
         </ul>
       </div>
 
     </aside>
 
-    <!-- ── Grid ── -->
+    <!-- ── Main ── -->
     <main class="col-main">
-
-      <!-- Spinner -->
-      <div class="col-loading" *ngIf="cargando()">
-        <span class="loader-dots"><span></span><span></span><span></span></span>
-        <p>Cargando productos…</p>
-      </div>
 
       <!-- Error -->
       <p class="col-error" *ngIf="error()">{{ error() }}</p>
 
-      <!-- Grid de productos -->
+      <!-- Skeleton loader -->
+      <div class="col-grid" *ngIf="cargando() && !error()">
+        <div class="skeleton-card" *ngFor="let s of [1,2,3,4,5,6,7,8]">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line skeleton-line--wide"></div>
+            <div class="skeleton-line skeleton-line--narrow"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid real -->
       <div class="col-grid" *ngIf="!cargando() && !error()">
 
         <a
           class="prod-card"
-          *ngFor="let p of products()"
+          *ngFor="let p of products(); let i = index"
           [routerLink]="['/producto', p.id]"
+          [style.animation-delay]="i * 0.06 + 's'"
         >
           <div class="prod-img-wrap">
             <img [src]="p.imageUrl" [alt]="p.name" loading="lazy" />
@@ -108,15 +103,14 @@
           </div>
           <div class="prod-info">
             <span class="prod-name">{{ p.name }}</span>
-            <span class="prod-meta">{{ p.team }} · {{ p.year }}</span>
-            <span class="prod-price">{{ p.price }}€</span>
+            <span class="prod-price">{{ p.price }}&euro;</span>
           </div>
         </a>
 
         <!-- Empty state -->
         <div class="col-empty" *ngIf="products().length === 0">
-          <p>No hay productos para esta selección.</p>
-          <button class="btn-clear-lg" (click)="clearFilters()">Ver toda la colección</button>
+          <p>NO HAY PRODUCTOS PARA ESTA SELECCIÓN</p>
+          <button class="btn-clear-lg" (click)="clearFilters()">VER TODA LA COLECCIÓN</button>
         </div>
 
       </div>
