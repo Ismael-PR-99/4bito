@@ -1,14 +1,19 @@
 import { Component, ViewEncapsulation, inject, HostListener, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule, ShoppingCart, User, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import { AuthService } from './services/auth.service';
 import { DiscountService } from './services/discount.service';
+import { CartService } from './services/cart.service';
+import { CartDrawerService } from './services/cart-drawer.service';
 import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
+import { CartDrawerComponent } from './components/cart-drawer/cart-drawer.component';
+import { ToastComponent } from './components/toast/toast.component';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent],
+  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent, CartDrawerComponent, ToastComponent],
   providers: [
     { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User }) }
   ],
@@ -18,12 +23,15 @@ import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/l
 })
 export class AppComponent implements OnInit {
   title = '4BITO RETRO SPORTS';
-  carritoCount = 0;
   menuAbierto = false;
 
-  private auth     = inject(AuthService);
-  private router   = inject(Router);
-  private discount = inject(DiscountService);
+  carritoCount$!: Observable<number>;
+
+  private auth          = inject(AuthService);
+  private router        = inject(Router);
+  private discount      = inject(DiscountService);
+  private cartService   = inject(CartService);
+  private drawerService = inject(CartDrawerService);
 
   get loggedIn(): boolean { return this.auth.isLoggedIn(); }
   get esAdmin(): boolean { return this.auth.isAdmin(); }
@@ -33,10 +41,15 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.carritoCount$ = this.cartService.getItemCount();
     // 1. Verificar y desactivar piezas expiradas automáticamente
     this.discount.desactivarExpiradas().subscribe();
     // 2. Cargar la pieza activa en el BehaviorSubject global
     this.discount.cargarPieza().subscribe();
+  }
+
+  abrirCarrito(): void {
+    this.drawerService.toggle();
   }
 
   toggleMenu(): void {

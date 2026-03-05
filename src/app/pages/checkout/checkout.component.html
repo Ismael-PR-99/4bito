@@ -1,0 +1,123 @@
+<div class="checkout-page">
+  <div class="checkout-container">
+
+    <!-- Columna izquierda: formulario -->
+    <div class="checkout-form-col">
+      <h1 class="checkout-title">DATOS DE ENVÍO</h1>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label>NOMBRE</label>
+            <input formControlName="nombre" placeholder="Juan" [class.input-error]="f['nombre'].touched && f['nombre'].invalid" />
+            <span class="field-error" *ngIf="f['nombre'].touched && f['nombre'].errors?.['required']">Campo obligatorio</span>
+            <span class="field-error" *ngIf="f['nombre'].touched && f['nombre'].errors?.['minlength']">Mínimo 2 caracteres</span>
+          </div>
+          <div class="form-group">
+            <label>APELLIDOS</label>
+            <input formControlName="apellidos" placeholder="García López" [class.input-error]="f['apellidos'].touched && f['apellidos'].invalid" />
+            <span class="field-error" *ngIf="f['apellidos'].touched && f['apellidos'].errors?.['required']">Campo obligatorio</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>EMAIL</label>
+            <input formControlName="email" type="email" placeholder="juan@ejemplo.com" [class.input-error]="f['email'].touched && f['email'].invalid" />
+            <span class="field-error" *ngIf="f['email'].touched && f['email'].errors?.['required']">Campo obligatorio</span>
+            <span class="field-error" *ngIf="f['email'].touched && f['email'].errors?.['email']">Email no válido</span>
+          </div>
+          <div class="form-group">
+            <label>TELÉFONO</label>
+            <input formControlName="telefono" placeholder="+34 600 000 000" [class.input-error]="f['telefono'].touched && f['telefono'].invalid" />
+            <span class="field-error" *ngIf="f['telefono'].touched && f['telefono'].errors?.['required']">Campo obligatorio</span>
+            <span class="field-error" *ngIf="f['telefono'].touched && f['telefono'].errors?.['pattern']">Teléfono no válido</span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>DIRECCIÓN</label>
+          <input formControlName="direccion" placeholder="Calle Mayor 1, 2ºB" [class.input-error]="f['direccion'].touched && f['direccion'].invalid" />
+          <span class="field-error" *ngIf="f['direccion'].touched && f['direccion'].errors?.['required']">Campo obligatorio</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>CIUDAD</label>
+            <input formControlName="ciudad" placeholder="Madrid" [class.input-error]="f['ciudad'].touched && f['ciudad'].invalid" />
+            <span class="field-error" *ngIf="f['ciudad'].touched && f['ciudad'].errors?.['required']">Campo obligatorio</span>
+          </div>
+          <div class="form-group">
+            <label>CÓDIGO POSTAL</label>
+            <input formControlName="cp" placeholder="28001" [class.input-error]="f['cp'].touched && f['cp'].invalid" />
+            <span class="field-error" *ngIf="f['cp'].touched && f['cp'].errors?.['required']">Campo obligatorio</span>
+            <span class="field-error" *ngIf="f['cp'].touched && f['cp'].errors?.['pattern']">Código postal no válido</span>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label>PAÍS</label>
+          <select formControlName="pais" [class.input-error]="f['pais'].touched && f['pais'].invalid">
+            <option value="">— Selecciona un país —</option>
+            <option value="ES">España</option>
+            <option value="PT">Portugal</option>
+            <option value="FR">Francia</option>
+            <option value="DE">Alemania</option>
+            <option value="IT">Italia</option>
+            <option value="GB">Reino Unido</option>
+            <option value="US">Estados Unidos</option>
+            <option value="MX">México</option>
+            <option value="AR">Argentina</option>
+          </select>
+          <span class="field-error" *ngIf="f['pais'].touched && f['pais'].errors?.['required']">Selecciona un país</span>
+        </div>
+
+        <button type="submit" class="btn-confirmar" [disabled]="loading">
+          <span *ngIf="!loading">CONFIRMAR PEDIDO</span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Columna derecha: resumen -->
+    <div class="checkout-summary-col">
+      <h2 class="summary-title">RESUMEN DEL PEDIDO</h2>
+
+      <ng-container *ngIf="{ items: items$ | async, sub: subtotal$ | async, ship: shipping$ | async, disc: discount$ | async, discAmt: discountAmt$ | async, total: total$ | async } as vm">
+
+        <div class="summary-items">
+          <div class="summary-item" *ngFor="let item of vm.items">
+            <img class="sitem-img" [src]="item.imagen" [alt]="item.nombre" />
+            <div class="sitem-info">
+              <p class="sitem-nombre">{{ item.nombre | uppercase }}</p>
+              <span class="sitem-talla">{{ item.talla }}</span>
+              <span class="sitem-qty">× {{ item.cantidad }}</span>
+            </div>
+            <span class="sitem-precio">{{ (item.precio * item.cantidad).toFixed(2) }}€</span>
+          </div>
+        </div>
+
+        <div class="sum-rows">
+          <div class="sum-row">
+            <span>Subtotal</span>
+            <span>{{ vm.sub?.toFixed(2) }}€</span>
+          </div>
+          <div class="sum-row" *ngIf="vm.discAmt && vm.discAmt > 0">
+            <span class="green">Descuento ({{ vm.disc?.discount }}%)</span>
+            <span class="green">−{{ vm.discAmt?.toFixed(2) }}€</span>
+          </div>
+          <div class="sum-row">
+            <span>Envío</span>
+            <span [class.green]="vm.ship === 0">{{ vm.ship === 0 ? 'GRATIS' : (vm.ship?.toFixed(2) + '€') }}</span>
+          </div>
+          <div class="sum-row sum-row--total">
+            <span>TOTAL</span>
+            <span>{{ vm.total?.toFixed(2) }}€</span>
+          </div>
+        </div>
+
+      </ng-container>
+    </div>
+
+  </div>
+</div>

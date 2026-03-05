@@ -3,16 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductosService, ProductoApi } from '../../services/productos.service';
 import { Producto } from '../../models/producto.model';
+import { CartService } from '../../services/cart.service';
+import { CartDrawerService } from '../../services/cart-drawer.service';
+import { ToastService } from '../../services/toast.service';
 import { LucideAngularModule, ShoppingCart, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 
-interface CarritoItem {
-  id: string;
-  nombre: string;
-  imagen: string;
-  precio: number;
-  talla: string;
-  cantidad: number;
-}
 
 function apiToProducto(p: ProductoApi): Producto {
   const hasDiscount = p.discountPercent != null && p.discountPercent > 0 && p.discountedPrice != null;
@@ -45,6 +40,9 @@ export class ProductoComponent implements OnInit {
   private route            = inject(ActivatedRoute);
   private router           = inject(Router);
   private productosService = inject(ProductosService);
+  private cartService      = inject(CartService);
+  private drawerService    = inject(CartDrawerService);
+  private toastService     = inject(ToastService);
 
   producto:       Producto | undefined;
   cargando:       boolean = true;
@@ -104,25 +102,8 @@ export class ProductoComponent implements OnInit {
     }
     if (!this.producto) return;
 
-    const carrito: CarritoItem[] = JSON.parse(localStorage.getItem('carrito') ?? '[]');
-    const idx = carrito.findIndex(
-      item => item.id === this.producto!.id && item.talla === this.tallaSeleccionada
-    );
-
-    if (idx > -1) {
-      carrito[idx].cantidad = Math.min(carrito[idx].cantidad + this.cantidad, 10);
-    } else {
-      carrito.push({
-        id:       this.producto.id,
-        nombre:   this.producto.nombre,
-        imagen:   this.producto.imageUrl,
-        precio:   this.producto.precio,
-        talla:    this.tallaSeleccionada,
-        cantidad: this.cantidad,
-      });
-    }
-
-    localStorage.setItem('carrito', JSON.stringify(carrito));
+    this.cartService.addToCart(this.producto, this.tallaSeleccionada, this.cantidad);
+    this.toastService.show('✓ Añadido al carrito');
 
     this.confirmado = true;
     clearTimeout(this.confirmTimer);

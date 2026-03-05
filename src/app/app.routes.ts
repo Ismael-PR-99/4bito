@@ -44,6 +44,16 @@ export const routes: Routes = [
       import('./pages/decada/decada.component').then(m => m.DecadaComponent),
   },
   {
+    path: 'checkout',
+    loadComponent: () =>
+      import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent),
+  },
+  {
+    path: 'pedido-confirmado',
+    loadComponent: () =>
+      import('./pages/pedido-confirmado/pedido-confirmado.component').then(m => m.PedidoConfirmadoComponent),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

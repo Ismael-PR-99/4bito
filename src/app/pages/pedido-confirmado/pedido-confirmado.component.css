@@ -1,0 +1,115 @@
+.confirmado-page {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.confirmado-card {
+  background: #080808;
+  border: 1px solid #1a1a1a;
+  max-width: 520px;
+  width: 100%;
+  padding: 52px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Check circle */
+.check-circle {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 8px;
+}
+.check-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.check-circle-bg {
+  stroke-dasharray: 158;
+  stroke-dashoffset: 158;
+  animation: circle-draw 0.6s ease forwards;
+}
+.check-tick {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: tick-draw 0.4s ease 0.55s forwards;
+}
+
+@keyframes circle-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes tick-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Título */
+.conf-title {
+  font-family: var(--font-display, 'Barlow Condensed', sans-serif);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #fff;
+  margin: 0;
+}
+.conf-subtitle {
+  color: #666;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* Número pedido */
+.conf-order-num {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  padding: 16px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+.conf-order-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: #555;
+}
+.conf-order-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #00ff6a;
+}
+
+.conf-info {
+  font-size: 0.83rem;
+  color: #666;
+  line-height: 1.7;
+  margin: 0;
+}
+.conf-info strong { color: #aaa; }
+
+/* Botón */
+.btn-volver {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid #00ff6a;
+  color: #00ff6a;
+  padding: 13px 36px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-volver:hover {
+  background: #00ff6a;
+  color: #000;
+}

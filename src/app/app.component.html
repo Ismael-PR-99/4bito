@@ -14,9 +14,9 @@
       <!-- Marcadores en vivo -->
       <app-live-scores-dropdown></app-live-scores-dropdown>
 
-      <button class="cart-btn" (click)="carritoCount = carritoCount + 1">
+      <button class="cart-btn" (click)="abrirCarrito()">
         <lucide-icon name="shopping-cart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
-        <span class="cart-badge" *ngIf="carritoCount > 0">{{ carritoCount }}</span>
+        <span class="cart-badge" *ngIf="(carritoCount$ | async)! > 0">{{ carritoCount$ | async }}</span>
       </button>
 
       <!-- Zona de autenticación -->
@@ -52,6 +52,12 @@
 
 <!-- Grid de categorías y secciones (lazy-loaded) -->
 <router-outlet></router-outlet>
+
+<!-- Cart Drawer -->
+<app-cart-drawer></app-cart-drawer>
+
+<!-- Toast -->
+<app-toast></app-toast>
 
 <!-- Footer -->
 <footer class="footer">

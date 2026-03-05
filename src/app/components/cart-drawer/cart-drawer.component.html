@@ -1,0 +1,96 @@
+<ng-container *ngIf="{ open: isOpen$ | async, items: items$ | async, count: itemCount$ | async, sub: subtotal$ | async, ship: shipping$ | async, disc: discount$ | async, discAmt: discountAmt$ | async, total: total$ | async } as vm">
+
+  <!-- Overlay -->
+  <div class="drawer-overlay" [class.drawer-overlay--visible]="vm.open" (click)="close()"></div>
+
+  <!-- Panel -->
+  <div class="drawer-panel" [class.drawer-panel--open]="vm.open">
+
+    <!-- Header -->
+    <div class="drawer-header">
+      <div class="drawer-title-wrap">
+        <span class="drawer-title">TU CARRITO</span>
+        <span class="drawer-count">({{ vm.count }} {{ vm.count === 1 ? 'PRODUCTO' : 'PRODUCTOS' }})</span>
+      </div>
+      <button class="drawer-close" (click)="close()">✕</button>
+    </div>
+
+    <!-- Lista de items -->
+    <div class="drawer-body">
+
+      <!-- Vacío -->
+      <div class="drawer-empty" *ngIf="!vm.items || vm.items.length === 0">
+        <p class="empty-text">TU CARRITO ESTÁ VACÍO</p>
+        <button class="btn-ver-coleccion" (click)="goToColeccion()">VER COLECCIÓN</button>
+      </div>
+
+      <!-- Items -->
+      <div class="drawer-items" *ngIf="vm.items && vm.items.length > 0">
+        <div class="cart-item" *ngFor="let item of vm.items">
+          <img class="item-img" [src]="item.imagen" [alt]="item.nombre" />
+          <div class="item-info">
+            <p class="item-nombre">{{ item.nombre | uppercase }}</p>
+            <span class="item-talla-badge">{{ item.talla }}</span>
+            <p class="item-precio">{{ (item.precio * item.cantidad).toFixed(2) }}€</p>
+            <div class="item-qty">
+              <button class="qty-btn" (click)="updateQty(item.id, item.talla, -1)" [disabled]="item.cantidad <= 1">−</button>
+              <span class="qty-val">{{ item.cantidad }}</span>
+              <button class="qty-btn" (click)="updateQty(item.id, item.talla, 1)" [disabled]="item.cantidad >= 10">+</button>
+              <button class="item-remove" (click)="removeItem(item.id, item.talla)" title="Eliminar">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer resumen -->
+    <div class="drawer-footer" *ngIf="vm.items && vm.items.length > 0">
+
+      <!-- Código de descuento -->
+      <div class="discount-section" *ngIf="!vm.disc">
+        <div class="discount-input-wrap">
+          <input
+            class="discount-input"
+            [(ngModel)]="discountInput"
+            placeholder="INTRODUCE TU CÓDIGO"
+            (keyup.enter)="applyCode()"
+          />
+          <button class="btn-apply" (click)="applyCode()">APLICAR</button>
+        </div>
+        <p class="discount-msg discount-msg--invalid" *ngIf="discountStatus === 'invalid'">✗ CÓDIGO NO VÁLIDO</p>
+      </div>
+
+      <div class="discount-applied" *ngIf="vm.disc">
+        <p class="discount-msg discount-msg--valid">✓ CÓDIGO APLICADO — {{ vm.disc.discount }}% DE DESCUENTO</p>
+        <button class="btn-remove-code" (click)="removeDiscount()">Eliminar</button>
+      </div>
+
+      <!-- Totales -->
+      <div class="summary-rows">
+        <div class="summary-row">
+          <span>SUBTOTAL</span>
+          <span>{{ vm.sub?.toFixed(2) }}€</span>
+        </div>
+        <div class="summary-row" *ngIf="vm.discAmt && vm.discAmt > 0">
+          <span class="summary-label--green">DESCUENTO</span>
+          <span class="summary-label--green">−{{ vm.discAmt?.toFixed(2) }}€</span>
+        </div>
+        <div class="summary-row">
+          <span>ENVÍO</span>
+          <span [class.summary-label--green]="vm.ship === 0">
+            {{ vm.ship === 0 ? 'GRATIS' : (vm.ship?.toFixed(2) + '€') }}
+          </span>
+        </div>
+        <div class="summary-row summary-row--total">
+          <span>TOTAL</span>
+          <span>{{ vm.total?.toFixed(2) }}€</span>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <button class="btn-checkout" (click)="goToCheckout()">FINALIZAR COMPRA</button>
+      <button class="btn-seguir" (click)="close()">SEGUIR COMPRANDO</button>
+    </div>
+
+  </div>
+</ng-container>
