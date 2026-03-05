@@ -32,94 +32,196 @@
 
       <!-- Tabs métodos de pago -->
       <div class="method-tabs">
+
+        <!-- Card TARJETA -->
         <div class="method-tab"
              [class.method-tab--active]="selectedMethod === 'card'"
              (click)="selectedMethod = 'card'">
-          <span class="method-icon">💳</span>
-          <span class="method-label">TARJETA</span>
+          <div class="method-tab__icon">
+            <svg width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0.5" y="0.5" width="35" height="25" rx="3.5" stroke="#444"/>
+              <rect x="0" y="7" width="36" height="5" fill="#333"/>
+              <rect x="4" y="17" width="8" height="5" rx="1" fill="#555"/>
+              <rect x="14" y="18" width="5" height="3" rx="0.5" fill="#444"/>
+              <rect x="21" y="18" width="5" height="3" rx="0.5" fill="#444"/>
+            </svg>
+          </div>
+          <div class="method-tab__text">
+            <span class="method-tab__title">PAGO CON TARJETA</span>
+            <span class="method-tab__sub">Visa · Mastercard · Amex</span>
+          </div>
+          <div class="method-tab__logos">
+            <!-- Visa -->
+            <svg width="44" height="14" viewBox="0 0 44 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="12" font-family="Arial" font-weight="800" font-size="14" fill="#1a1f71">VISA</text>
+            </svg>
+            <!-- Mastercard -->
+            <svg width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="10" r="10" fill="#eb001b"/>
+              <circle cx="20" cy="10" r="10" fill="#f79e1b" fill-opacity="0.85"/>
+            </svg>
+          </div>
         </div>
+
+        <!-- Card PAYPAL -->
         <div class="method-tab"
              [class.method-tab--active]="selectedMethod === 'paypal'"
              (click)="selectPaypal()">
-          <span class="method-icon">🅿</span>
-          <span class="method-label">PAYPAL</span>
+          <div class="method-tab__icon">
+            <!-- Logo PayPal P doble -->
+            <svg width="28" height="34" viewBox="0 0 28 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23.5 5C23.5 5 25 5.5 25.5 8C26 10.5 24 13 20 13.5L18 13.8L17 19H13L15.5 5H23.5Z" fill="#009cde"/>
+              <path d="M4 5H13L15.5 5L13 19H9L10 14L7 14.2C3.5 14 2 11.5 2.5 8.5C3 6 4 5 4 5Z" fill="#003087"/>
+              <path d="M5 9C5 9 5.5 7 8 7H15C17.5 7 18 9 18 9C18 9 18.5 12 16 13H9C7 13 6 12 5.5 11C5 10 5 9 5 9Z" fill="#179bd7"/>
+            </svg>
+          </div>
+          <div class="method-tab__text">
+            <span class="method-tab__title method-tab__title--pp">PAGAR CON PAYPAL</span>
+            <span class="method-tab__sub">Rápido · Seguro · Sin datos de tarjeta</span>
+          </div>
+          <div class="method-tab__pp-brand">
+            <span class="pp-developed">Desarrollado por</span>
+            <svg width="52" height="14" viewBox="0 0 52 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="11" font-family="Arial" font-weight="700" font-size="11" fill="#253b80">Pay</text>
+              <text x="18" y="11" font-family="Arial" font-weight="700" font-size="11" fill="#179bd7">Pal</text>
+            </svg>
+          </div>
         </div>
+
       </div>
 
       <!-- PAYPAL — siempre en DOM para que el SDK no se destruya -->
       <div class="method-panel" [style.display]="selectedMethod === 'paypal' ? 'block' : 'none'">
-        <div class="paypal-area">
-          <div class="paypal-processing" *ngIf="paymentStatus === 'processing'">
-            <span class="spinner"></span>
-            <span>PROCESANDO PAGO...</span>
+        <div class="paypal-panel">
+          <!-- Info bar estilo PayPal -->
+          <div class="paypal-info-bar">
+            <svg width="52" height="14" viewBox="0 0 52 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:6px">
+              <text x="0" y="11" font-family="Arial" font-weight="700" font-size="11" fill="#253b80">Pay</text>
+              <text x="18" y="11" font-family="Arial" font-weight="700" font-size="11" fill="#179bd7">Pal</text>
+            </svg>
+            <p class="paypal-info-text">Se abrirá una ventana segura de PayPal para completar el pago</p>
           </div>
-          <div id="paypal-button-container" style="min-height:150px"></div>
+
+          <div class="paypal-btn-area">
+            <div class="paypal-processing" *ngIf="paymentStatus === 'processing'">
+              <span class="spinner"></span>
+              <span>PROCESANDO PAGO...</span>
+            </div>
+            <div id="paypal-button-container" style="min-height:55px"></div>
+          </div>
+
+          <div class="paypal-security">
+            <span class="sec-item">🔒 SSL</span>
+            <span class="sec-dot">·</span>
+            <span class="sec-item">✓ Encriptado</span>
+            <span class="sec-dot">·</span>
+            <span class="sec-item">🛡 Protección al comprador</span>
+          </div>
         </div>
       </div>
 
       <!-- TARJETA — siempre en DOM, oculto con display -->
       <div class="method-panel" [style.display]="selectedMethod === 'card' ? 'block' : 'none'">
-        <form [formGroup]="cardForm" novalidate>
+        <form [formGroup]="cardForm" novalidate class="card-form">
 
-          <div class="form-group full">
-            <label>NÚMERO DE TARJETA</label>
-            <input
-              formControlName="numero"
-              placeholder="0000 0000 0000 0000"
-              maxlength="19"
-              inputmode="numeric"
-              (input)="formatCardNumber($event)"
-              [class.input-error]="cf['numero'].touched && cf['numero'].invalid" />
-            <span class="field-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['required']">Campo obligatorio</span>
-            <span class="field-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['pattern']">Número de tarjeta inválido</span>
-          </div>
-
-          <div class="form-group full">
-            <label>NOMBRE EN LA TARJETA</label>
-            <input
-              formControlName="titular"
-              placeholder="JUAN GARCIA LOPEZ"
-              [class.input-error]="cf['titular'].touched && cf['titular'].invalid" />
-            <span class="field-error" *ngIf="cf['titular'].touched && cf['titular'].errors?.['required']">Campo obligatorio</span>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>FECHA DE EXPIRACIÓN</label>
+          <!-- Número de tarjeta -->
+          <div class="cf-group" [class.cf-group--focus]="focusedField === 'numero'" [class.cf-group--valid]="cf['numero'].valid && cf['numero'].value" [class.cf-group--invalid]="cf['numero'].touched && cf['numero'].invalid">
+            <label class="cf-label">NÚMERO DE TARJETA</label>
+            <div class="cf-input-wrap">
               <input
-                formControlName="expiry"
-                placeholder="MM/AA"
-                maxlength="5"
-                [class.input-error]="cf['expiry'].touched && cf['expiry'].invalid" />
-              <span class="field-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['required']">Campo obligatorio</span>
-              <span class="field-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['pattern']">Formato MM/AA</span>
+                class="cf-input"
+                formControlName="numero"
+                placeholder="0000 0000 0000 0000"
+                maxlength="19"
+                inputmode="numeric"
+                (input)="formatCardNumber($event)"
+                (focus)="focusedField = 'numero'"
+                (blur)="focusedField = null" />
+              <!-- Indicador de validez -->
+              <span class="cf-icon cf-icon--ok" *ngIf="cf['numero'].valid && cf['numero'].value">✓</span>
+              <span class="cf-icon cf-icon--err" *ngIf="cf['numero'].touched && cf['numero'].invalid">✕</span>
+              <!-- Logo de tarjeta detectada -->
+              <div class="card-type-badge" [class.card-type-badge--visible]="cardType !== 'unknown'">
+                <svg *ngIf="cardType === 'visa'" width="42" height="13" viewBox="0 0 42 13" fill="none"><text x="0" y="11" font-family="Arial" font-weight="800" font-size="13" fill="#1a1f71">VISA</text></svg>
+                <svg *ngIf="cardType === 'mastercard'" width="30" height="18" viewBox="0 0 30 18" fill="none"><circle cx="11" cy="9" r="9" fill="#eb001b"/><circle cx="19" cy="9" r="9" fill="#f79e1b" fill-opacity="0.85"/></svg>
+                <svg *ngIf="cardType === 'amex'" width="38" height="13" viewBox="0 0 38 13" fill="none"><text x="0" y="11" font-family="Arial" font-weight="800" font-size="11" fill="#007bc1">AMEX</text></svg>
+              </div>
             </div>
-            <div class="form-group">
-              <label>CVV</label>
+            <span class="cf-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['required']">Campo obligatorio</span>
+            <span class="cf-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['pattern']">Número de tarjeta inválido</span>
+          </div>
+
+          <!-- Nombre en la tarjeta -->
+          <div class="cf-group" [class.cf-group--focus]="focusedField === 'titular'" [class.cf-group--valid]="cf['titular'].valid && (cf['titular'].value?.length ?? 0) > 3" [class.cf-group--invalid]="cf['titular'].touched && cf['titular'].invalid">
+            <label class="cf-label" [class.cf-label--active]="focusedField === 'titular' || cf['titular'].value">NOMBRE EN LA TARJETA</label>
+            <div class="cf-input-wrap">
               <input
-                formControlName="cvv"
-                placeholder="123"
-                maxlength="4"
-                type="password"
-                [class.input-error]="cf['cvv'].touched && cf['cvv'].invalid" />
-              <span class="field-error" *ngIf="cf['cvv'].touched && cf['cvv'].errors?.['required']">Campo obligatorio</span>
-              <span class="field-error" *ngIf="cf['cvv'].touched && cf['cvv'].errors?.['pattern']">CVV inválido</span>
+                class="cf-input"
+                formControlName="titular"
+                placeholder="JUAN GARCIA LOPEZ"
+                (focus)="focusedField = 'titular'"
+                (blur)="focusedField = null" />
+              <span class="cf-icon cf-icon--ok" *ngIf="cf['titular'].valid && (cf['titular'].value?.length ?? 0) > 3">✓</span>
+            </div>
+            <span class="cf-error" *ngIf="cf['titular'].touched && cf['titular'].errors?.['required']">Campo obligatorio</span>
+          </div>
+
+          <!-- Fecha + CVV -->
+          <div class="cf-row">
+            <div class="cf-group" [class.cf-group--focus]="focusedField === 'expiry'" [class.cf-group--valid]="cf['expiry'].valid && cf['expiry'].value" [class.cf-group--invalid]="cf['expiry'].touched && cf['expiry'].invalid">
+              <label class="cf-label">FECHA DE EXPIRACIÓN</label>
+              <div class="cf-input-wrap">
+                <input
+                  class="cf-input"
+                  formControlName="expiry"
+                  placeholder="MM/AA"
+                  maxlength="5"
+                  inputmode="numeric"
+                  (input)="formatExpiry($event)"
+                  (focus)="focusedField = 'expiry'"
+                  (blur)="focusedField = null" />
+                <span class="cf-icon cf-icon--ok" *ngIf="cf['expiry'].valid && cf['expiry'].value">✓</span>
+                <span class="cf-icon cf-icon--err" *ngIf="cf['expiry'].touched && cf['expiry'].invalid">✕</span>
+              </div>
+              <span class="cf-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['required']">Obligatorio</span>
+              <span class="cf-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['pattern']">Formato MM/AA</span>
+            </div>
+
+            <div class="cf-group cf-group--cvv" [class.cf-group--focus]="focusedField === 'cvv'" [class.cf-group--valid]="cf['cvv'].valid && cf['cvv'].value" [class.cf-group--invalid]="cf['cvv'].touched && cf['cvv'].invalid">
+              <label class="cf-label">CVV</label>
+              <div class="cf-input-wrap">
+                <input
+                  class="cf-input"
+                  formControlName="cvv"
+                  placeholder="•••"
+                  maxlength="4"
+                  type="password"
+                  (focus)="focusedField = 'cvv'"
+                  (blur)="focusedField = null" />
+                <span class="cf-icon cf-lock">🔒</span>
+              </div>
+              <div class="cvv-tooltip">3 dígitos al dorso de tu tarjeta (4 en Amex)</div>
+              <span class="cf-error" *ngIf="cf['cvv'].touched && cf['cvv'].errors?.['required']">Obligatorio</span>
+              <span class="cf-error" *ngIf="cf['cvv'].touched && cf['cvv'].errors?.['pattern']">CVV inválido</span>
             </div>
           </div>
 
+          <!-- Botón pagar -->
           <button
             type="button"
             class="btn-pagar"
             [class.btn-pagar--processing]="paymentStatus === 'processing'"
             [disabled]="paymentStatus === 'processing'"
             (click)="pagarConTarjeta()">
-            <span *ngIf="paymentStatus !== 'processing'">
-              PAGAR <ng-container *ngIf="total$ | async as t">{{ t.toFixed(2) }}</ng-container>€
-            </span>
+            <ng-container *ngIf="paymentStatus !== 'processing'">
+              <svg width="18" height="13" viewBox="0 0 36 26" fill="none" style="flex-shrink:0"><rect x="0.5" y="0.5" width="35" height="25" rx="3.5" stroke="#000" stroke-opacity="0.5"/><rect x="0" y="7" width="36" height="5" fill="#000" fill-opacity="0.25"/></svg>
+              <span class="btn-pagar__text">PAGAR <ng-container *ngIf="total$ | async as t">{{ t.toFixed(2) }}</ng-container>€</span>
+              <span class="btn-pagar__arrow">→</span>
+            </ng-container>
             <span *ngIf="paymentStatus === 'processing'" class="spinner spinner--dark"></span>
           </button>
 
-          <p class="demo-note">🔒 Pago simulado — entorno de pruebas</p>
+          <p class="demo-note">🔒 PAGO SIMULADO — ENTORNO DE PRUEBAS</p>
         </form>
       </div>
 

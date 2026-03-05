@@ -38,6 +38,8 @@ export class PagoComponent implements OnInit, OnDestroy {
 
   selectedMethod: 'paypal' | 'card' = 'paypal';
   paymentStatus: 'idle' | 'processing' | 'error' = 'idle';
+  cardType: 'visa' | 'mastercard' | 'amex' | 'unknown' = 'unknown';
+  focusedField: string | null = null;
 
   get shipping() { return this.checkoutService.shippingData; }
 
@@ -143,12 +145,28 @@ export class PagoComponent implements OnInit, OnDestroy {
     }
   }
 
+  detectCardType(value: string): 'visa' | 'mastercard' | 'amex' | 'unknown' {
+    if (value.startsWith('4')) return 'visa';
+    if (value.startsWith('5')) return 'mastercard';
+    if (value.startsWith('3')) return 'amex';
+    return 'unknown';
+  }
+
   formatCardNumber(event: Event): void {
     const input = event.target as HTMLInputElement;
     let val = input.value.replace(/\D/g, '').slice(0, 16);
     val = val.replace(/(.{4})/g, '$1 ').trim();
     input.value = val;
     this.cardForm.get('numero')?.setValue(val, { emitEvent: false });
+    this.cardType = this.detectCardType(val.replace(/\s/g, ''));
+  }
+
+  formatExpiry(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/\D/g, '').slice(0, 4);
+    if (val.length >= 3) val = val.slice(0, 2) + '/' + val.slice(2);
+    input.value = val;
+    this.cardForm.get('expiry')?.setValue(val, { emitEvent: false });
   }
 
   pagarConTarjeta(): void {
