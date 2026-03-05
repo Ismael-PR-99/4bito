@@ -1,22 +1,27 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Observable, combineLatest, map } from 'rxjs';
+import { Observable, combineLatest, map, Subscription } from 'rxjs';
+import { NgxPayPalModule, IPayPalConfig, ICreateOrderRequest } from 'ngx-paypal';
 import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
 import { CartItem, AppliedDiscount } from '../../models/cart-item.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, AsyncPipe, ReactiveFormsModule],
+  imports: [CommonModule, AsyncPipe, ReactiveFormsModule, NgxPayPalModule],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css',
 })
-export class CheckoutComponent implements OnInit {
-  private fb          = inject(FormBuilder);
-  private cartService = inject(CartService);
-  private router      = inject(Router);
+export class CheckoutComponent implements OnInit, OnDestroy {
+  private fb           = inject(FormBuilder);
+  private cartService  = inject(CartService);
+  private toastService = inject(ToastService);
+  private router       = inject(Router);
+  private subs: Subscription[] = [];
 
   items$      !: Observable<CartItem[]>;
   subtotal$   !: Observable<number>;
@@ -25,7 +30,12 @@ export class CheckoutComponent implements OnInit {
   discountAmt$!: Observable<number>;
   total$      !: Observable<number>;
 
-  loading = false;
+  // Valores síncronos para PayPal config
+  private currentTotal = 0;
+  private currentItems: CartItem[] = [];
+
+  paymentStatus: 'idle' | 'processing' | 'success' | 'cancelled' | 'error' = 'idle';
+  paypalConfig!: IPayPalConfig;
 
   form = this.fb.group({
     nombre:    ['', [Validators.required, Validators.minLength(2)]],
@@ -42,29 +52,87 @@ export class CheckoutComponent implements OnInit {
     this.items$    = this.cartService.getItems();
     this.subtotal$ = this.cartService.getSubtotal();
     this.discount$ = this.cartService.getDiscount();
-
     this.shipping$ = this.subtotal$.pipe(map(s => s >= 50 ? 0 : 4.99));
-
     this.discountAmt$ = combineLatest([this.subtotal$, this.discount$]).pipe(
       map(([sub, disc]) => disc ? (sub * disc.discount) / 100 : 0)
     );
-
     this.total$ = combineLatest([this.subtotal$, this.shipping$, this.discountAmt$]).pipe(
       map(([sub, ship, disc]) => Math.max(0, sub - disc + ship))
     );
+
+    // Mantener valores síncronos actualizados
+    this.subs.push(
+      this.total$.subscribe(t => { this.currentTotal = t; this.initPaypalConfig(); }),
+      this.items$.subscribe(i => { this.currentItems = i; })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
   }
 
   get f() { return this.form.controls; }
 
-  submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.loading = true;
-    setTimeout(() => {
-      this.loading = false;
-      this.router.navigate(['/pedido-confirmado']);
-    }, 1500);
+  private initPaypalConfig(): void {
+    this.paypalConfig = {
+      currency: 'EUR',
+      clientId: environment.paypalClientId,
+      createOrderOnClient: () => ({
+        intent: 'CAPTURE',
+        purchase_units: [{
+          description: '4BITO Retro Sports — Pedido',
+          amount: {
+            currency_code: 'EUR',
+            value: this.currentTotal.toFixed(2),
+            breakdown: {
+              item_total: {
+                currency_code: 'EUR',
+                value: this.currentTotal.toFixed(2)
+              }
+            }
+          },
+          items: this.currentItems.map(item => ({
+            name: item.nombre,
+            quantity: item.cantidad.toString(),
+            unit_amount: {
+              currency_code: 'EUR',
+              value: item.precio.toFixed(2)
+            },
+            category: 'PHYSICAL_GOODS'
+          }))
+        }]
+      } as ICreateOrderRequest),
+      advanced: { commit: 'true' },
+      style: {
+        label: 'pay',
+        layout: 'vertical',
+        color: 'black',
+        shape: 'rect'
+      },
+      onApprove: (_data, actions) => {
+        actions.order.get().then(() => {
+          this.paymentStatus = 'processing';
+        });
+      },
+      onClientAuthorization: (data) => {
+        this.paymentStatus = 'success';
+        this.cartService.clearCart();
+        this.router.navigate(['/pedido-confirmado'], {
+          queryParams: { orderId: data.id }
+        });
+      },
+      onCancel: () => {
+        this.paymentStatus = 'cancelled';
+        this.showToast('PAGO CANCELADO — Puedes intentarlo de nuevo', 'warning');
+      },
+      onError: () => {
+        this.paymentStatus = 'error';
+        this.showToast('ERROR EN EL PAGO — Inténtalo de nuevo', 'error');
+      }
+    };
+  }
+
+  showToast(msg: string, type: 'success' | 'warning' | 'error' = 'success'): void {
+    this.toastService.show(msg, type);
   }
 }

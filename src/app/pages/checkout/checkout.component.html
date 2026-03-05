@@ -5,7 +5,7 @@
     <div class="checkout-form-col">
       <h1 class="checkout-title">DATOS DE ENVÍO</h1>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <form [formGroup]="form" novalidate>
         <div class="form-row">
           <div class="form-group">
             <label>NOMBRE</label>
@@ -72,11 +72,28 @@
           <span class="field-error" *ngIf="f['pais'].touched && f['pais'].errors?.['required']">Selecciona un país</span>
         </div>
 
-        <button type="submit" class="btn-confirmar" [disabled]="loading">
-          <span *ngIf="!loading">CONFIRMAR PEDIDO</span>
-          <span *ngIf="loading" class="spinner"></span>
-        </button>
       </form>
+
+      <!-- Sección de pago con PayPal -->
+      <div class="payment-section">
+        <p class="payment-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#00ff6a" style="vertical-align:middle;margin-right:6px"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          PAGO SEGURO CON PAYPAL
+        </p>
+
+        <div class="paypal-wrapper" [class.blocked]="form.invalid">
+          <!-- Overlay: formulario incompleto -->
+          <div class="paypal-overlay" *ngIf="form.invalid">
+            <span>COMPLETA TUS DATOS PRIMERO</span>
+          </div>
+          <!-- Overlay: procesando pago -->
+          <div class="paypal-overlay paypal-overlay--processing" *ngIf="paymentStatus === 'processing'">
+            <span class="spinner"></span>
+            <span>PROCESANDO PAGO...</span>
+          </div>
+          <ngx-paypal [config]="paypalConfig"></ngx-paypal>
+        </div>
+      </div>
     </div>
 
     <!-- Columna derecha: resumen -->
@@ -104,7 +121,7 @@
           </div>
           <div class="sum-row" *ngIf="vm.discAmt && vm.discAmt > 0">
             <span class="green">Descuento ({{ vm.disc?.discount }}%)</span>
-            <span class="green">−{{ vm.discAmt?.toFixed(2) }}€</span>
+            <span class="green">−{{ vm.discAmt!.toFixed(2) }}€</span>
           </div>
           <div class="sum-row">
             <span>Envío</span>

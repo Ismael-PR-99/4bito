@@ -1,3 +1,9 @@
-<div class="toast" [class.toast--visible]="visible" *ngIf="toast">
+<div
+  class="toast"
+  [class.toast--visible]="visible"
+  [class.toast--warning]="toast?.type === 'warning'"
+  [class.toast--error]="toast?.type === 'error'"
+  *ngIf="toast"
+>
   <span class="toast-text">{{ toast.message }}</span>
 </div>

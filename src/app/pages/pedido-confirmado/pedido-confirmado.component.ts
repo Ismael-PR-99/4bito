@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -13,12 +13,23 @@ import { CartService } from '../../services/cart.service';
 export class PedidoConfirmadoComponent implements OnInit {
   private cartService = inject(CartService);
   private router      = inject(Router);
+  private route       = inject(ActivatedRoute);
 
   numeroPedido = '';
+  isPaypalOrder = false;
 
   ngOnInit(): void {
-    this.numeroPedido = '#4B-' + Math.floor(100000 + Math.random() * 900000);
-    this.cartService.clearCart();
+    this.route.queryParams.subscribe(params => {
+      if (params['orderId']) {
+        this.numeroPedido  = params['orderId'];
+        this.isPaypalOrder = true;
+      } else {
+        this.numeroPedido = '#4B-' + Math.floor(100000 + Math.random() * 900000);
+        // Sólo limpiar carrito si no vino desde PayPal
+        // (PayPal ya lo limpia en onClientAuthorization)
+        this.cartService.clearCart();
+      }
+    });
   }
 
   volverTienda(): void {
