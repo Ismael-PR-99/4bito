@@ -211,23 +211,26 @@
 /* â”€â”€ TÃ­tulo letra a letra â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ps-title {
   font-family: 'Barlow Condensed', 'Impact', sans-serif;
-  font-size: clamp(28px, 4.5vw, 50px);
+  font-size: clamp(22px, 3vw, 38px);
   font-weight: 900;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 2px;
   margin: 0;
-  line-height: 1.05;
+  line-height: 1.1;
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
+  row-gap: 0;
+  column-gap: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .ps-title__inner {
   display: inline-block;
   clip-path: inset(0 100% 0 0);
   transition: clip-path 0s;
-  white-space: pre;
+  white-space: pre; /* preserva espacios para separar palabras */
 }
 
 .ps-title--visible .ps-title__inner {
@@ -275,6 +278,15 @@
   color: #00ff6a;
   letter-spacing: 1px;
   line-height: 1;
+}
+
+.ps-price .ps-euro {
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 0.75;
+  margin-left: 2px;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .ps-price-right {

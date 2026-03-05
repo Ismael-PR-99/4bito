@@ -59,7 +59,7 @@
 
         <!-- Precio -->
         <div class="ps-prices">
-          <span class="ps-price">{{ displayPrice() | number:'1.2-2' }}€</span>
+          <span class="ps-price">{{ displayPrice() | number:'1.2-2' }}<span class="ps-euro">€</span></span>
           <div class="ps-price-right">
             <span class="ps-price-original">{{ pieza()!.originalPrice | number:'1.2-2' }}€</span>
             <span class="ps-price-badge">-{{ badgePercent() }}%</span>

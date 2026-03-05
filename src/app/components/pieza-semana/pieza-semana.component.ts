@@ -62,7 +62,7 @@ export class PiezaSemanaComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   readonly titleChars = computed(() =>
-    'PIEZA DE LA SEMANA'.split('').map((c, i) => ({ char: c === ' ' ? '\u00A0' : c, i }))
+    'PIEZA DE LA SEMANA'.split('').map((c, i) => ({ char: c, i }))
   );
 
   ngOnInit(): void {
