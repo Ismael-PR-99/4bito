@@ -31,6 +31,8 @@
     "**/dist/**": true
   },
 
-  // ── Evitar que VS Code analice tsconfig.json dentro de node_modules ──
-  "typescript.surveyor.enabled": false
+  // ── Evitar que el servidor TypeScript analice tsconfig.json de node_modules ──
+  "typescript.tsserver.watchOptions": {
+    "excludeDirectories": ["**/node_modules/**"]
+  }
 }
