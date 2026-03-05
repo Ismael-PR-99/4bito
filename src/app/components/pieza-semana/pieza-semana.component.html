@@ -1,55 +1,102 @@
-<section class="pieza-semana" aria-label="Pieza de la Semana">
-  <div class="ps__header">
-    <span class="ps__eyebrow">OFERTA ESPECIAL</span>
-    <h2 class="ps__title">PIEZA DE LA <span class="ps__accent">SEMANA</span></h2>
-  </div>
+<section class="ps-wrap" aria-label="Pieza de la Semana">
 
   <!-- Skeleton -->
   @if (cargando()) {
-    <div class="ps__skeleton">
+    <div class="ps-skeleton">
       <div class="sk-img shimmer"></div>
       <div class="sk-body">
         <div class="sk-line long shimmer"></div>
-        <div class="sk-line short shimmer"></div>
+        <div class="sk-line med shimmer"></div>
         <div class="sk-prices shimmer"></div>
         <div class="sk-btn shimmer"></div>
       </div>
     </div>
   }
 
-  <!-- Sin pieza activa -->
+  <!-- Sin pieza -->
   @if (!cargando() && !pieza()) {
-    <p class="ps__empty">No hay ninguna pieza destacada esta semana.</p>
+    <p class="ps-empty">No hay ninguna pieza destacada esta semana.</p>
   }
 
   <!-- Pieza activa -->
   @if (!cargando() && pieza()) {
-    <div class="ps__card">
-      <div class="ps__img-wrap">
-        <img [src]="pieza()!.imageUrl" [alt]="pieza()!.name" class="ps__img" />
-        <span class="ps__badge">-{{ badgePercent() }}%</span>
+
+    <!-- Fondo ambiental desenfocado -->
+    <div class="ps-bg" [class.ps-bg--visible]="bgVisible()">
+      <img class="ps-bg__img" [src]="pieza()!.imageUrl" aria-hidden="true" />
+    </div>
+
+    <!-- Card flotante -->
+    <div class="ps-card" [class.ps-card--visible]="cardVisible()">
+
+      <!-- Columna imagen -->
+      <div class="ps-col ps-col--img">
+        <!-- Marco decorativo (corners via CSS) -->
+        <div class="ps-img-frame">
+          <div class="ps-img-inner" [class.ps-img--flash]="imgFlash()" [class.ps-img--visible]="imgVisible()">
+            <img [src]="pieza()!.imageUrl" [alt]="pieza()!.name" class="ps-product-img" />
+          </div>
+          <span class="ps-discount-badge">-{{ badgePercent() }}%</span>
+        </div>
       </div>
 
-      <div class="ps__info">
-        <p class="ps__team">{{ pieza()!.team }} · {{ pieza()!.year }}</p>
-        <h3 class="ps__name">{{ pieza()!.name }}</h3>
-        <p class="ps__league">{{ pieza()!.league }} · {{ pieza()!.category }}</p>
+      <!-- Columna info -->
+      <div class="ps-col ps-col--info">
 
-        <div class="ps__prices">
-          <span class="ps__price-final">{{ pieza()!.finalPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
-          <span class="ps__price-original">{{ pieza()!.originalPrice | currency:'EUR':'symbol':'1.2-2' }}</span>
+        <!-- Etiqueta retro -->
+        <span class="ps-offer-tag">-- OFERTA ESPECIAL --</span>
+
+        <!-- Título letra a letra -->
+        <h2 class="ps-title" [class.ps-title--visible]="titleVisible()">
+          <span class="ps-title__inner" *ngFor="let ch of titleChars()" [style.animation-delay]="(ch.i * 30) + 'ms'">{{ ch.char }}</span>
+        </h2>
+
+        <!-- Subtítulo -->
+        <p class="ps-subtitle">{{ pieza()!.team | uppercase }} · {{ pieza()!.year }}</p>
+
+        <!-- Línea decorativa -->
+        <div class="ps-line" [class.ps-line--visible]="lineVisible()"></div>
+
+        <!-- Precio -->
+        <div class="ps-prices">
+          <span class="ps-price">{{ displayPrice() | number:'1.2-2' }}€</span>
+          <div class="ps-price-right">
+            <span class="ps-price-original">{{ pieza()!.originalPrice | number:'1.2-2' }}€</span>
+            <span class="ps-price-badge">-{{ badgePercent() }}%</span>
+          </div>
         </div>
 
-        <p class="ps__countdown">
-          @if (diasRestantes() > 0) {
-            ⏱ Oferta válida {{ diasRestantes() }} día{{ diasRestantes() !== 1 ? 's' : '' }} más
-          } @else {
-            ⚠️ Oferta expirada
-          }
-        </p>
+        <!-- Countdown -->
+        <div class="ps-countdown">
+          <div class="ps-cd-box" [class.ps-cd-box--urgent]="false">
+            <span class="ps-cd-num">{{ countdown().days }}</span>
+            <span class="ps-cd-label">DÍAS</span>
+          </div>
+          <span class="ps-cd-sep">:</span>
+          <div class="ps-cd-box" [class.ps-cd-box--urgent]="countdown().urgent">
+            <span class="ps-cd-num">{{ countdown().hours }}</span>
+            <span class="ps-cd-label">HRS</span>
+          </div>
+          <span class="ps-cd-sep" [class.ps-cd-sep--urgent]="countdown().urgent">:</span>
+          <div class="ps-cd-box" [class.ps-cd-box--urgent]="countdown().urgent">
+            <span class="ps-cd-num">{{ countdown().mins }}</span>
+            <span class="ps-cd-label">MIN</span>
+          </div>
+          <span class="ps-cd-sep" [class.ps-cd-sep--urgent]="countdown().urgent">:</span>
+          <div class="ps-cd-box" [class.ps-cd-box--urgent]="countdown().urgent">
+            <span class="ps-cd-num">{{ countdown().secs }}</span>
+            <span class="ps-cd-label">SEG</span>
+          </div>
+        </div>
 
-        <button class="ps__btn" (click)="verProducto()">VER PRODUCTO</button>
+        <!-- Botón -->
+        <button class="ps-btn" (click)="verProducto()">
+          <span>VER PRODUCTO</span>
+          <span class="ps-btn__arrow">&#8594;</span>
+        </button>
+
       </div>
     </div>
   }
+
 </section>

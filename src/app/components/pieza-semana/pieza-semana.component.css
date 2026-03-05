@@ -1,8 +1,456 @@
+/* ================================================================
+   PIEZA DE LA SEMANA — Rediseño editorial retro
+   ================================================================ */
+
 :host {
   display: block;
-  background: #0a0a0a;
-  padding: 4rem 2rem;
 }
+
+/* ── Wrapper pantalla completa ───────────────────────────────── */
+.ps-wrap {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #030303;
+  padding: 60px 20px;
+}
+
+/* ── Fondo ambiental ─────────────────────────────────────────── */
+.ps-bg {
+  position: absolute;
+  inset: -20px;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.ps-bg--visible { opacity: 1; }
+
+.ps-bg__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(40px) brightness(0.25) saturate(1.4);
+  transform: scale(1.1);
+  display: block;
+}
+
+/* ── Card flotante ───────────────────────────────────────────── */
+.ps-card {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: rgba(8, 8, 8, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(0, 255, 106, 0.06);
+
+  /* Grain texture */
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s;
+}
+.ps-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Grain pseudo */
+.ps-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+@media (max-width: 640px) {
+  .ps-card { grid-template-columns: 1fr; }
+}
+
+/* ── Columnas ────────────────────────────────────────────────── */
+.ps-col--img  { position: relative; }
+.ps-col--info {
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .ps-col--info { padding: 28px 24px; }
+}
+
+/* ── Imagen ──────────────────────────────────────────────────── */
+.ps-img-frame {
+  position: relative;
+  height: 100%;
+  min-height: 380px;
+}
+
+/* Esquinas decorativas retro */
+.ps-img-frame::before,
+.ps-img-frame::after,
+.ps-col--img::before,
+.ps-col--img::after {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  width: 14px;
+  height: 14px;
+}
+
+/* top-left */
+.ps-img-frame::before {
+  top: 10px; left: 10px;
+  border-top: 2px solid #00ff6a;
+  border-left: 2px solid #00ff6a;
+}
+/* top-right */
+.ps-img-frame::after {
+  top: 10px; right: 10px;
+  border-top: 2px solid #00ff6a;
+  border-right: 2px solid #00ff6a;
+}
+/* bottom-left */
+.ps-col--img::before {
+  bottom: 10px; left: 10px;
+  border-bottom: 2px solid #00ff6a;
+  border-left: 2px solid #00ff6a;
+}
+/* bottom-right */
+.ps-col--img::after {
+  bottom: 10px; right: 10px;
+  border-bottom: 2px solid #00ff6a;
+  border-right: 2px solid #00ff6a;
+}
+
+.ps-img-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+/* Flash fotográfico */
+.ps-img--flash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.9);
+  z-index: 4;
+  animation: photo-flash 0.12s ease forwards;
+}
+@keyframes photo-flash {
+  0%   { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+
+.ps-product-img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.ps-img--visible .ps-product-img { opacity: 1; }
+
+/* Badge descuento en imagen */
+.ps-discount-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #00ff6a;
+  color: #000;
+  font-family: 'Barlow Condensed', 'Impact', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  z-index: 6;
+}
+
+/* ── Etiqueta retro ───────────────────────────────────────────── */
+.ps-offer-tag {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #00ff6a;
+  text-transform: uppercase;
+}
+
+/* ── Título letra a letra ─────────────────────────────────────── */
+.ps-title {
+  font-family: 'Barlow Condensed', 'Impact', sans-serif;
+  font-size: clamp(28px, 4.5vw, 50px);
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1.05;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.ps-title__inner {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0s;
+  white-space: pre;
+}
+
+.ps-title--visible .ps-title__inner {
+  animation: char-reveal 0.05s ease forwards;
+}
+
+@keyframes char-reveal {
+  to { clip-path: inset(0 0% 0 0); }
+}
+
+/* ── Subtítulo ────────────────────────────────────────────────── */
+.ps-subtitle {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #666;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* ── Línea decorativa ─────────────────────────────────────────── */
+.ps-line {
+  width: 40px;
+  height: 1px;
+  background: #00ff6a;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.5s ease;
+  margin: 4px 0;
+}
+.ps-line--visible { transform: scaleX(1); }
+
+/* ── Precios ──────────────────────────────────────────────────── */
+.ps-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ps-price {
+  font-family: 'Barlow Condensed', 'Impact', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: #00ff6a;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.ps-price-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ps-price-original {
+  font-size: 0.9rem;
+  color: #444;
+  text-decoration: line-through;
+  font-family: 'Courier New', monospace;
+}
+
+.ps-price-badge {
+  background: #00ff6a;
+  color: #000;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+
+/* ── Countdown ────────────────────────────────────────────────── */
+.ps-countdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ps-cd-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #111;
+  border: 1px solid #1a1a1a;
+  border-radius: 2px;
+  padding: 8px 12px;
+  min-width: 52px;
+  gap: 3px;
+  transition: border-color 0.3s;
+}
+
+.ps-cd-box--urgent {
+  border-color: rgba(255, 68, 68, 0.4);
+}
+
+.ps-cd-num {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 20px;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ps-cd-box--urgent .ps-cd-num {
+  color: #ff4444;
+  animation: pulse-red 1s ease infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.ps-cd-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+.ps-cd-sep {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  color: #333;
+  line-height: 1;
+  padding-bottom: 14px;
+  transition: color 0.3s;
+}
+.ps-cd-sep--urgent { color: #ff4444; }
+
+/* ── Botón ────────────────────────────────────────────────────── */
+.ps-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #00ff6a;
+  color: #00ff6a;
+  font-family: 'Barlow Condensed', 'Impact', sans-serif;
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 4px;
+}
+
+.ps-btn:hover {
+  background: #00ff6a;
+  color: #000;
+}
+
+.ps-btn__arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 1.1rem;
+}
+.ps-btn:hover .ps-btn__arrow { transform: translateX(4px); }
+
+/* ── Empty ────────────────────────────────────────────────────── */
+.ps-empty {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #444;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+/* ── Skeleton ─────────────────────────────────────────────────── */
+.ps-skeleton {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 860px;
+  width: 100%;
+  background: rgba(8,8,8,0.7);
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .ps-skeleton { grid-template-columns: 1fr; }
+}
+
+.sk-img {
+  aspect-ratio: 3 / 4;
+  background: #111;
+}
+
+.sk-body {
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.sk-line {
+  height: 14px;
+  border-radius: 2px;
+  background: #1a1a1a;
+}
+.sk-line.long  { width: 80%; }
+.sk-line.med   { width: 50%; }
+.sk-prices { height: 52px; width: 65%; border-radius: 2px; background: #1a1a1a; }
+.sk-btn    { height: 50px; width: 100%; border-radius: 2px; background: #1a1a1a; }
+
+/* Shimmer */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #111 25%, #1e1e1e 50%, #111 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
 
 /* ── Encabezado ─────────────────────────────────────── */
 .ps__header {
