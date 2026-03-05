@@ -69,21 +69,21 @@
       <div class="summary-rows">
         <div class="summary-row">
           <span>SUBTOTAL</span>
-          <span>{{ vm.sub?.toFixed(2) }}€</span>
+          <span>{{ (vm.sub ?? 0).toFixed(2) }}€</span>
         </div>
         <div class="summary-row" *ngIf="vm.discAmt && vm.discAmt > 0">
           <span class="summary-label--green">DESCUENTO</span>
-          <span class="summary-label--green">−{{ vm.discAmt?.toFixed(2) }}€</span>
+          <span class="summary-label--green">−{{ vm.discAmt.toFixed(2) }}€</span>
         </div>
         <div class="summary-row">
           <span>ENVÍO</span>
           <span [class.summary-label--green]="vm.ship === 0">
-            {{ vm.ship === 0 ? 'GRATIS' : (vm.ship?.toFixed(2) + '€') }}
+            {{ vm.ship === 0 ? 'GRATIS' : ((vm.ship ?? 0).toFixed(2) + '€') }}
           </span>
         </div>
         <div class="summary-row summary-row--total">
           <span>TOTAL</span>
-          <span>{{ vm.total?.toFixed(2) }}€</span>
+          <span>{{ (vm.total ?? 0).toFixed(2) }}€</span>
         </div>
       </div>
 

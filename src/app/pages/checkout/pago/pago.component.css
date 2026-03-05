@@ -159,7 +159,7 @@
   color: #fff; font-size: 15px; padding: 0 48px 0 16px;
   outline: none; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
   font-family: 'Space Grotesk', monospace;
-  box-sizing: border-box; -webkit-appearance: none;
+  box-sizing: border-box; -webkit-appearance: none; appearance: none;
 }
 .cf-input:focus {
   border-color: #00ff6a;
@@ -469,6 +469,7 @@ input, select {
   transition: border-color 0.2s;
   font-family: inherit;
   -webkit-appearance: none;
+  appearance: none;
 }
 input:focus { border-color: #00ff6a; }
 input.input-error { border-color: #e53935; }
