@@ -40,25 +40,25 @@
         </div>
         <div class="method-tab"
              [class.method-tab--active]="selectedMethod === 'paypal'"
-             (click)="selectedMethod = 'paypal'">
+             (click)="selectPaypal()">
           <span class="method-icon">🅿</span>
           <span class="method-label">PAYPAL</span>
         </div>
       </div>
 
-      <!-- PAYPAL -->
-      <div class="method-panel" *ngIf="selectedMethod === 'paypal'">
-        <div class="paypal-area" [class.paypal-area--processing]="paymentStatus === 'processing'">
+      <!-- PAYPAL — siempre en DOM para que el SDK no se destruya -->
+      <div class="method-panel" [style.display]="selectedMethod === 'paypal' ? 'block' : 'none'">
+        <div class="paypal-area">
           <div class="paypal-processing" *ngIf="paymentStatus === 'processing'">
             <span class="spinner"></span>
             <span>PROCESANDO PAGO...</span>
           </div>
-          <ngx-paypal [config]="paypalConfig"></ngx-paypal>
+          <div id="paypal-button-container" style="min-height:150px"></div>
         </div>
       </div>
 
-      <!-- TARJETA -->
-      <div class="method-panel" *ngIf="selectedMethod === 'card'">
+      <!-- TARJETA — siempre en DOM, oculto con display -->
+      <div class="method-panel" [style.display]="selectedMethod === 'card' ? 'block' : 'none'">
         <form [formGroup]="cardForm" novalidate>
 
           <div class="form-group full">

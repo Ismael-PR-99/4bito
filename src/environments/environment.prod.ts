@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  paypalClientId: 'TU_CLIENT_ID_PRODUCCION_AQUI'
+  paypalClientId: 'ASn8vJ5I1AK2J4ZRWU5HDIWZg34VLHjQPvSgzgS6ebXqOLlq5970coNZ1sLBRWkwgD9UGpu4ABMT4j3N'
 };

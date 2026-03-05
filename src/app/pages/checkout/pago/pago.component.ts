@@ -3,17 +3,18 @@ import { CommonModule, AsyncPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, combineLatest, map, Subscription } from 'rxjs';
-import { NgxPayPalModule, IPayPalConfig, ICreateOrderRequest } from 'ngx-paypal';
 import { CartService } from '../../../services/cart.service';
 import { CheckoutService } from '../../../services/checkout.service';
 import { ToastService } from '../../../services/toast.service';
 import { CartItem, AppliedDiscount } from '../../../models/cart-item.model';
 import { environment } from '../../../../environments/environment';
 
+declare var paypal: any;
+
 @Component({
   selector: 'app-pago',
   standalone: true,
-  imports: [CommonModule, AsyncPipe, ReactiveFormsModule, NgxPayPalModule, RouterLink],
+  imports: [CommonModule, AsyncPipe, ReactiveFormsModule, RouterLink],
   templateUrl: './pago.component.html',
   styleUrl: './pago.component.css',
 })
@@ -33,11 +34,10 @@ export class PagoComponent implements OnInit, OnDestroy {
   total$      !: Observable<number>;
 
   private currentTotal = 0;
-  private currentItems: CartItem[] = [];
+  private paypalRendered = false;
 
   selectedMethod: 'paypal' | 'card' = 'paypal';
-  paymentStatus: 'idle' | 'processing' | 'success' | 'error' = 'idle';
-  paypalConfig!: IPayPalConfig;
+  paymentStatus: 'idle' | 'processing' | 'error' = 'idle';
 
   get shipping() { return this.checkoutService.shippingData; }
 
@@ -51,7 +51,6 @@ export class PagoComponent implements OnInit, OnDestroy {
   get cf() { return this.cardForm.controls; }
 
   ngOnInit(): void {
-    // Redirigir si no hay datos de envío
     if (!this.checkoutService.hasShippingData()) {
       this.router.navigate(['/checkout']);
       return;
@@ -69,58 +68,79 @@ export class PagoComponent implements OnInit, OnDestroy {
     );
 
     this.subs.push(
-      this.total$.subscribe(t => { this.currentTotal = t; this.buildPaypalConfig(); }),
-      this.items$.subscribe(i => { this.currentItems = i; })
+      this.total$.subscribe(t => { this.currentTotal = t; })
     );
+
+    this.loadPaypalScript().then(() => {
+      setTimeout(() => this.renderPaypalButton(), 200);
+    });
   }
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
+    const script = document.getElementById('paypal-sdk');
+    if (script) script.remove();
+    this.paypalRendered = false;
   }
 
-  private buildPaypalConfig(): void {
-    this.paypalConfig = {
-      currency: 'EUR',
-      clientId: environment.paypalClientId,
-      createOrderOnClient: () => ({
-        intent: 'CAPTURE',
-        purchase_units: [{
-          description: '4BITO Retro Sports — Pedido',
-          amount: {
-            currency_code: 'EUR',
-            value: this.currentTotal.toFixed(2),
-            breakdown: {
-              item_total: { currency_code: 'EUR', value: this.currentTotal.toFixed(2) }
-            }
-          },
-          items: this.currentItems.map(item => ({
-            name: item.nombre,
-            quantity: item.cantidad.toString(),
-            unit_amount: { currency_code: 'EUR', value: item.precio.toFixed(2) },
-            category: 'PHYSICAL_GOODS'
-          }))
-        }]
-      } as ICreateOrderRequest),
-      advanced: { commit: 'true' },
-      style: { label: 'pay', layout: 'vertical', color: 'gold', shape: 'rect' },
-      onApprove: (_data, actions) => {
-        this.paymentStatus = 'processing';
-        actions.order.get().then(() => {});
+  private loadPaypalScript(): Promise<void> {
+    return new Promise((resolve) => {
+      if (document.getElementById('paypal-sdk')) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = 'paypal-sdk';
+      script.src = `https://www.paypal.com/sdk/js?client-id=${environment.paypalClientId}&currency=EUR`;
+      script.onload = () => resolve();
+      script.onerror = () => {
+        this.toastService.show('Error al cargar PayPal — recarga la página', 'error');
+      };
+      document.body.appendChild(script);
+    });
+  }
+
+  private renderPaypalButton(): void {
+    if (this.paypalRendered) return;
+    const container = document.getElementById('paypal-button-container');
+    if (!container || typeof paypal === 'undefined') return;
+
+    this.paypalRendered = true;
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'black', shape: 'rect', label: 'pay' },
+      createOrder: (_data: any, actions: any) => {
+        return actions.order.create({
+          intent: 'CAPTURE',
+          purchase_units: [{
+            description: '4BITO Retro Sports',
+            amount: { currency_code: 'EUR', value: this.currentTotal.toFixed(2) }
+          }]
+        });
       },
-      onClientAuthorization: (data) => {
-        this.paymentStatus = 'success';
-        this.cartService.clearCart();
-        this.checkoutService.clear();
-        this.router.navigate(['/pedido-confirmado'], { queryParams: { orderId: data.id } });
+      onApprove: (data: any, actions: any) => {
+        this.paymentStatus = 'processing';
+        return actions.order.capture().then(() => {
+          this.cartService.clearCart();
+          this.checkoutService.clear();
+          this.router.navigate(['/pedido-confirmado'], { queryParams: { orderId: data.orderID } });
+        });
       },
       onCancel: () => {
         this.toastService.show('PAGO CANCELADO — Puedes intentarlo de nuevo', 'warning');
       },
-      onError: () => {
+      onError: (err: any) => {
+        console.error('PayPal error:', err);
         this.paymentStatus = 'error';
         this.toastService.show('ERROR EN EL PAGO — Inténtalo de nuevo', 'error');
       }
-    };
+    }).render('#paypal-button-container');
+  }
+
+  selectPaypal(): void {
+    this.selectedMethod = 'paypal';
+    if (!this.paypalRendered) {
+      setTimeout(() => this.renderPaypalButton(), 100);
+    }
   }
 
   formatCardNumber(event: Event): void {
