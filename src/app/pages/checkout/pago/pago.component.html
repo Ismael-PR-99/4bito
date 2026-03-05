@@ -1,0 +1,169 @@
+<div class="checkout-page">
+
+  <!-- Indicador de pasos -->
+  <div class="steps-bar">
+    <div class="step step--done">
+      <span class="step-num">✓</span>
+      <span class="step-label">DATOS DE ENVÍO</span>
+    </div>
+    <div class="steps-divider"></div>
+    <div class="step step--active">
+      <span class="step-num">2</span>
+      <span class="step-label">PAGO</span>
+    </div>
+  </div>
+
+  <div class="checkout-container">
+
+    <!-- Columna izquierda: pago -->
+    <div class="checkout-form-col">
+      <h1 class="checkout-title">MÉTODO DE PAGO</h1>
+
+      <!-- Bloque resumen datos de envío -->
+      <div class="shipping-summary" *ngIf="shipping">
+        <div class="ss-row">
+          <span class="ss-data">{{ shipping.nombre }} {{ shipping.apellidos }} · {{ shipping.email }}</span>
+        </div>
+        <div class="ss-row">
+          <span class="ss-data">{{ shipping.direccion }}, {{ shipping.cp }} {{ shipping.ciudad }} ({{ shipping.pais }})</span>
+        </div>
+        <a class="ss-edit" routerLink="/checkout">Editar</a>
+      </div>
+
+      <!-- Tabs métodos de pago -->
+      <div class="method-tabs">
+        <div class="method-tab"
+             [class.method-tab--active]="selectedMethod === 'card'"
+             (click)="selectedMethod = 'card'">
+          <span class="method-icon">💳</span>
+          <span class="method-label">TARJETA</span>
+        </div>
+        <div class="method-tab"
+             [class.method-tab--active]="selectedMethod === 'paypal'"
+             (click)="selectedMethod = 'paypal'">
+          <span class="method-icon">🅿</span>
+          <span class="method-label">PAYPAL</span>
+        </div>
+      </div>
+
+      <!-- PAYPAL -->
+      <div class="method-panel" *ngIf="selectedMethod === 'paypal'">
+        <div class="paypal-area" [class.paypal-area--processing]="paymentStatus === 'processing'">
+          <div class="paypal-processing" *ngIf="paymentStatus === 'processing'">
+            <span class="spinner"></span>
+            <span>PROCESANDO PAGO...</span>
+          </div>
+          <ngx-paypal [config]="paypalConfig"></ngx-paypal>
+        </div>
+      </div>
+
+      <!-- TARJETA -->
+      <div class="method-panel" *ngIf="selectedMethod === 'card'">
+        <form [formGroup]="cardForm" novalidate>
+
+          <div class="form-group full">
+            <label>NÚMERO DE TARJETA</label>
+            <input
+              formControlName="numero"
+              placeholder="0000 0000 0000 0000"
+              maxlength="19"
+              inputmode="numeric"
+              (input)="formatCardNumber($event)"
+              [class.input-error]="cf['numero'].touched && cf['numero'].invalid" />
+            <span class="field-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['required']">Campo obligatorio</span>
+            <span class="field-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['pattern']">Número de tarjeta inválido</span>
+          </div>
+
+          <div class="form-group full">
+            <label>NOMBRE EN LA TARJETA</label>
+            <input
+              formControlName="titular"
+              placeholder="JUAN GARCIA LOPEZ"
+              [class.input-error]="cf['titular'].touched && cf['titular'].invalid" />
+            <span class="field-error" *ngIf="cf['titular'].touched && cf['titular'].errors?.['required']">Campo obligatorio</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>FECHA DE EXPIRACIÓN</label>
+              <input
+                formControlName="expiry"
+                placeholder="MM/AA"
+                maxlength="5"
+                [class.input-error]="cf['expiry'].touched && cf['expiry'].invalid" />
+              <span class="field-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['required']">Campo obligatorio</span>
+              <span class="field-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['pattern']">Formato MM/AA</span>
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input
+                formControlName="cvv"
+                placeholder="123"
+                maxlength="4"
+                type="password"
+                [class.input-error]="cf['cvv'].touched && cf['cvv'].invalid" />
+              <span class="field-error" *ngIf="cf['cvv'].touched && cf['cvv'].errors?.['required']">Campo obligatorio</span>
+              <span class="field-error" *ngIf="cf['cvv'].touched && cf['cvv'].errors?.['pattern']">CVV inválido</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-pagar"
+            [class.btn-pagar--processing]="paymentStatus === 'processing'"
+            [disabled]="paymentStatus === 'processing'"
+            (click)="pagarConTarjeta()">
+            <span *ngIf="paymentStatus !== 'processing'">
+              PAGAR <ng-container *ngIf="total$ | async as t">{{ t.toFixed(2) }}</ng-container>€
+            </span>
+            <span *ngIf="paymentStatus === 'processing'" class="spinner spinner--dark"></span>
+          </button>
+
+          <p class="demo-note">🔒 Pago simulado — entorno de pruebas</p>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Columna derecha: resumen -->
+    <div class="checkout-summary-col">
+      <h2 class="summary-title">RESUMEN DEL PEDIDO</h2>
+
+      <ng-container *ngIf="{ items: items$ | async, sub: subtotal$ | async, ship: shipping$ | async, disc: discount$ | async, discAmt: discountAmt$ | async, total: total$ | async } as vm">
+
+        <div class="summary-items">
+          <div class="summary-item" *ngFor="let item of vm.items">
+            <img class="sitem-img" [src]="item.imagen" [alt]="item.nombre" />
+            <div class="sitem-info">
+              <p class="sitem-nombre">{{ item.nombre | uppercase }}</p>
+              <span class="sitem-talla">{{ item.talla }}</span>
+              <span class="sitem-qty">× {{ item.cantidad }}</span>
+            </div>
+            <span class="sitem-precio">{{ (item.precio * item.cantidad).toFixed(2) }}€</span>
+          </div>
+        </div>
+
+        <div class="sum-rows">
+          <div class="sum-row">
+            <span>Subtotal</span>
+            <span>{{ vm.sub?.toFixed(2) }}€</span>
+          </div>
+          <div class="sum-row" *ngIf="vm.discAmt && vm.discAmt > 0">
+            <span class="green">Descuento ({{ vm.disc?.discount }}%)</span>
+            <span class="green">−{{ vm.discAmt!.toFixed(2) }}€</span>
+          </div>
+          <div class="sum-row">
+            <span>Envío</span>
+            <span [class.green]="vm.ship === 0">{{ vm.ship === 0 ? 'GRATIS' : (vm.ship?.toFixed(2) + '€') }}</span>
+          </div>
+          <div class="sum-row sum-row--total">
+            <span>TOTAL</span>
+            <span>{{ vm.total?.toFixed(2) }}€</span>
+          </div>
+        </div>
+
+      </ng-container>
+    </div>
+
+  </div>
+</div>

@@ -1,4 +1,18 @@
 <div class="checkout-page">
+
+  <!-- Indicador de pasos -->
+  <div class="steps-bar">
+    <div class="step step--active">
+      <span class="step-num">1</span>
+      <span class="step-label">DATOS DE ENVÍO</span>
+    </div>
+    <div class="steps-divider"></div>
+    <div class="step step--pending">
+      <span class="step-num">2</span>
+      <span class="step-label">PAGO</span>
+    </div>
+  </div>
+
   <div class="checkout-container">
 
     <!-- Columna izquierda: formulario -->
@@ -74,26 +88,14 @@
 
       </form>
 
-      <!-- Sección de pago con PayPal -->
-      <div class="payment-section">
-        <p class="payment-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#00ff6a" style="vertical-align:middle;margin-right:6px"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-          PAGO SEGURO CON PAYPAL
-        </p>
-
-        <div class="paypal-wrapper" [class.blocked]="form.invalid">
-          <!-- Overlay: formulario incompleto -->
-          <div class="paypal-overlay" *ngIf="form.invalid">
-            <span>COMPLETA TUS DATOS PRIMERO</span>
-          </div>
-          <!-- Overlay: procesando pago -->
-          <div class="paypal-overlay paypal-overlay--processing" *ngIf="paymentStatus === 'processing'">
-            <span class="spinner"></span>
-            <span>PROCESANDO PAGO...</span>
-          </div>
-          <ngx-paypal [config]="paypalConfig"></ngx-paypal>
-        </div>
-      </div>
+        <button
+          type="button"
+          class="btn-continuar"
+          [class.btn-continuar--disabled]="form.invalid"
+          [disabled]="form.invalid"
+          (click)="continuar()">
+          CONTINUAR AL PAGO &nbsp;→
+        </button>
     </div>
 
     <!-- Columna derecha: resumen -->
