@@ -1,8 +1,8 @@
 :host {
   display: block;
-  background: #090909;
+  background: var(--bg-primary);
   min-height: 100vh;
-  color: #f0ebe2;
+  color: var(--text-primary);
 }
 
 .producto-page {
@@ -17,8 +17,8 @@
 
 .btn-back {
   background: transparent;
-  border: 1px solid #2a2a2a;
-  color: #f0ebe2;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
@@ -30,8 +30,8 @@
 }
 
 .btn-back:hover {
-  border-color: #00ff87;
-  color: #00ff87;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .producto-detalle {
@@ -58,7 +58,7 @@
 
 .producto-equipo {
   font-family: var(--font-body);
-  color: #888;
+  color: var(--text-secondary);
   letter-spacing: 0.1em;
   margin: 0 0 0.5rem;
   font-size: 0.85rem;
@@ -67,7 +67,7 @@
 
 .producto-descripcion {
   font-family: var(--font-body);
-  color: #bbb;
+  color: var(--text-secondary);
   line-height: 1.8;
   font-weight: 400;
   margin: 0.5rem 0 1.5rem;
@@ -87,22 +87,22 @@
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 900;
-  color: #00ff87;
+  color: var(--accent);
 }
 
 .precio-original {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #555;
+  color: var(--text-muted);
   text-decoration: line-through;
 }
 
 .precio-actual--rebajado {
-  color: #00ff6a;
+  color: var(--accent);
 }
 
 .precio-badge {
-  background: #00ff6a;
+  background: var(--accent);
   color: #000;
   font-size: .8rem;
   font-weight: 900;
@@ -118,7 +118,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.15em;
-  color: #666;
+  color: var(--text-secondary);
   text-transform: uppercase;
   margin: 0 0 10px;
   display: flex;
@@ -127,8 +127,8 @@
 }
 
 .talla-seleccionada-tag {
-  color: #00ff87;
-  border: 1px solid #00ff87;
+  color: var(--accent);
+  border: 1px solid var(--accent);
   padding: 1px 8px;
   font-size: 0.7rem;
   border-radius: 2px;
@@ -153,22 +153,22 @@
   min-width: 48px;
   padding: 9px 14px;
   background: transparent;
-  border: 1px solid #444;
-  color: #f0ebe2;
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, color 0.2s;
   text-transform: uppercase;
 }
 
 .talla-btn:hover {
-  border-color: #00ff87;
-  color: #00ff87;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .talla-btn.activa {
-  border-color: #00ff87;
-  background: rgba(0, 255, 135, 0.12);
-  color: #00ff87;
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
 }
 
 .error-talla {
@@ -188,7 +188,7 @@
 .cantidad-control {
   display: inline-flex;
   align-items: center;
-  border: 1px solid #00ff87;
+  border: 1px solid var(--accent);
   overflow: hidden;
 }
 
@@ -197,7 +197,7 @@
   height: 40px;
   background: transparent;
   border: none;
-  color: #00ff87;
+  color: var(--accent);
   font-size: 1.3rem;
   font-weight: 700;
   cursor: pointer;
@@ -208,11 +208,11 @@
 }
 
 .cantidad-btn:hover:not(:disabled) {
-  background: rgba(0, 255, 135, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
 }
 
 .cantidad-btn:disabled {
-  color: #333;
+  color: var(--border-color);
   cursor: default;
 }
 
@@ -220,11 +220,11 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
-  color: #f0ebe2;
+  color: var(--text-primary);
   min-width: 40px;
   text-align: center;
-  border-left: 1px solid #00ff87;
-  border-right: 1px solid #00ff87;
+  border-left: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
   height: 40px;
   display: flex;
   align-items: center;
@@ -239,8 +239,8 @@
   margin-top: 0.5rem;
   padding: 16px 32px;
   background: transparent;
-  border: 2px solid #00ff87;
-  color: #00ff87;
+  border: 2px solid var(--accent);
+  color: var(--accent);
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
@@ -253,14 +253,14 @@
 }
 
 .btn-carrito:hover:not(.confirmado) {
-  background: #00ff87;
-  color: #090909;
+  background: var(--accent);
+  color: var(--bg-primary);
   transform: translateY(-2px);
 }
 
 .btn-carrito.confirmado {
-  background: #00ff87;
-  color: #090909;
+  background: var(--accent);
+  color: var(--bg-primary);
   cursor: default;
   transform: none;
   animation: fadeIn 0.25s ease;
@@ -274,7 +274,7 @@
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  color: #444;
+  color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 1.1rem;
 }

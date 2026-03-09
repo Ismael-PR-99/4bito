@@ -1,6 +1,6 @@
 .confirmado-page {
   min-height: 100vh;
-  background: #000;
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,8 +8,8 @@
 }
 
 .confirmado-card {
-  background: #080808;
-  border: 1px solid #1a1a1a;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   max-width: 520px;
   width: 100%;
   padding: 52px 40px;
@@ -56,19 +56,19 @@
   font-size: 2rem;
   font-weight: 900;
   letter-spacing: 0.12em;
-  color: #fff;
+  color: var(--text-primary);
   margin: 0;
 }
 .conf-subtitle {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.88rem;
   margin: 0;
 }
 
 /* Número pedido */
 .conf-order-num {
-  background: #0d0d0d;
-  border: 1px solid #1a1a1a;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   padding: 16px 32px;
   display: flex;
   flex-direction: column;
@@ -79,29 +79,29 @@
 .conf-order-label {
   font-size: 0.7rem;
   letter-spacing: 0.12em;
-  color: #555;
+  color: var(--text-muted);
 }
 .conf-order-val {
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: 0.1em;
-  color: #00ff6a;
+  color: var(--accent);
 }
 
 .conf-info {
   font-size: 0.83rem;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.7;
   margin: 0;
 }
-.conf-info strong { color: #aaa; }
+.conf-info strong { color: var(--text-primary); }
 
 /* Botón */
 .btn-volver {
   margin-top: 8px;
   background: transparent;
-  border: 1px solid #00ff6a;
-  color: #00ff6a;
+  border: 1px solid var(--accent);
+  color: var(--accent);
   padding: 13px 36px;
   font-size: 0.85rem;
   font-weight: 700;
@@ -110,6 +110,6 @@
   transition: background 0.2s, color 0.2s;
 }
 .btn-volver:hover {
-  background: #00ff6a;
+  background: var(--accent);
   color: #000;
 }

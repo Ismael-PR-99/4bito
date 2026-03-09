@@ -3,9 +3,9 @@
   top: 20px;
   right: 20px;
   z-index: 9999;
-  background: #111;
-  border-left: 3px solid #00ff6a;
-  color: #fff;
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  color: var(--text-primary);
   padding: 14px 20px;
   font-family: var(--font-body, 'Space Grotesk', sans-serif);
   font-size: 0.88rem;

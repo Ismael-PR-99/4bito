@@ -1,20 +1,57 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* ── Variables de tema ──────────────────────────────────── */
+:root, [data-theme="dark"] {
+  --bg-primary:    #0a0a0a;
+  --bg-secondary:  #050505;
+  --bg-card:       #111111;
+  --bg-input:      #111111;
+  --border-color:  #1a1a1a;
+  --border-hover:  #333333;
+  --text-primary:  #ffffff;
+  --text-secondary:#888888;
+  --text-muted:    #444444;
+  --accent:        #00ff6a;
+  --accent-hover:  #00cc55;
+  --accent-rgb:    0, 255, 106;
+  --shadow:        rgba(0, 0, 0, 0.8);
+  --overlay:       rgba(0, 0, 0, 0.75);
+  --font-display: 'Big Shoulders Stencil Display', sans-serif;
+  --font-body: 'Teko', sans-serif;
+}
+
+[data-theme="light"] {
+  --bg-primary:    #f4f4f4;
+  --bg-secondary:  #ffffff;
+  --bg-card:       #ffffff;
+  --bg-input:      #ffffff;
+  --border-color:  #e0e0e0;
+  --border-hover:  #cccccc;
+  --text-primary:  #1a1a1a;
+  --text-secondary:#666666;
+  --text-muted:    #999999;
+  --accent:        #ff6b2b;
+  --accent-hover:  #e55a1f;
+  --accent-rgb:    255, 107, 43;
+  --shadow:        rgba(0, 0, 0, 0.12);
+  --overlay:       rgba(0, 0, 0, 0.4);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-:root {
-  --font-display: 'Big Shoulders Stencil Display', sans-serif;
-  --font-body: 'Teko', sans-serif;
+  transition: background-color 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
 }
 
 html, body {
   font-family: var(--font-body);
   line-height: 1.6;
-  background: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* Títulos de sección, categorías, hero */
@@ -38,4 +75,15 @@ nav, button, .badge, .label, .price, .banner, p, span, a, li {
 .text-secondary, .description, input::placeholder {
   font-family: var(--font-body);
   font-weight: 400;
+}
+
+/* Selección de texto en modo claro */
+[data-theme="light"] ::selection {
+  background: rgba(255, 107, 43, 0.2);
+  color: #1a1a1a;
+}
+
+/* Scrollbar en modo claro */
+[data-theme="light"] {
+  scrollbar-color: #cccccc #f4f4f4;
 }

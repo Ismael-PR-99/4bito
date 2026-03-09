@@ -1,8 +1,8 @@
 :host {
   display: block;
-  background: #090909;
+  background: var(--bg-primary);
   min-height: 100vh;
-  color: #f0ebe2;
+  color: var(--text-primary);
 }
 
 .cat-page {
@@ -17,14 +17,14 @@
   align-items: center;
   gap: 2rem;
   padding: 4rem 0 2.5rem;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 2.5rem;
 }
 
 .btn-back {
   background: transparent;
-  border: 1px solid #2a2a2a;
-  color: #f0ebe2;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
@@ -37,8 +37,8 @@
 }
 
 .btn-back:hover {
-  border-color: #00e676;
-  color: #00e676;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .cat-title {
@@ -49,7 +49,7 @@
   letter-spacing: 0.04em;
   line-height: 1;
   margin: 0 auto 0 0;
-  color: #f0ebe2;
+  color: var(--text-primary);
   text-align: center;
 }
 
@@ -65,16 +65,16 @@
   cursor: pointer;
   overflow: hidden;
   position: relative;
-  background: #111;
-  border: 1px solid #222;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .producto-card:hover {
   transform: translateY(-4px);
-  border-color: #00ff87;
-  box-shadow: 0 8px 24px rgba(0, 255, 135, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.1);
 }
 
 .producto-card:hover .producto-img {
@@ -109,7 +109,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
@@ -117,7 +117,7 @@
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: 900;
-  color: #00ff87;
+  color: var(--accent);
   white-space: nowrap;
 }
 
@@ -126,7 +126,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 80px 20px;
-  color: #444;
+  color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 1.1rem;
   font-weight: 400;
@@ -188,7 +188,7 @@
   backdrop-filter: blur(4px);
 }
 
-.btn-accion-editar:hover  { background: #00ff87; color: #000; transform: scale(1.1); }
+.btn-accion-editar:hover  { background: var(--accent); color: #000; transform: scale(1.1); }
 .btn-accion-eliminar:hover { background: #ff4444; color: #fff; transform: scale(1.1); }
 
 /* ── Botón admin añadir */
@@ -196,8 +196,8 @@
   margin-left: auto;
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid #00e676;
-  color: #00e676;
+  border: 1px solid var(--accent);
+  color: var(--accent);
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 700;
@@ -209,7 +209,7 @@
 }
 
 .btn-admin-add:hover {
-  background: #00e676;
+  background: var(--accent);
   color: #000;
 }
 
@@ -220,7 +220,7 @@
   align-items: center;
   gap: 1rem;
   padding: 80px 20px;
-  color: #444;
+  color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 0.9rem;
   letter-spacing: 0.1em;
@@ -230,7 +230,7 @@
 .loader-dots span {
   width: 8px;
   height: 8px;
-  background: #00e676;
+  background: var(--accent);
   border-radius: 50%;
   animation: dot-bounce 0.6s infinite alternate;
 }

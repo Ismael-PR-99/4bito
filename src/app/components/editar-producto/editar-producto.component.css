@@ -1,13 +1,13 @@
 /* Hereda todos los estilos del sistema de modal — idéntico a anadir-producto */
 
 :host {
-  --green:   #00e676;
+  --green:   var(--accent);
   --red:     #ff4444;
-  --bg:      #0d0d0d;
-  --surface: #141414;
-  --border:  #2a2a2a;
-  --text:    #f0ebe2;
-  --muted:   #7a7a7a;
+  --bg:      var(--bg-primary);
+  --surface: var(--bg-card);
+  --border:  var(--border-color);
+  --text:    var(--text-primary);
+  --muted:   var(--text-muted);
 }
 
 .modal-backdrop {
@@ -122,7 +122,7 @@ label {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
-  color: #555;
+  color: var(--text-muted);
 }
 
 input[type="text"],
@@ -301,7 +301,7 @@ input.invalid, select.invalid { border-color: var(--red) !important; }
   transition: background 0.15s, opacity 0.15s;
 }
 .btn-submit:disabled              { opacity: 0.5; cursor: not-allowed; }
-.btn-submit:hover:not(:disabled)  { background: #00ff88; border-color: #00ff88; }
+.btn-submit:hover:not(:disabled)  { background: var(--accent-hover); border-color: var(--accent-hover); }
 
 .spinner-dots { display: flex; gap: 4px; align-items: center; }
 .spinner-dots span {

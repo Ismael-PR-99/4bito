@@ -14,11 +14,11 @@
 
 .btn-back {
   font-size: 0.9rem;
-  color: #aaa;
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.2s;
 }
-.btn-back:hover { color: #fff; }
+.btn-back:hover { color: var(--text-primary); }
 
 .decada-title {
   font-size: 2rem;
@@ -36,7 +36,7 @@
 }
 
 .producto-card {
-  background: #1a1a1a;
+  background: var(--bg-card);
   border-radius: 10px;
   overflow: hidden;
   text-decoration: none;
@@ -53,7 +53,7 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #111;
+  background: var(--bg-secondary);
 }
 .producto-img {
   width: 100%;
@@ -76,12 +76,12 @@
 }
 .producto-meta {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 .producto-precio {
   font-size: 1rem;
   font-weight: 700;
-  color: #00d084;
+  color: var(--accent);
   margin-top: 0.25rem;
 }
 
@@ -92,7 +92,7 @@
   align-items: center;
   gap: 1rem;
   padding: 4rem 0;
-  color: #aaa;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -100,7 +100,7 @@
 .loader-dots span {
   width: 8px;
   height: 8px;
-  background: #00d084;
+  background: var(--accent);
   border-radius: 50%;
   animation: dot-bounce 0.6s infinite alternate;
 }
@@ -120,7 +120,7 @@
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;
-  color: #666;
+  color: var(--text-muted);
   padding: 3rem;
 }
 

@@ -9,8 +9,8 @@
   align-items: center;
   gap: 7px;
   background: transparent;
-  border: 1px solid #00ff6a;
-  color: #00ff6a;
+  border: 1px solid var(--accent);
+  color: var(--accent);
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
@@ -25,7 +25,7 @@
 
 .btn-live:hover,
 .btn-live.open {
-  background: rgba(0, 255, 106, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
 }
 
 /* Punto pulsante */
@@ -33,7 +33,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #555;
+  background: var(--text-muted);
   flex-shrink: 0;
   transition: background 0.3s;
 }
@@ -64,11 +64,11 @@
   top: calc(100% + 10px);
   right: 0;
   width: 420px;
-  background: #050505;
-  border: 1px solid #1c1c1c;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   z-index: 500;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 16px 40px var(--shadow);
   overflow: hidden;
   animation: slideDown 0.18s ease;
 }
@@ -80,8 +80,8 @@
 
 .panel-header {
   padding: 10px 16px;
-  border-bottom: 1px solid #111;
-  background: #0a0a0a;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
 }
 
 .panel-title {
@@ -89,13 +89,13 @@
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 3px;
-  color: #444;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
 /* ── Acordeón liga ────────────────────────────────────────────────────────── */
 .league-block {
-  border-bottom: 1px solid #111;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .league-header {
@@ -107,7 +107,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #ccc;
+  color: var(--text-secondary);
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -118,12 +118,12 @@
 }
 
 .league-header:hover {
-  background: #0f0f0f;
+  background: var(--border-color);
 }
 
 .league-block.expanded .league-header {
-  color: #fff;
-  background: #0f0f0f;
+  color: var(--text-primary);
+  background: var(--border-color);
 }
 
 .league-flag {
@@ -164,7 +164,7 @@
 
 .league-chevron {
   font-size: 0.65rem;
-  color: #444;
+  color: var(--text-muted);
   transition: transform 0.2s;
   display: inline-block;
 }
@@ -175,7 +175,7 @@
 
 /* ── Lista de partidos ────────────────────────────────────────────────────── */
 .league-matches {
-  background: #030303;
+  background: var(--bg-secondary);
   padding: 4px 0;
   animation: fadeIn 0.15s ease;
 }
@@ -192,7 +192,7 @@
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.78rem;
   letter-spacing: 1px;
-  color: #444;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -209,7 +209,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #444;
+  background: var(--text-muted);
   animation: dotBounce 0.6s infinite alternate;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .match-row:hover {
-  background: #0a0a0a;
+  background: var(--bg-primary);
 }
 
 .match-row.is-live {
@@ -244,7 +244,7 @@
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.2px;
-  color: #cccccc;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -265,7 +265,7 @@
   font-family: 'Barlow Condensed', 'Impact', sans-serif;
   font-size: 1rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   letter-spacing: 1px;
 }
 
@@ -301,13 +301,13 @@
 }
 
 .badge-ft {
-  background: #111;
-  color: #555;
+  background: var(--bg-card);
+  color: var(--text-muted);
 }
 
 .badge-pre {
   background: transparent;
-  color: #444;
+  color: var(--text-muted);
 }
 
 /* ── Footer del panel ─────────────────────────────────────────────────────── */
@@ -315,9 +315,9 @@
   padding: 8px 16px;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.62rem;
-  color: #2a2a2a;
+  color: var(--border-hover);
   letter-spacing: 1px;
   text-align: center;
-  border-top: 1px solid #0f0f0f;
+  border-top: 1px solid var(--border-color);
   text-transform: uppercase;
 }

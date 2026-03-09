@@ -3,8 +3,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 70vh;
-  background: #0a0a0a;
-  color: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* Visual */
@@ -30,7 +30,7 @@
   position: absolute;
   top: 1.5rem;
   left: 1.5rem;
-  background: #00d084;
+  background: var(--accent);
   color: #000;
   font-family: var(--font-body);
   font-weight: 700;
@@ -46,7 +46,7 @@
   position: absolute;
   bottom: 1.5rem;
   left: 1.5rem;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay);
   padding: 0.75rem 1.25rem;
   backdrop-filter: blur(4px);
   z-index: 2;
@@ -56,7 +56,7 @@
   font-family: var(--font-body);
   font-size: 0.75rem;
   letter-spacing: 0.15em;
-  color: #aaa;
+  color: var(--text-secondary);
   text-transform: uppercase;
   display: block;
   margin-bottom: 0.25rem;
@@ -78,21 +78,21 @@
   font-family: var(--font-display);
   font-size: 2.2rem;
   font-weight: 900;
-  color: #00d084;
+  color: var(--accent);
   line-height: 1;
 }
 
 .countdown__unit {
   font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #aaa;
+  color: var(--text-secondary);
   letter-spacing: 0.1em;
 }
 
 .countdown__sep {
   font-family: var(--font-display);
   font-size: 2rem;
-  color: #555;
+  color: var(--text-muted);
   line-height: 1;
   align-self: center;
 }
@@ -110,7 +110,7 @@
   font-family: var(--font-body);
   font-size: 0.9rem;
   letter-spacing: 0.18em;
-  color: #00d084;
+  color: var(--accent);
   text-transform: uppercase;
   font-weight: 600;
 }
@@ -122,7 +122,7 @@
   line-height: 0.95;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .vitrina__price-wrap {
@@ -136,21 +136,21 @@
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 900;
-  color: #fff;
+  color: var(--text-primary);
   line-height: 1;
 }
 
 .vitrina__original {
   font-family: var(--font-body);
   font-size: 1.2rem;
-  color: #666;
+  color: var(--text-secondary);
   text-decoration: line-through;
   letter-spacing: 0.08em;
 }
 
 .vitrina__discount {
   font-family: var(--font-body);
-  background: #00d084;
+  background: var(--accent);
   color: #000;
   font-size: 0.85rem;
   font-weight: 700;
@@ -169,20 +169,20 @@
   font-family: var(--font-body);
   font-size: 0.9rem;
   letter-spacing: 0.1em;
-  border: 1px solid #444;
+  border: 1px solid var(--border-hover);
   padding: 0.3rem 0.75rem;
-  color: #ccc;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
 }
 
 .vitrina__size:hover {
-  border-color: #00d084;
-  color: #00d084;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .vitrina__btn {
-  background: #00d084;
+  background: var(--accent);
   color: #000;
   border: none;
   font-family: var(--font-body);
@@ -197,7 +197,7 @@
 }
 
 .vitrina__btn:hover {
-  background: #00b870;
+  background: var(--accent-hover);
   transform: translateY(-2px);
 }
 

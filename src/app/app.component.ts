@@ -6,6 +6,7 @@ import { AuthService } from './services/auth.service';
 import { DiscountService } from './services/discount.service';
 import { CartService } from './services/cart.service';
 import { CartDrawerService } from './services/cart-drawer.service';
+import { ThemeService } from './services/theme.service';
 import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
 import { CartDrawerComponent } from './components/cart-drawer/cart-drawer.component';
 import { ToastComponent } from './components/toast/toast.component';
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit {
 
   carritoCount$!: Observable<number>;
 
+  public  themeService  = inject(ThemeService);
   private auth          = inject(AuthService);
   private router        = inject(Router);
   private discount      = inject(DiscountService);

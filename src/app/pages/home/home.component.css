@@ -1,7 +1,7 @@
 /* Grid de categorías */
 .main-content {
   padding: 2rem 0 4rem;
-  background: #090909;
+  background: var(--bg-primary);
 }
 
 .categorias-grid {
@@ -9,7 +9,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
   padding: 4px;
-  background-color: #090909;
+  background-color: var(--bg-primary);
 }
 
 .categoria-card {
