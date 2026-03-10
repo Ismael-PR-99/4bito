@@ -632,9 +632,9 @@
 
       <!-- ══ SECCIÓN: ALERTAS DE STOCK ══════════════════════ -->
       @if (seccion() === 'alertas') {
-        <section class="dash-section">
+        <section class="section">
           <div class="section-head">
-            <h2 class="section-title">🚨 ALERTAS DE STOCK BAJO</h2>
+            <h2 class="section-heading">🚨 ALERTAS DE STOCK BAJO</h2>
             <button class="btn-refrescar" (click)="cargarAlertas()">↺ ACTUALIZAR</button>
           </div>
 
@@ -668,11 +668,11 @@
 
       <!-- ══ SECCIÓN: HISTORIAL MOVIMIENTOS ═════════════════ -->
       @if (seccion() === 'historial') {
-        <section class="dash-section">
+        <section class="section">
           <div class="section-head">
-            <h2 class="section-title">📋 HISTORIAL DE MOVIMIENTOS</h2>
+            <h2 class="section-heading">📋 HISTORIAL DE MOVIMIENTOS</h2>
             <div class="sec-head-actions">
-              <select class="inv-select" [(ngModel)]="filtroMovTipo" (change)="cargarMovimientos()">
+              <select class="inv-select" [ngModel]="filtroMovTipo()" (ngModelChange)="filtroMovTipo.set($event); cargarMovimientos()">
                 <option value="">Todos los tipos</option>
                 <option value="entrada">ENTRADA</option>
                 <option value="salida">SALIDA</option>
@@ -727,9 +727,9 @@
 
       <!-- ══ SECCIÓN: RESEÑAS ══════════════════════════════== -->
       @if (seccion() === 'resenas') {
-        <section class="dash-section">
+        <section class="section">
           <div class="section-head">
-            <h2 class="section-title">💬 MODERACIÓN DE RESEÑAS</h2>
+            <h2 class="section-heading">💬 MODERACIÓN DE RESEÑAS</h2>
             <button class="btn-refrescar" (click)="cargarResenas()">↺ ACTUALIZAR</button>
           </div>
 
@@ -764,9 +764,9 @@
 
       <!-- ══ SECCIÓN: LISTA DE ESPERA ══════════════════════== -->
       @if (seccion() === 'espera') {
-        <section class="dash-section">
+        <section class="section">
           <div class="section-head">
-            <h2 class="section-title">📬 LISTA DE ESPERA (STOCK)</h2>
+            <h2 class="section-heading">📬 LISTA DE ESPERA (STOCK)</h2>
             <button class="btn-refrescar" (click)="cargarWaitlist()">↺ ACTUALIZAR</button>
           </div>
           <div class="inv-search-row">
