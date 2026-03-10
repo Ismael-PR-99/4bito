@@ -21,13 +21,10 @@ export class PedidoConfirmadoComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['orderId']) {
-        this.numeroPedido  = params['orderId'];
+        this.numeroPedido  = '#' + params['orderId'];
         this.isPaypalOrder = true;
       } else {
-        this.numeroPedido = '#4B-' + Math.floor(100000 + Math.random() * 900000);
-        // Sólo limpiar carrito si no vino desde PayPal
-        // (PayPal ya lo limpia en onClientAuthorization)
-        this.cartService.clearCart();
+        this.numeroPedido = '';
       }
     });
   }

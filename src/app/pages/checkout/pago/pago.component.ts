@@ -122,9 +122,7 @@ export class PagoComponent implements OnInit, OnDestroy {
       onApprove: (data: any, actions: any) => {
         this.paymentStatus = 'processing';
         return actions.order.capture().then(() => {
-          this.cartService.clearCart();
-          this.checkoutService.clear();
-          this.router.navigate(['/pedido-confirmado'], { queryParams: { orderId: data.orderID } });
+          this.completarPedido(data.orderID);
         });
       },
       onCancel: () => {
@@ -175,12 +173,50 @@ export class PagoComponent implements OnInit, OnDestroy {
       return;
     }
     this.paymentStatus = 'processing';
-    setTimeout(() => {
-      this.cartService.clearCart();
-      this.checkoutService.clear();
-      this.router.navigate(['/pedido-confirmado'], {
-        queryParams: { orderId: '#4B-' + Math.floor(100000 + Math.random() * 900000) }
-      });
-    }, 2000);
+    this.completarPedido();
+  }
+
+  private completarPedido(paypalTxnId?: string): void {
+    const ship = this.checkoutService.shippingData;
+    if (!ship) return;
+
+    let items: CartItem[] = [];
+    this.subs.push(
+      this.items$.subscribe(i => items = i)
+    );
+
+    const productos = items.map(item => ({
+      id: Number(item.id),
+      nombre: item.nombre,
+      imageUrl: item.imagen,
+      talla: item.talla,
+      cantidad: item.cantidad,
+      precio: item.precio,
+    }));
+
+    this.checkoutService.crearPedido({
+      nombre: `${ship.nombre} ${ship.apellidos}`,
+      email: ship.email,
+      telefono: ship.telefono,
+      direccion: ship.direccion,
+      ciudad: ship.ciudad,
+      cp: ship.cp,
+      pais: ship.pais,
+      productos,
+      total: this.currentTotal,
+      paypalTransactionId: paypalTxnId,
+    }).subscribe({
+      next: (res) => {
+        this.cartService.clearCart();
+        this.checkoutService.clear();
+        this.router.navigate(['/pedido-confirmado'], {
+          queryParams: { orderId: res.pedidoId }
+        });
+      },
+      error: () => {
+        this.paymentStatus = 'error';
+        this.toastService.show('ERROR AL REGISTRAR EL PEDIDO', 'error');
+      },
+    });
   }
 }
