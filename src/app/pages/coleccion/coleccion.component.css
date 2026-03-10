@@ -398,3 +398,42 @@
   .col-sidebar { grid-template-columns: 1fr; }
   .col-page { padding: 1.5rem 1rem 4rem; }
 }
+
+/* ── Product card overlay actions ────────────────────── */
+.prod-overlay-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.prod-card:hover .prod-overlay-actions {
+  opacity: 1;
+}
+
+.prod-oa-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.4);
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  backdrop-filter: blur(4px);
+}
+
+.prod-oa-btn:hover,
+.prod-oa-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+

@@ -98,6 +98,11 @@
             <span class="prod-discount-badge" *ngIf="p.discountPercent && p.discountPercent > 0">
               -{{ p.discountPercent | number:'1.0-0' }}%
             </span>
+            <!-- Wishlist + Compare overlay btns -->
+            <div class="prod-overlay-actions">
+              <button class="prod-oa-btn" [class.active]="wishlistSvc.isInWishlist(p.id)" (click)="toggleWishlist($event, p)" title="Añadir a wishlist">♡</button>
+              <button class="prod-oa-btn" [class.active]="compareSvc.isInCompare(p.id)" (click)="toggleCompare($event, p)" title="Comparar">∓</button>
+            </div>
           </div>
           <div class="prod-info">
             <span class="prod-name">{{ p.name }}</span>

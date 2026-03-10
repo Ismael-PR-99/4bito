@@ -1,0 +1,57 @@
+<div class="comparar-page">
+
+  <div class="comparar-header">
+    <a routerLink="/coleccion" class="btn-back">← VOLVER</a>
+    <h1 class="comparar-title">COMPARADOR DE PRODUCTOS</h1>
+  </div>
+
+  <div class="comparar-loader" *ngIf="cargando()">Cargando productos...</div>
+
+  <div class="comparar-empty" *ngIf="!cargando() && productos().length < 2">
+    <p>Selecciona al menos 2 productos para comparar.</p>
+    <a routerLink="/coleccion" class="btn-back">IR A LA COLECCIÓN</a>
+  </div>
+
+  @if (!cargando() && productos().length >= 2) {
+    <div class="comparar-wrap">
+      <!-- Tabla de comparación -->
+      <table class="comparar-table">
+        <thead>
+          <tr>
+            <th class="col-label"></th>
+            @for (p of productos(); track p.id) {
+              <th class="col-product">
+                <a [routerLink]="['/producto', p.id]" class="product-link">
+                  <img [src]="p.imageUrl" [alt]="p.name" class="product-thumb">
+                  <span class="product-name">{{ p.name }}</span>
+                </a>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (field of FIELDS; track field.key) {
+            <tr [class.row-diff]="hasDiff(field.key)">
+              <td class="label-cell">{{ field.label }}</td>
+              @for (p of productos(); track p.id) {
+                <td class="value-cell" [class.diff-highlight]="hasDiff(field.key)">
+                  {{ valorCelda(p, field.key) }}
+                </td>
+              }
+            </tr>
+          }
+          <!-- Fila de acciones -->
+          <tr class="action-row">
+            <td class="label-cell"></td>
+            @for (p of productos(); track p.id) {
+              <td class="value-cell">
+                <button class="btn-cart-compare" (click)="addToCart(p)">AÑADIR AL CARRITO</button>
+              </td>
+            }
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>

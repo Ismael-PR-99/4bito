@@ -1,0 +1,29 @@
+@if (items.length > 0) {
+  <div class="compare-bar">
+    <div class="cb-inner">
+      <span class="cb-label">COMPARAR</span>
+
+      <div class="cb-products">
+        @for (p of items; track p.id) {
+          <div class="cb-product">
+            <img [src]="p.imageUrl" [alt]="p.name" class="cb-img">
+            <span class="cb-nombre">{{ p.name }}</span>
+            <button class="cb-remove" (click)="remove(p.id)" title="Quitar">✕</button>
+          </div>
+        }
+        @for (slot of [].constructor(3 - items.length); track $index) {
+          <div class="cb-slot">
+            <span>+ Añadir</span>
+          </div>
+        }
+      </div>
+
+      <div class="cb-actions">
+        <button class="cb-btn-clear" (click)="limpiar()">LIMPIAR</button>
+        <button class="cb-btn-compare" (click)="comparar()" [disabled]="items.length < 2">
+          COMPARAR AHORA {{ items.length }}/3
+        </button>
+      </div>
+    </div>
+  </div>
+}

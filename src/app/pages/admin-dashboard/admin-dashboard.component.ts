@@ -6,11 +6,13 @@ import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { ProductosService, ProductoApi } from '../../services/productos.service';
 import { DiscountService } from '../../services/discount.service';
+import { ReviewService, Review } from '../../services/review.service';
+import { StockManagementService, StockAlert, StockMovement, WaitlistItem } from '../../services/stock-management.service';
 import {
   AdminService, Pedido, Metricas, VentaDia, TopProducto, ResumenMes,
 } from '../../services/admin.service';
 
-type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza';
+type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'alertas' | 'historial' | 'resenas' | 'espera';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -39,6 +41,10 @@ export class AdminDashboardComponent implements OnInit {
     { id: 'inventario', icon: '👕', label: 'INVENTARIO' },
     { id: 'ventas',     icon: '💰', label: 'VENTAS' },
     { id: 'pieza',      icon: '⭐', label: 'PIEZA SEMANA' },
+    { id: 'alertas',    icon: '🚨', label: 'ALERTAS STOCK' },
+    { id: 'historial',  icon: '📋', label: 'HISTORIAL' },
+    { id: 'resenas',    icon: '💬', label: 'RESEÑAS' },
+    { id: 'espera',     icon: '📬', label: 'LISTA ESPERA' },
   ];
 
   // ── SECCIÓN 1: RESUMEN ────────────────────────────────────
@@ -205,6 +211,10 @@ export class AdminDashboardComponent implements OnInit {
     this.seccion.set(s);
     this.sidebarAbierto.set(false);
     this.dropdownAbierto.set(null);
+    if (s === 'alertas'   && this.alertas().length === 0)      { this.cargarAlertas(); }
+    if (s === 'historial' && this.movimientos().length === 0)  { this.cargarMovimientos(); }
+    if (s === 'resenas'   && this.resenasPanel().length === 0) { this.cargarResenas(); }
+    if (s === 'espera'    && this.waitlist().length === 0)     { this.cargarWaitlist(); }
   }
 
   toggleSidebar(): void { this.sidebarAbierto.update(v => !v); }
@@ -391,4 +401,109 @@ export class AdminDashboardComponent implements OnInit {
       return { fecha: d.toISOString().split('T')[0], ingresos: 0, pedidos: 0 };
     });
   }
+
+  // ───────────────────────────────────────────────────────────
+  // SECCIÓN 6: ALERTAS DE STOCK
+  // ───────────────────────────────────────────────────────────
+  private stockMgmtSvc = inject(StockManagementService);
+  private reviewSvcAdm = inject(ReviewService);
+
+  alertas         = signal<StockAlert[]>([]);
+  cargandoAlertas = signal(false);
+
+  cargarAlertas(): void {
+    this.cargandoAlertas.set(true);
+    this.stockMgmtSvc.getAlerts().subscribe({
+      next: r  => { this.alertas.set(r.alerts ?? []); this.cargandoAlertas.set(false); },
+      error: () => this.cargandoAlertas.set(false),
+    });
+  }
+
+  ignorarAlerta(id: number): void {
+    this.stockMgmtSvc.ignoreAlert(id).subscribe({
+      next: () => {
+        this.alertas.update(list => list.filter(a => a.id !== id));
+        this.toastSvc.show('Alerta ignorada', 'success');
+      },
+    });
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // SECCIÓN 7: HISTORIAL DE MOVIMIENTOS
+  // ───────────────────────────────────────────────────────────
+  movimientos         = signal<StockMovement[]>([]);
+  cargandoMov         = signal(false);
+  filtroMovTipo       = signal('');
+
+  cargarMovimientos(): void {
+    this.cargandoMov.set(true);
+    const params = this.filtroMovTipo() ? { type: this.filtroMovTipo() } : {};
+    this.stockMgmtSvc.getMovements(params).subscribe({
+      next: r  => { this.movimientos.set(r.movements ?? []); this.cargandoMov.set(false); },
+      error: () => this.cargandoMov.set(false),
+    });
+  }
+
+  exportarCSV(): void {
+    const cols = ['ID', 'Producto', 'Talla', 'Tipo', 'Cantidad', 'Stock Prev', 'Stock Nuevo', 'Razón', 'Fecha'];
+    const rows = this.movimientos().map(m => [
+      m.id, `"${m.product_name}"`, m.size, m.type, m.quantity,
+      m.previous_stock, m.new_stock, `"${m.reason ?? ''}"`, m.created_at,
+    ].join(','));
+    const csv  = [cols.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `movimientos_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // SECCIÓN 8: RESEÑAS
+  // ───────────────────────────────────────────────────────────
+  resenasPanel     = signal<Review[]>([]);
+  cargandoResenas  = signal(false);
+
+  cargarResenas(): void {
+    this.cargandoResenas.set(true);
+    this.reviewSvcAdm.getPending().subscribe({
+      next: r  => { this.resenasPanel.set(r.reviews ?? []); this.cargandoResenas.set(false); },
+      error: () => this.cargandoResenas.set(false),
+    });
+  }
+
+  moderarResena(id: number, accion: 'approve' | 'delete'): void {
+    this.reviewSvcAdm.moderate(id, accion).subscribe({
+      next: () => {
+        this.resenasPanel.update(list => list.filter(r => r.id !== id));
+        this.toastSvc.show(accion === 'approve' ? 'Reseña aprobada' : 'Reseña eliminada', 'success');
+      },
+    });
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // SECCIÓN 9: LISTA DE ESPERA
+  // ───────────────────────────────────────────────────────────
+  waitlist         = signal<WaitlistItem[]>([]);
+  cargandoWaitlist = signal(false);
+  busquedaWaitlist = signal('');
+
+  cargarWaitlist(): void {
+    this.cargandoWaitlist.set(true);
+    this.stockMgmtSvc.getWaitlist().subscribe({
+      next: r  => { this.waitlist.set(r.waitlist ?? []); this.cargandoWaitlist.set(false); },
+      error: () => this.cargandoWaitlist.set(false),
+    });
+  }
+
+  waitlistFiltrada = computed(() => {
+    const q = this.busquedaWaitlist().toLowerCase();
+    if (!q) return this.waitlist();
+    return this.waitlist().filter(w =>
+      (w.product_name ?? '').toLowerCase().includes(q)
+    );
+  });
 }
+

@@ -1,22 +1,24 @@
 import { Component, ViewEncapsulation, inject, HostListener, OnInit } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
-import { LucideAngularModule, ShoppingCart, User, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
+import { LucideAngularModule, ShoppingCart, User, Heart, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import { AuthService } from './services/auth.service';
 import { DiscountService } from './services/discount.service';
 import { CartService } from './services/cart.service';
 import { CartDrawerService } from './services/cart-drawer.service';
 import { ThemeService } from './services/theme.service';
+import { WishlistService } from './services/wishlist.service';
 import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
 import { CartDrawerComponent } from './components/cart-drawer/cart-drawer.component';
 import { ToastComponent } from './components/toast/toast.component';
+import { CompareBarComponent } from './components/compare-bar/compare-bar.component';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent, CartDrawerComponent, ToastComponent],
+  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent, CartDrawerComponent, ToastComponent, CompareBarComponent],
   providers: [
-    { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User }) }
+    { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User, Heart }) }
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -28,12 +30,13 @@ export class AppComponent implements OnInit {
 
   carritoCount$!: Observable<number>;
 
-  public  themeService  = inject(ThemeService);
-  private auth          = inject(AuthService);
-  private router        = inject(Router);
-  private discount      = inject(DiscountService);
-  private cartService   = inject(CartService);
-  private drawerService = inject(CartDrawerService);
+  public  themeService   = inject(ThemeService);
+  private auth           = inject(AuthService);
+  private router         = inject(Router);
+  private discount       = inject(DiscountService);
+  private cartService    = inject(CartService);
+  private drawerService  = inject(CartDrawerService);
+  public  wishlistSvc    = inject(WishlistService);
 
   get loggedIn(): boolean { return this.auth.isLoggedIn(); }
   get esAdmin(): boolean { return this.auth.isAdmin(); }

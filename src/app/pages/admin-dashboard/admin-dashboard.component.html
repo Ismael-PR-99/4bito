@@ -630,6 +630,184 @@
         </section>
       }
 
+      <!-- ══ SECCIÓN: ALERTAS DE STOCK ══════════════════════ -->
+      @if (seccion() === 'alertas') {
+        <section class="dash-section">
+          <div class="section-head">
+            <h2 class="section-title">🚨 ALERTAS DE STOCK BAJO</h2>
+            <button class="btn-refrescar" (click)="cargarAlertas()">↺ ACTUALIZAR</button>
+          </div>
+
+          @if (cargandoAlertas()) {
+            <div class="loading-msg">Cargando alertas...</div>
+          } @else if (alertas().length === 0) {
+            <div class="empty-msg">✓ Sin alertas activas de stock bajo</div>
+          } @else {
+            <div class="alertas-grid">
+              @for (alerta of alertas(); track alerta.id) {
+                <div class="alerta-card">
+                  <div class="alerta-info">
+                    <p class="alerta-nombre">{{ alerta.product_name }}</p>
+                    <p class="alerta-talla">Talla: <strong>{{ alerta.size }}</strong></p>
+                    <div class="alerta-stock">
+                      <span class="stock-pill stock-pill--danger">{{ alerta.current_stock }} uds.</span>
+                      <span class="alerta-umbral">Umbral: {{ alerta.threshold }}</span>
+                    </div>
+                    <p class="alerta-fecha">{{ alerta.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+                  </div>
+                  <div class="alerta-acciones">
+                    <button class="btn-reponer" (click)="setSeccion('inventario')">REPONER STOCK</button>
+                    <button class="btn-ignorar" (click)="ignorarAlerta(alerta.id)">IGNORAR</button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ══ SECCIÓN: HISTORIAL MOVIMIENTOS ═════════════════ -->
+      @if (seccion() === 'historial') {
+        <section class="dash-section">
+          <div class="section-head">
+            <h2 class="section-title">📋 HISTORIAL DE MOVIMIENTOS</h2>
+            <div class="sec-head-actions">
+              <select class="inv-select" [(ngModel)]="filtroMovTipo" (change)="cargarMovimientos()">
+                <option value="">Todos los tipos</option>
+                <option value="entrada">ENTRADA</option>
+                <option value="salida">SALIDA</option>
+                <option value="ajuste">AJUSTE</option>
+                <option value="devolucion">DEVOLUCIÓN</option>
+              </select>
+              <button class="btn-export" (click)="exportarCSV()" [disabled]="movimientos().length === 0">EXPORTAR CSV</button>
+            </div>
+          </div>
+
+          @if (cargandoMov()) {
+            <div class="loading-msg">Cargando historial...</div>
+          } @else if (movimientos().length === 0) {
+            <div class="empty-msg">Sin movimientos registrados</div>
+          } @else {
+            <table class="mov-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>PRODUCTO</th>
+                  <th>TALLA</th>
+                  <th>TIPO</th>
+                  <th>CANT.</th>
+                  <th>PREV.</th>
+                  <th>NUEVO</th>
+                  <th>RAZÓN</th>
+                  <th>FECHA</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of movimientos(); track m.id) {
+                  <tr>
+                    <td>{{ m.id }}</td>
+                    <td>{{ m.product_name }}</td>
+                    <td>{{ m.size }}</td>
+                    <td><span class="mov-type-badge mov-{{ m.type }}">{{ m.type.toUpperCase() }}</span></td>
+                    <td [class.mov-pos]="m.type === 'entrada' || m.type === 'devolucion'"
+                        [class.mov-neg]="m.type === 'salida'">
+                      {{ (m.type === 'entrada' || m.type === 'devolucion') ? '+' : '-' }}{{ m.quantity }}
+                    </td>
+                    <td>{{ m.previous_stock }}</td>
+                    <td>{{ m.new_stock }}</td>
+                    <td class="mov-razon">{{ m.reason || '—' }}</td>
+                    <td>{{ m.created_at | date:'dd/MM/yy HH:mm' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </section>
+      }
+
+      <!-- ══ SECCIÓN: RESEÑAS ══════════════════════════════== -->
+      @if (seccion() === 'resenas') {
+        <section class="dash-section">
+          <div class="section-head">
+            <h2 class="section-title">💬 MODERACIÓN DE RESEÑAS</h2>
+            <button class="btn-refrescar" (click)="cargarResenas()">↺ ACTUALIZAR</button>
+          </div>
+
+          @if (cargandoResenas()) {
+            <div class="loading-msg">Cargando reseñas...</div>
+          } @else if (resenasPanel().length === 0) {
+            <div class="empty-msg">✓ Sin reseñas pendientes de moderación</div>
+          } @else {
+            @for (r of resenasPanel(); track r.id) {
+              <div class="resena-mod-card">
+                <div class="resena-mod-header">
+                  <strong>{{ r.user_name }}</strong>
+                  <span class="resena-prod-id">Producto #{{ r.product_id }}</span>
+                  <span class="resena-stars-sm">
+                    @for (s of [1,2,3,4,5]; track s) {
+                      <span [class.filled]="s <= r.rating">★</span>
+                    }
+                  </span>
+                  <span *ngIf="r.verified" class="badge-verificado">✓ COMPRA VERIFICADA</span>
+                  <span class="resena-date">{{ r.created_at | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <p class="resena-comment-mod">{{ r.comment }}</p>
+                <div class="resena-mod-acc">
+                  <button class="btn-aprobar"  (click)="moderarResena(r.id, 'approve')">✓ APROBAR</button>
+                  <button class="btn-eliminar" (click)="moderarResena(r.id, 'delete')">✕ ELIMINAR</button>
+                </div>
+              </div>
+            }
+          }
+        </section>
+      }
+
+      <!-- ══ SECCIÓN: LISTA DE ESPERA ══════════════════════== -->
+      @if (seccion() === 'espera') {
+        <section class="dash-section">
+          <div class="section-head">
+            <h2 class="section-title">📬 LISTA DE ESPERA (STOCK)</h2>
+            <button class="btn-refrescar" (click)="cargarWaitlist()">↺ ACTUALIZAR</button>
+          </div>
+          <div class="inv-search-row">
+            <input
+              class="inv-search"
+              type="text"
+              placeholder="Buscar producto..."
+              [ngModel]="busquedaWaitlist()"
+              (ngModelChange)="busquedaWaitlist.set($event)"
+            />
+          </div>
+
+          @if (cargandoWaitlist()) {
+            <div class="loading-msg">Cargando lista de espera...</div>
+          } @else if (waitlistFiltrada().length === 0) {
+            <div class="empty-msg">Sin suscriptores en lista de espera</div>
+          } @else {
+            <table class="mov-table">
+              <thead>
+                <tr>
+                  <th>PRODUCTO</th>
+                  <th>TALLA</th>
+                  <th>Nº SUSCRIPTORES</th>
+                  <th>ACCIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (w of waitlistFiltrada(); track w.product_id + '-' + w.size) {
+                  <tr>
+                    <td>{{ w.product_name }}</td>
+                    <td>{{ w.size }}</td>
+                    <td><strong>{{ w.waiting_count }}</strong> personas esperando</td>
+                    <td><button class="btn-reponer" (click)="setSeccion('inventario')">REPONER</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </section>
+      }
+
     </main>
   </div>
 </div>

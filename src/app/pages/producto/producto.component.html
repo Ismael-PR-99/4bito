@@ -9,9 +9,34 @@
     </div>
 
     <div class="producto-info">
-      <h1 class="producto-nombre">{{ producto.nombre }}</h1>
+      <!-- Nombre + acciones rápidas -->
+      <div class="producto-nombre-row">
+        <h1 class="producto-nombre">{{ producto.nombre }}</h1>
+        <div class="quick-actions">
+          <button class="qa-btn" [class.active]="enWishlist" (click)="toggleWishlist()" title="Lista de deseos">
+            <lucide-icon name="heart" [size]="20" [strokeWidth]="1.5"></lucide-icon>
+          </button>
+          <button class="qa-btn" [class.active]="enCompare" (click)="toggleCompare()" title="Comparar">
+            <lucide-icon name="git-compare" [size]="20" [strokeWidth]="1.5"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
       <p class="producto-equipo">{{ producto.equipo }} &middot; {{ producto.anio }}</p>
       <p class="producto-descripcion">{{ producto.descripcion }}</p>
+
+      <!-- Rating summary -->
+      @if (ratingCount() > 0) {
+        <div class="rating-summary">
+          <span class="stars-display">
+            @for (s of starArray(5); track s) {
+              <span [class.filled]="s <= avgRating()">★</span>
+            }
+          </span>
+          <span class="rating-value">{{ avgRating().toFixed(1) }}</span>
+          <span class="rating-count">({{ ratingCount() }} reseñas)</span>
+        </div>
+      }
 
       <div class="producto-precios">
         <span class="precio-actual" [class.precio-actual--rebajado]="producto.precioOriginal">{{ producto.precio }}&#8364;</span>
@@ -23,17 +48,51 @@
 
       <!-- Selector de talla / medida -->
       <div class="seccion-tallas">
-        <p class="seccion-label">{{ conMedidas ? 'MEDIDA' : 'TALLA' }} <span class="talla-seleccionada-tag" *ngIf="tallaSeleccionada">{{ tallaSeleccionada }}</span></p>
+        <div class="seccion-label-row">
+          <p class="seccion-label">
+            {{ conMedidas ? 'MEDIDA' : 'TALLA' }}
+            <span class="talla-seleccionada-tag" *ngIf="tallaSeleccionada">{{ tallaSeleccionada }}</span>
+          </p>
+          @if (tallaGuardada) {
+            <span class="talla-guardada-hint">Tu talla habitual: <strong>{{ tallaGuardada }}</strong></span>
+          }
+        </div>
         <div class="tallas-grid">
-          <button
-            *ngFor="let talla of producto.tallas"
-            class="talla-btn"
-            [class.activa]="tallaSeleccionada === talla"
-            (click)="seleccionarTalla(talla)"
-          >{{ talla }}</button>
+          @for (talla of producto.tallas; track talla) {
+            <button
+              class="talla-btn"
+              [class.activa]="tallaSeleccionada === talla"
+              [class.agotada]="tallaAgotada(talla)"
+              [disabled]="tallaAgotada(talla)"
+              (click)="seleccionarTalla(talla)"
+            >{{ talla }}</button>
+          }
         </div>
         <p class="error-talla" *ngIf="errorTalla">{{ conMedidas ? 'Selecciona una medida' : 'Selecciona una talla' }}</p>
       </div>
+
+      <!-- Aviso agotado -->
+      @if (tallaSeleccionada && tallaAgotada(tallaSeleccionada)) {
+        <div class="aviso-agotado">
+          <p>Esta talla está agotada. ¿Quieres que te avisemos cuando vuelva?</p>
+          @if (suscrito() === tallaSeleccionada) {
+            <p class="suscrito-ok">✓ ¡Apuntado! Te notificaremos en cuanto haya stock.</p>
+          } @else {
+            <div class="aviso-form">
+              <input
+                type="email"
+                placeholder="Tu email"
+                class="aviso-input"
+                [value]="suscribirEmail()"
+                (input)="suscribirEmail.set($any($event.target).value)"
+              />
+              <button class="btn-avisar" (click)="suscribirStock()" [disabled]="suscribiendo()">
+                {{ suscribiendo() ? '...' : 'AVISAR' }}
+              </button>
+            </div>
+          }
+        </div>
+      }
 
       <!-- Selector de cantidad -->
       <div class="seccion-cantidad">
@@ -50,12 +109,103 @@
         class="btn-carrito"
         [class.confirmado]="confirmado"
         (click)="addToCart()"
+        [disabled]="tallaSeleccionada ? tallaAgotada(tallaSeleccionada) : false"
       >
         <lucide-icon name="shopping-cart" [size]="18"></lucide-icon>
         <span>{{ confirmado ? '&#10003; AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO' }}</span>
       </button>
     </div>
   </div>
+
+  <!-- ── FRECUENTEMENTE COMPRADO JUNTO ─────────────── -->
+  @if (frecuenteJuntos().length > 0) {
+    <section class="related-section">
+      <h2 class="related-title">LOS QUE COMPRARON ESTO TAMBIÉN SE LLEVARON</h2>
+      <div class="related-grid">
+        @for (p of frecuenteJuntos(); track p.id) {
+          <a [routerLink]="['/producto', p.id]" class="related-card">
+            <div class="related-badge-top">COMPRA FRECUENTE</div>
+            <img [src]="p.imageUrl" [alt]="p.name" class="related-img">
+            <div class="related-info">
+              <p class="related-nombre">{{ p.name }}</p>
+              <p class="related-precio">{{ p.discountedPrice ?? p.price }}€</p>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── TAMBIÉN TE PUEDE GUSTAR ────────────────────── -->
+  @if (relacionados().length > 0) {
+    <section class="related-section">
+      <h2 class="related-title">TAMBIÉN TE PUEDE GUSTAR</h2>
+      <div class="related-grid">
+        @for (p of relacionados(); track p.id) {
+          <a [routerLink]="['/producto', p.id]" class="related-card">
+            <img [src]="p.imageUrl" [alt]="p.name" class="related-img">
+            <div class="related-info">
+              <p class="related-nombre">{{ p.name }}</p>
+              <p class="related-precio">{{ p.discountedPrice ?? p.price }}€</p>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── RESEÑAS ─────────────────────────────────────── -->
+  <section class="resenas-section" id="resenas">
+    <h2 class="resenas-title">RESEÑAS</h2>
+
+    <div class="resena-form-wrap">
+      <h3 class="resena-form-title">DEJA TU OPINIÓN</h3>
+      <div class="star-input">
+        @for (s of starArray(5); track s) {
+          <span
+            class="star-inp"
+            [class.filled]="s <= (resenaHover() || miResena.rating)"
+            (mouseenter)="resenaHover.set(s)"
+            (mouseleave)="resenaHover.set(0)"
+            (click)="miResena.rating = s"
+          >★</span>
+        }
+      </div>
+      <textarea
+        class="resena-textarea"
+        placeholder="Cuéntanos tu experiencia..."
+        [(ngModel)]="miResena.comment"
+        rows="3"
+      ></textarea>
+      <button
+        class="btn-enviar-resena"
+        (click)="submitReview()"
+        [disabled]="miResena.rating === 0 || enviandoResena()"
+      >
+        {{ enviandoResena() ? 'ENVIANDO...' : 'ENVIAR RESEÑA' }}
+      </button>
+    </div>
+
+    @if (reviews().length === 0) {
+      <p class="resenas-empty">Todavía no hay reseñas. ¡Sé el primero!</p>
+    }
+
+    @for (r of reviews(); track r.id) {
+      <div class="resena-item">
+        <div class="resena-header">
+          <strong class="resena-usuario">{{ r.user_name }}</strong>
+          <span class="resena-stars">
+            @for (s of starArray(5); track s) {
+              <span [class.filled]="s <= r.rating">★</span>
+            }
+          </span>
+          <span *ngIf="r.verified" class="resena-badge">✓ COMPRA VERIFICADA</span>
+          <span class="resena-fecha">{{ r.created_at | date:'dd MMM yyyy' }}</span>
+        </div>
+        <p class="resena-comment">{{ r.comment }}</p>
+      </div>
+    }
+  </section>
 
   <ng-template #noEncontrado>
     <div class="empty-state">

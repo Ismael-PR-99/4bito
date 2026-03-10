@@ -118,13 +118,20 @@ try {
         ':sizes'     => json_encode($sizesDecoded),
     ]);
 
-    $newId = $db->lastInsertId();
+    $newId = (int)$db->lastInsertId();
+
+    // Generar SKU: 4BT-[CAT]-[YEAR]-[ZERO_ID]
+    $catAbbrev = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $category), 0, 3));
+    $sku = sprintf('4BT-%s-%d-%04d', $catAbbrev, (int)$year, $newId);
+    try {
+        $db->prepare("UPDATE productos SET sku=? WHERE id=?")->execute([$sku, $newId]);
+    } catch (PDOException $e) { /* columna sku puede no existir aún */ }
 
     http_response_code(201);
     echo json_encode([
         'mensaje'  => 'Producto creado correctamente',
         'producto' => [
-            'id'       => (int) $newId,
+            'id'       => $newId,
             'name'     => $name,
             'price'    => (float) $price,
             'team'     => $team,
@@ -133,6 +140,7 @@ try {
             'imageUrl' => $imageUrl,
             'category' => $category,
             'sizes'    => $sizesDecoded,
+            'sku'      => $sku,
         ],
     ]);
 

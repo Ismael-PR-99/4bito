@@ -3,6 +3,8 @@ import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductosService, ProductoApi, SortOption } from '../../services/productos.service';
 import { TiendaService } from '../../services/tienda.service';
+import { WishlistService } from '../../services/wishlist.service';
+import { CompareService } from '../../services/compare.service';
 
 @Component({
   selector: 'app-coleccion',
@@ -16,6 +18,22 @@ export class ColeccionComponent implements OnInit {
   private router  = inject(Router);
   private svc     = inject(ProductosService);
   private tienda  = inject(TiendaService);
+  wishlistSvc     = inject(WishlistService);
+  compareSvc      = inject(CompareService);
+
+  toggleWishlist(e: Event, p: ProductoApi): void {
+    e.preventDefault(); e.stopPropagation();
+    this.wishlistSvc.toggle(p);
+  }
+
+  toggleCompare(e: Event, p: ProductoApi): void {
+    e.preventDefault(); e.stopPropagation();
+    if (this.compareSvc.isInCompare(p.id)) {
+      this.compareSvc.remove(p.id);
+    } else {
+      this.compareSvc.toggle(p);
+    }
+  }
 
   // Estado de filtros activos
   activeDecade   = signal<string>('');

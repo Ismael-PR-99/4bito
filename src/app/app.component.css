@@ -229,6 +229,17 @@
   padding: 0 3px;
 }
 
+.wishlist-btn { color: var(--text-primary); text-decoration: none; }
+.cart-badge--wishlist { background: #e53935; color: #fff; }
+
+/* "MI PERFIL" link in cuenta-dropdown */
+.cuenta-dropdown a.btn-logout {
+  display: block;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+}
+
 /* Banner */
 .banner {
   background: var(--bg-card);

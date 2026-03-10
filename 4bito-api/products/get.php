@@ -28,7 +28,7 @@ if (empty($id) || !is_numeric($id)) {
 try {
     $db   = (new Database())->getConnection();
     $stmt = $db->prepare(
-        "SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes
+        "SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, sku, rating_avg, rating_count
          FROM productos
          WHERE id = :id
          LIMIT 1"
@@ -56,6 +56,9 @@ try {
             'imageUrl'        => $row['image_url'],
             'category'        => $row['category'],
             'sizes'           => json_decode($row['sizes'], true) ?? [],
+            'sku'             => $row['sku'] ?? null,
+            'ratingAvg'       => round((float)($row['rating_avg'] ?? 0), 1),
+            'ratingCount'     => (int)($row['rating_count'] ?? 0),
         ],
     ]);
 

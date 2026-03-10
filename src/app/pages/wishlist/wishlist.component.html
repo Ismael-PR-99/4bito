@@ -1,0 +1,59 @@
+<div class="wishlist-page">
+
+  <header class="wish-header">
+    <h1 class="wish-title">MI LISTA DE DESEOS <span class="wish-count" *ngIf="!cargando()">{{ items().length }}</span></h1>
+    <a routerLink="/coleccion" class="btn-explorar">EXPLORAR COLECCIÓN →</a>
+  </header>
+
+  <!-- Loader -->
+  <div class="wish-loader" *ngIf="cargando()">
+    <div class="skeleton-grid">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line sk-wide"></div>
+          <div class="skeleton-line sk-narrow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vacía -->
+  <div class="wish-empty" *ngIf="!cargando() && items().length === 0">
+    <div class="wish-empty__icon">♡</div>
+    <p class="wish-empty__msg">TU LISTA ESTÁ VACÍA</p>
+    <a routerLink="/coleccion" class="btn-explorar">EXPLORAR COLECCIÓN</a>
+  </div>
+
+  <!-- Grid de productos -->
+  <div class="wish-grid" *ngIf="!cargando() && items().length > 0">
+    @for (product of items(); track product.id) {
+      <div class="wish-card">
+        <a [routerLink]="['/producto', product.id]" class="wish-card__img-wrap">
+          <img [src]="product.imageUrl" [alt]="product.name" class="wish-card__img">
+          <span class="badge-new" *ngIf="product.isNew">NEW</span>
+        </a>
+        <div class="wish-card__info">
+          <p class="wish-card__team">{{ product.team }}</p>
+          <h3 class="wish-card__name">{{ product.name }}</h3>
+          <div class="wish-card__precio">
+            <span class="precio-actual" [class.rebajado]="product.discountedPrice && product.discountedPrice < product.price">
+              {{ precioMostrar(product) | currency:'EUR':'symbol':'1.2-2' }}
+            </span>
+            <span class="precio-orig" *ngIf="product.discountedPrice && product.discountedPrice < product.price">
+              {{ product.price | currency:'EUR':'symbol':'1.2-2' }}
+            </span>
+          </div>
+          <div class="wish-card__tallas">
+            <span class="talla-chip" *ngFor="let sz of product.sizes">{{ sz.size }}</span>
+          </div>
+        </div>
+        <div class="wish-card__actions">
+          <button class="btn-cart" (click)="addToCart(product)">AÑADIR AL CARRITO</button>
+          <button class="btn-remove" (click)="remove(product)" title="Eliminar de la lista">✕ ELIMINAR</button>
+        </div>
+      </div>
+    }
+  </div>
+
+</div>

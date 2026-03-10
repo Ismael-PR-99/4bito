@@ -1,0 +1,175 @@
+<div class="perfil-page">
+
+  <!-- Header del perfil -->
+  <div class="perfil-hero">
+    <div class="perfil-avatar">{{ usuario?.nombre?.charAt(0)?.toUpperCase() }}</div>
+    <div class="perfil-info">
+      <h1 class="perfil-nombre">{{ usuario?.nombre?.toUpperCase() }}</h1>
+      <p class="perfil-email">{{ usuario?.email }}</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <nav class="perfil-tabs">
+    <button class="pf-tab" [class.active]="tab() === 'info'"    (click)="setTab('info')">CUENTA</button>
+    <button class="pf-tab" [class.active]="tab() === 'tallas'"  (click)="setTab('tallas')">MIS TALLAS</button>
+    <button class="pf-tab" [class.active]="tab() === 'pedidos'" (click)="setTab('pedidos')">MIS PEDIDOS</button>
+  </nav>
+
+  <!-- ── TAB INFO ────────────────────────────────────────── -->
+  @if (tab() === 'info') {
+    <section class="pf-section">
+      <h2 class="pf-section-title">INFORMACIÓN DE CUENTA</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">NOMBRE</span>
+          <span class="info-value">{{ usuario?.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">EMAIL</span>
+          <span class="info-value">{{ usuario?.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">ROL</span>
+          <span class="info-value info-value--badge">{{ usuario?.rol?.toUpperCase() }}</span>
+        </div>
+      </div>
+      <a *ngIf="usuario?.rol === 'admin'" routerLink="/admin/dashboard" class="btn-admin-link">IR AL PANEL ADMIN →</a>
+    </section>
+  }
+
+  <!-- ── TAB TALLAS ──────────────────────────────────────── -->
+  @if (tab() === 'tallas') {
+    <section class="pf-section">
+      <h2 class="pf-section-title">MIS TALLAS HABITUALES</h2>
+      <p class="pf-desc">Guarda tus tallas para que se preseleccionen automáticamente al comprar.</p>
+
+      <div class="tallas-form">
+        <div class="talla-row" *ngFor="let cat of [
+          { key: 'camisetas', label: 'CAMISETAS' },
+          { key: 'chaquetas', label: 'CHAQUETAS' },
+          { key: 'pantalones', label: 'PANTALONES' }
+        ]">
+          <label class="talla-label">{{ cat.label }}</label>
+          <div class="talla-chips">
+            <button
+              *ngFor="let sz of SIZES"
+              class="size-chip"
+              [class.active]="$any(tallas)[cat.key] === sz"
+              (click)="$any(tallas)[cat.key] = sz"
+            >{{ sz }}</button>
+            <button
+              class="size-chip size-chip--none"
+              [class.active]="!$any(tallas)[cat.key]"
+              (click)="$any(tallas)[cat.key] = null"
+            >N/A</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-save-tallas" (click)="guardarTallas()" [disabled]="guardando()">
+        {{ guardando() ? 'GUARDANDO...' : tallasGuardadas() ? '✓ GUARDADO' : 'GUARDAR TALLAS' }}
+      </button>
+    </section>
+  }
+
+  <!-- ── TAB PEDIDOS ─────────────────────────────────────── -->
+  @if (tab() === 'pedidos') {
+    <section class="pf-section">
+      <h2 class="pf-section-title">HISTORIAL DE PEDIDOS</h2>
+
+      <div class="pedidos-loader" *ngIf="cargando()">Cargando pedidos...</div>
+
+      <div class="pedidos-empty" *ngIf="!cargando() && pedidos().length === 0">
+        <p>No tienes pedidos todavía.</p>
+        <a routerLink="/coleccion" class="btn-explorar">EXPLORAR COLECCIÓN →</a>
+      </div>
+
+      @for (pedido of pedidos(); track pedido.id) {
+        <div class="pedido-card" [class.expanded]="expanded() === pedido.id">
+
+          <!-- Resumen del pedido -->
+          <div class="pedido-header" (click)="toggleExpanded(pedido.id)">
+            <div class="pedido-meta">
+              <span class="pedido-id">{{ pedido.id.toString().padStart(6, '0') }}</span>
+              <span class="pedido-fecha">{{ formatDate(pedido.fecha_creacion) }}</span>
+            </div>
+            <div class="pedido-right">
+              <span class="pedido-badge estado-{{ pedido.estado }}">{{ pedido.estado.toUpperCase() }}</span>
+              <span class="pedido-total">{{ pedido.total | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span class="pedido-chevron">{{ expanded() === pedido.id ? '▲' : '▼' }}</span>
+            </div>
+          </div>
+
+          <!-- Detalle expandido -->
+          @if (expanded() === pedido.id) {
+            <div class="pedido-body">
+
+              <!-- Tracker visual solo si está en tránsito -->
+              @if (pedido.estado !== 'cancelado' && pedido.estado !== 'entregado') {
+                <div class="tracker">
+                  <div class="tracker-step" [class.done]="getPasoActual(pedido.estado) >= 0">
+                    <div class="tracker-circle">✓</div>
+                    <span>CONFIRMADO</span>
+                  </div>
+                  <div class="tracker-line" [class.done]="getPasoActual(pedido.estado) >= 1"></div>
+                  <div class="tracker-step" [class.done]="getPasoActual(pedido.estado) >= 1">
+                    <div class="tracker-circle">{{ getPasoActual(pedido.estado) >= 1 ? '✓' : '2' }}</div>
+                    <span>PROCESANDO</span>
+                  </div>
+                  <div class="tracker-line" [class.done]="getPasoActual(pedido.estado) >= 2"></div>
+                  <div class="tracker-step" [class.done]="getPasoActual(pedido.estado) >= 2">
+                    <div class="tracker-circle">{{ getPasoActual(pedido.estado) >= 2 ? '✓' : '3' }}</div>
+                    <span>ENVIADO</span>
+                  </div>
+                  <div class="tracker-line"></div>
+                  <div class="tracker-step">
+                    <div class="tracker-circle">4</div>
+                    <span>ENTREGADO</span>
+                  </div>
+                </div>
+              }
+
+              <!-- Productos del pedido -->
+              <div class="pedido-productos">
+                @for (item of pedido.productos_json; track $index) {
+                  <div class="pedido-item">
+                    <img [src]="item.imagen" [alt]="item.nombre" class="pedido-item__img">
+                    <div class="pedido-item__info">
+                      <p class="pedido-item__nombre">{{ item.nombre }}</p>
+                      <p class="pedido-item__meta">Talla: {{ item.talla }} · Cantidad: {{ item.cantidad }}</p>
+                      <p class="pedido-item__precio">{{ item.precio | currency:'EUR':'symbol':'1.2-2' }}</p>
+                    </div>
+                    <a *ngIf="pedido.estado === 'entregado'"
+                       [routerLink]="['/producto', item.id]"
+                       [fragment]="'resenas'"
+                       class="btn-resena">DEJAR RESEÑA</a>
+                  </div>
+                }
+              </div>
+
+              <!-- Info envío -->
+              <div class="pedido-envio">
+                <p class="envio-title">DIRECCIÓN DE ENVÍO</p>
+                <p>{{ pedido.nombre_cliente }} · {{ pedido.telefono }}</p>
+                <p>{{ pedido.direccion }}, {{ pedido.ciudad }} {{ pedido.cp }}, {{ pedido.pais }}</p>
+              </div>
+
+              @if (pedido.paypal_transaction_id) {
+                <p class="pedido-txid">ID Transacción: {{ pedido.paypal_transaction_id }}</p>
+              }
+
+              <!-- Acciones -->
+              <div class="pedido-acciones">
+                <button class="btn-recomprar" (click)="recomprar(pedido)">🔁 VOLVER A COMPRAR</button>
+              </div>
+
+            </div>
+          }
+
+        </div>
+      }
+    </section>
+  }
+
+</div>

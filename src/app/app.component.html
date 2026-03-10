@@ -30,6 +30,12 @@
         <span class="cart-badge" *ngIf="(carritoCount$ | async)! > 0">{{ carritoCount$ | async }}</span>
       </button>
 
+      <!-- Wishlist icon -->
+      <a *ngIf="loggedIn" [routerLink]="['/wishlist']" class="cart-btn wishlist-btn" title="Lista de deseos">
+        <lucide-icon name="heart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
+        <span class="cart-badge cart-badge--wishlist" *ngIf="wishlistSvc.count() > 0">{{ wishlistSvc.count() }}</span>
+      </a>
+
       <!-- Zona de autenticación -->
       <div class="nav-auth">
         <ng-container *ngIf="!loggedIn">
@@ -45,6 +51,7 @@
             </button>
             <div class="cuenta-dropdown" [class.open]="menuAbierto">
               <span class="cuenta-email">{{ usuario?.email }}</span>
+              <a [routerLink]="['/perfil']" class="btn-logout" (click)="cerrarMenu()">MI PERFIL</a>
               <button class="btn-logout" (click)="logout()">CERRAR SESIÓN</button>
             </div>
           </div>
@@ -66,6 +73,9 @@
 
 <!-- Cart Drawer -->
 <app-cart-drawer></app-cart-drawer>
+
+<!-- Compare Bar -->
+<app-compare-bar></app-compare-bar>
 
 <!-- Toast -->
 <app-toast></app-toast>

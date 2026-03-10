@@ -64,6 +64,23 @@ export const routes: Routes = [
       import('./pages/pedido-confirmado/pedido-confirmado.component').then(m => m.PedidoConfirmadoComponent),
   },
   {
+    path: 'wishlist',
+    loadComponent: () =>
+      import('./pages/wishlist/wishlist.component').then(m => m.WishlistComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'comparar',
+    loadComponent: () =>
+      import('./pages/comparar/comparar.component').then(m => m.CompararComponent),
+  },
+  {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./pages/perfil/perfil.component').then(m => m.PerfilComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: '',
   },
