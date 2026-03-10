@@ -1,0 +1,50 @@
+<!-- Botón flotante -->
+<button class="chat-fab" (click)="toggle()" [class.active]="chatSvc.isOpen()">
+  <lucide-icon [img]="chatSvc.isOpen() ? icons.X : icons.MessageCircle" [size]="24"></lucide-icon>
+</button>
+
+<!-- Panel de chat -->
+@if (chatSvc.isOpen()) {
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <span class="chat-avatar">⚽</span>
+        <div>
+          <h4>4BITO Soporte</h4>
+          <span class="chat-status">En línea</span>
+        </div>
+      </div>
+      <button class="chat-close" (click)="chatSvc.close()">
+        <lucide-icon [img]="icons.X" [size]="18"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="chat-messages" #messagesContainer>
+      @if (chatSvc.loading()) {
+        <div class="chat-loading">Conectando...</div>
+      }
+      @for (msg of chatSvc.messages(); track msg.id) {
+        <div class="chat-bubble" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'" [class.admin]="msg.sender === 'admin'">
+          @if (msg.sender !== 'user') {
+            <span class="bubble-label">{{ msg.sender === 'bot' ? '🤖 Bot' : '👤 Agente' }}</span>
+          }
+          <p>{{ msg.message }}</p>
+          <span class="bubble-time">{{ formatTime(msg.created_at) }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="chat-input">
+      <input
+        type="text"
+        [(ngModel)]="newMessage"
+        placeholder="Escribe un mensaje..."
+        (keydown.enter)="send()"
+        maxlength="500"
+      />
+      <button class="chat-send" (click)="send()" [disabled]="!newMessage.trim()">
+        <lucide-icon [img]="icons.Send" [size]="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+}

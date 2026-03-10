@@ -36,6 +36,9 @@
         <span class="cart-badge cart-badge--wishlist" *ngIf="wishlistSvc.count() > 0">{{ wishlistSvc.count() }}</span>
       </a>
 
+      <!-- Notifications -->
+      <app-notification-dropdown *ngIf="loggedIn"></app-notification-dropdown>
+
       <!-- Zona de autenticación -->
       <div class="nav-auth">
         <ng-container *ngIf="!loggedIn">
@@ -79,6 +82,9 @@
 
 <!-- Toast -->
 <app-toast></app-toast>
+
+<!-- Chat Widget -->
+<app-chat-widget></app-chat-widget>
 
 <!-- Footer -->
 <footer class="footer">

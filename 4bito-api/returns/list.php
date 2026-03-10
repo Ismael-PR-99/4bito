@@ -1,0 +1,44 @@
+<?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../helpers/jwt.php';
+
+$headers = getallheaders();
+$authHeader = $headers['Authorization'] ?? '';
+if (!preg_match('/Bearer\s(\S+)/', $authHeader, $m)) {
+    http_response_code(401); echo json_encode(['error' => 'Token requerido']); exit;
+}
+$payload = verificarJWT($m[1]);
+if (!$payload) { http_response_code(401); echo json_encode(['error' => 'Token inválido']); exit; }
+
+$db = (new Database())->getConnection();
+$isAdmin = ($payload['rol'] ?? '') === 'admin';
+
+if ($isAdmin) {
+    $status = $_GET['status'] ?? '';
+    $sql = 'SELECT r.*, u.nombre as user_name, u.email as user_email FROM returns_requests r LEFT JOIN usuarios u ON r.user_id = u.id';
+    $params = [];
+    if ($status) {
+        $sql .= ' WHERE r.status = ?';
+        $params[] = $status;
+    }
+    $sql .= ' ORDER BY r.created_at DESC';
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+} else {
+    $stmt = $db->prepare('SELECT * FROM returns_requests WHERE user_id = ? ORDER BY created_at DESC');
+    $stmt->execute([$payload['id']]);
+}
+
+$returns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($returns as &$r) {
+    $r['products_json'] = json_decode($r['products_json'], true);
+    $r['photos_json'] = json_decode($r['photos_json'], true);
+}
+
+echo json_encode($returns);

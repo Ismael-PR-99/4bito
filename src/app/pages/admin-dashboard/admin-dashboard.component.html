@@ -808,6 +808,147 @@
         </section>
       }
 
+      <!-- ── SECCIÓN 10: DEVOLUCIONES ───────────────────────── -->
+      @if (seccion() === 'devoluciones') {
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-heading">🔄 Devoluciones</h2>
+            <div class="section-actions">
+              <select [ngModel]="filtroReturnStatus()" (ngModelChange)="filtroReturnStatus.set($event); cargarReturns()">
+                <option value="">Todos</option>
+                <option value="pending">Pendientes</option>
+                <option value="approved">Aprobadas</option>
+                <option value="processing">En proceso</option>
+                <option value="completed">Completadas</option>
+                <option value="rejected">Rechazadas</option>
+              </select>
+              <button class="btn-refrescar" (click)="cargarReturns()">⟳ Refrescar</button>
+            </div>
+          </div>
+
+          @if (cargandoReturns()) {
+            <div class="loading-msg">Cargando devoluciones...</div>
+          } @else if (adminReturns().length === 0) {
+            <div class="empty-msg">Sin devoluciones</div>
+          } @else {
+            <table class="mov-table">
+              <thead>
+                <tr>
+                  <th>CASO</th>
+                  <th>CLIENTE</th>
+                  <th>PEDIDO</th>
+                  <th>MOTIVO</th>
+                  <th>ESTADO</th>
+                  <th>FECHA</th>
+                  <th>ACCIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of adminReturns(); track r.id) {
+                  <tr>
+                    <td><strong>{{ r.case_number }}</strong></td>
+                    <td>{{ r.user_name || 'N/A' }}</td>
+                    <td>#{{ r.order_id.toString().padStart(6, '0') }}</td>
+                    <td>{{ r.reason }}</td>
+                    <td><span class="pedido-badge estado-{{ r.status }}">{{ r.status.toUpperCase() }}</span></td>
+                    <td>{{ fmtFecha(r.created_at) }}</td>
+                    <td><button class="btn-reponer" (click)="verReturn(r)">VER</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+
+          <!-- Modal detalle devolución -->
+          @if (returnDetalle()) {
+            <div class="modal-overlay" (click)="cerrarReturnDetalle()">
+              <div class="modal-devolucion" (click)="$event.stopPropagation()">
+                <h3>Devolución {{ returnDetalle()!.case_number }}</h3>
+                <p><strong>Cliente:</strong> {{ returnDetalle()!.user_name }} ({{ returnDetalle()!.user_email }})</p>
+                <p><strong>Pedido:</strong> #{{ returnDetalle()!.order_id.toString().padStart(6, '0') }}</p>
+                <p><strong>Motivo:</strong> {{ returnDetalle()!.reason }}</p>
+                <p><strong>Descripción:</strong> {{ returnDetalle()!.description || 'N/A' }}</p>
+                <p><strong>Resolución:</strong> {{ returnDetalle()!.resolution === 'refund' ? 'Reembolso' : 'Cambio' }}</p>
+                <p><strong>Estado:</strong> {{ returnDetalle()!.status }}</p>
+
+                <label class="modal-label">Notas admin</label>
+                <textarea [ngModel]="adminReturnNotes()" (ngModelChange)="adminReturnNotes.set($event)" rows="3"></textarea>
+
+                <div class="modal-actions">
+                  <button class="btn-cancel" (click)="cerrarReturnDetalle()">CERRAR</button>
+                  @if (returnDetalle()!.status === 'pending') {
+                    <button class="btn-submit" style="background:#2ecc71" (click)="actualizarReturn(returnDetalle()!.id, 'approved')">APROBAR</button>
+                    <button class="btn-submit" style="background:#e74c3c" (click)="actualizarReturn(returnDetalle()!.id, 'rejected')">RECHAZAR</button>
+                  }
+                  @if (returnDetalle()!.status === 'approved') {
+                    <button class="btn-submit" (click)="actualizarReturn(returnDetalle()!.id, 'processing')">PROCESAR</button>
+                  }
+                  @if (returnDetalle()!.status === 'processing') {
+                    <button class="btn-submit" style="background:#2ecc71" (click)="actualizarReturn(returnDetalle()!.id, 'completed')">COMPLETAR</button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ── SECCIÓN 11: CHAT SOPORTE ───────────────────────── -->
+      @if (seccion() === 'chats') {
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-heading">💭 Chat de Soporte</h2>
+            <button class="btn-refrescar" (click)="chatSvc.loadRooms()">⟳ Refrescar</button>
+          </div>
+
+          <div class="chat-admin-layout">
+            <!-- Lista de conversaciones -->
+            <div class="chat-rooms-list">
+              @if (chatSvc.rooms().length === 0) {
+                <div class="empty-msg">Sin conversaciones activas</div>
+              }
+              @for (room of chatSvc.rooms(); track room.id) {
+                <div class="chat-room-item" [class.active]="chatSvc.activeRoom() === room.id" (click)="chatSvc.selectRoom(room.id)">
+                  <div class="room-info">
+                    <strong>{{ room.user_name }}</strong>
+                    <span class="room-subject">{{ room.subject }}</span>
+                  </div>
+                  <div class="room-meta">
+                    <span class="pedido-badge estado-{{ room.status }}">{{ room.status }}</span>
+                    @if (room.unread_count) {
+                      <span class="unread-badge">{{ room.unread_count }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Panel de mensajes -->
+            <div class="chat-messages-panel">
+              @if (!chatSvc.activeRoom()) {
+                <div class="empty-msg" style="margin-top:3rem">Selecciona una conversación</div>
+              } @else {
+                <div class="chat-msgs-scroll">
+                  @for (msg of chatSvc.activeMessages(); track msg.id) {
+                    <div class="admin-chat-bubble" [class.from-user]="msg.sender === 'user'" [class.from-admin]="msg.sender === 'admin'" [class.from-bot]="msg.sender === 'bot'">
+                      <span class="acb-label">{{ msg.sender === 'user' ? '👤 Cliente' : msg.sender === 'bot' ? '🤖 Bot' : '🛡 Admin' }}</span>
+                      <p>{{ msg.message }}</p>
+                    </div>
+                  }
+                </div>
+                <div class="admin-chat-input">
+                  <input type="text" [ngModel]="adminChatInput()" (ngModelChange)="adminChatInput.set($event)" placeholder="Responder..." (keydown.enter)="enviarMsgAdmin()" maxlength="500" />
+                  <button (click)="enviarMsgAdmin()" [disabled]="!adminChatInput().trim()">ENVIAR</button>
+                </div>
+                <div class="admin-chat-actions">
+                  <button class="btn-cancel" (click)="cerrarChat(chatSvc.activeRoom()!)">CERRAR CONVERSACIÓN</button>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
     </main>
   </div>
 </div>

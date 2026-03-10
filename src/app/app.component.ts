@@ -8,15 +8,18 @@ import { CartService } from './services/cart.service';
 import { CartDrawerService } from './services/cart-drawer.service';
 import { ThemeService } from './services/theme.service';
 import { WishlistService } from './services/wishlist.service';
+import { NotificationService } from './services/notification.service';
 import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
 import { CartDrawerComponent } from './components/cart-drawer/cart-drawer.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { CompareBarComponent } from './components/compare-bar/compare-bar.component';
+import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
+import { NotificationDropdownComponent } from './components/notification-dropdown/notification-dropdown.component';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent, CartDrawerComponent, ToastComponent, CompareBarComponent],
+  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent, CartDrawerComponent, ToastComponent, CompareBarComponent, ChatWidgetComponent, NotificationDropdownComponent],
   providers: [
     { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User, Heart }) }
   ],
@@ -37,6 +40,7 @@ export class AppComponent implements OnInit {
   private cartService    = inject(CartService);
   private drawerService  = inject(CartDrawerService);
   public  wishlistSvc    = inject(WishlistService);
+  public  notifSvc       = inject(NotificationService);
 
   get loggedIn(): boolean { return this.auth.isLoggedIn(); }
   get esAdmin(): boolean { return this.auth.isAdmin(); }
@@ -51,6 +55,8 @@ export class AppComponent implements OnInit {
     this.discount.desactivarExpiradas().subscribe();
     // 2. Cargar la pieza activa en el BehaviorSubject global
     this.discount.cargarPieza().subscribe();
+    // 3. Iniciar notificaciones si logueado
+    this.notifSvc.init();
   }
 
   abrirCarrito(): void {

@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserProfileService, UserSizes, PedidoUsuario } from '../../services/user-profile.service';
 import { CartService } from '../../services/cart.service';
 import { ToastService } from '../../services/toast.service';
+import { ReturnsService, ReturnRequest } from '../../services/returns.service';
 
 type PerfilTab = 'info' | 'tallas' | 'pedidos';
 
@@ -21,6 +22,7 @@ export class PerfilComponent implements OnInit {
   private profileSvc = inject(UserProfileService);
   private cartSvc    = inject(CartService);
   private toastSvc   = inject(ToastService);
+  private returnsSvc = inject(ReturnsService);
 
   usuario = this.auth.getUsuario();
 
@@ -36,6 +38,15 @@ export class PerfilComponent implements OnInit {
   // ── Pedidos ────────────────────────────────────────────────
   pedidos    = signal<PedidoUsuario[]>([]);
   expanded   = signal<number | null>(null);
+
+  // ── Devoluciones ──────────────────────────────────────────
+  modalDevolucion  = signal(false);
+  pedidoDevolucion = signal<PedidoUsuario | null>(null);
+  devMotivo        = signal('Producto defectuoso');
+  devDescripcion   = signal('');
+  devResolucion    = signal<'refund' | 'exchange'>('refund');
+  enviandoDev      = signal(false);
+  misDevs          = signal<ReturnRequest[]>([]);
 
   ngOnInit(): void {
     this.cargarTallas();
@@ -108,6 +119,55 @@ export class PerfilComponent implements OnInit {
       } catch { /* ignore sin stock */ }
     });
     this.toastSvc.show('Productos añadidos al carrito', 'success');
+  }
+
+  // ── Devoluciones ──────────────────────────────────────────
+  abrirDevolucion(pedido: PedidoUsuario): void {
+    this.pedidoDevolucion.set(pedido);
+    this.devMotivo.set('Producto defectuoso');
+    this.devDescripcion.set('');
+    this.devResolucion.set('refund');
+    this.modalDevolucion.set(true);
+  }
+
+  cerrarDevolucion(): void {
+    this.modalDevolucion.set(false);
+    this.pedidoDevolucion.set(null);
+  }
+
+  enviarDevolucion(): void {
+    const pedido = this.pedidoDevolucion();
+    if (!pedido) return;
+    this.enviandoDev.set(true);
+    this.returnsSvc.create({
+      orderId: pedido.id,
+      products: pedido.productos_json,
+      reason: this.devMotivo(),
+      description: this.devDescripcion(),
+      photos: [],
+      resolution: this.devResolucion(),
+    }).subscribe({
+      next: res => {
+        this.enviandoDev.set(false);
+        this.cerrarDevolucion();
+        this.toastSvc.show(`Devolución ${res.caseNumber} creada`, 'success');
+        this.cargarDevoluciones();
+      },
+      error: (err) => {
+        this.enviandoDev.set(false);
+        this.toastSvc.show(err.error?.error || 'Error al crear devolución', 'error');
+      },
+    });
+  }
+
+  cargarDevoluciones(): void {
+    this.returnsSvc.list();
+  }
+
+  puedeDevolver(pedido: PedidoUsuario): boolean {
+    if (pedido.estado !== 'entregado') return false;
+    const dias = Math.floor((Date.now() - new Date(pedido.fecha_creacion).getTime()) / 86400000);
+    return dias <= 30;
   }
 
   formatDate(dateStr: string): string {

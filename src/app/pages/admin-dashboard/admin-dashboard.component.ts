@@ -11,8 +11,10 @@ import { StockManagementService, StockAlert, StockMovement, WaitlistItem } from 
 import {
   AdminService, Pedido, Metricas, VentaDia, TopProducto, ResumenMes,
 } from '../../services/admin.service';
+import { ReturnsService, ReturnRequest } from '../../services/returns.service';
+import { ChatService, ChatConversation, ChatMessage } from '../../services/chat.service';
 
-type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'alertas' | 'historial' | 'resenas' | 'espera';
+type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'alertas' | 'historial' | 'resenas' | 'espera' | 'devoluciones' | 'chats';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -45,6 +47,8 @@ export class AdminDashboardComponent implements OnInit {
     { id: 'historial',  icon: '📋', label: 'HISTORIAL' },
     { id: 'resenas',    icon: '💬', label: 'RESEÑAS' },
     { id: 'espera',     icon: '📬', label: 'LISTA ESPERA' },
+    { id: 'devoluciones', icon: '🔄', label: 'DEVOLUCIONES' },
+    { id: 'chats',      icon: '💭', label: 'CHAT SOPORTE' },
   ];
 
   // ── SECCIÓN 1: RESUMEN ────────────────────────────────────
@@ -215,6 +219,8 @@ export class AdminDashboardComponent implements OnInit {
     if (s === 'historial' && this.movimientos().length === 0)  { this.cargarMovimientos(); }
     if (s === 'resenas'   && this.resenasPanel().length === 0) { this.cargarResenas(); }
     if (s === 'espera'    && this.waitlist().length === 0)     { this.cargarWaitlist(); }
+    if (s === 'devoluciones' && this.adminReturns().length === 0) { this.cargarReturns(); }
+    if (s === 'chats') { this.chatSvc.loadRooms(); this.chatSvc.startAdminView(); }
   }
 
   toggleSidebar(): void { this.sidebarAbierto.update(v => !v); }
@@ -505,5 +511,64 @@ export class AdminDashboardComponent implements OnInit {
       (w.product_name ?? '').toLowerCase().includes(q)
     );
   });
+
+  // ───────────────────────────────────────────────────────────
+  // SECCIÓN 10: DEVOLUCIONES
+  // ───────────────────────────────────────────────────────────
+  private returnsSvc = inject(ReturnsService);
+
+  adminReturns       = signal<ReturnRequest[]>([]);
+  cargandoReturns    = signal(false);
+  filtroReturnStatus = signal('');
+  returnDetalle      = signal<ReturnRequest | null>(null);
+  adminReturnNotes   = signal('');
+
+  cargarReturns(): void {
+    this.cargandoReturns.set(true);
+    const status = this.filtroReturnStatus();
+    this.returnsSvc.list(status || undefined);
+    // Poll the signal
+    setTimeout(() => {
+      this.adminReturns.set(this.returnsSvc.returns());
+      this.cargandoReturns.set(false);
+    }, 1500);
+  }
+
+  verReturn(r: ReturnRequest): void {
+    this.returnDetalle.set(r);
+    this.adminReturnNotes.set(r.admin_notes || '');
+  }
+
+  cerrarReturnDetalle(): void { this.returnDetalle.set(null); }
+
+  actualizarReturn(id: number, status: string): void {
+    this.returnsSvc.updateStatus(id, status, this.adminReturnNotes()).subscribe({
+      next: () => {
+        this.toastSvc.show('Devolución actualizada', 'success');
+        this.cerrarReturnDetalle();
+        this.cargarReturns();
+      },
+      error: () => this.toastSvc.show('Error al actualizar', 'error'),
+    });
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // SECCIÓN 11: CHAT SOPORTE
+  // ───────────────────────────────────────────────────────────
+  chatSvc = inject(ChatService);
+
+  adminChatInput = signal('');
+
+  enviarMsgAdmin(): void {
+    const msg = this.adminChatInput().trim();
+    if (!msg) return;
+    this.chatSvc.sendMessage(msg, 'admin');
+    this.adminChatInput.set('');
+  }
+
+  cerrarChat(convId: number): void {
+    this.chatSvc.resolveConversation(convId);
+    this.toastSvc.show('Conversación cerrada', 'success');
+  }
 }
 

@@ -162,6 +162,9 @@
               <!-- Acciones -->
               <div class="pedido-acciones">
                 <button class="btn-recomprar" (click)="recomprar(pedido)">🔁 VOLVER A COMPRAR</button>
+                @if (puedeDevolver(pedido)) {
+                  <button class="btn-devolver" (click)="abrirDevolucion(pedido)">📦 SOLICITAR DEVOLUCIÓN</button>
+                }
               </div>
 
             </div>
@@ -173,3 +176,38 @@
   }
 
 </div>
+
+<!-- Modal Devolución -->
+@if (modalDevolucion()) {
+  <div class="modal-overlay" (click)="cerrarDevolucion()">
+    <div class="modal-devolucion" (click)="$event.stopPropagation()">
+      <h3>Solicitar Devolución</h3>
+      <p class="modal-sub">Pedido #{{ pedidoDevolucion()?.id?.toString()?.padStart(6, '0') }}</p>
+
+      <label class="modal-label">Motivo</label>
+      <select [ngModel]="devMotivo()" (ngModelChange)="devMotivo.set($event)">
+        <option>Producto defectuoso</option>
+        <option>Talla incorrecta</option>
+        <option>No es lo que esperaba</option>
+        <option>Llegó dañado</option>
+        <option>Otro</option>
+      </select>
+
+      <label class="modal-label">Descripción</label>
+      <textarea [ngModel]="devDescripcion()" (ngModelChange)="devDescripcion.set($event)" rows="3" placeholder="Describe el problema..."></textarea>
+
+      <label class="modal-label">Resolución deseada</label>
+      <div class="modal-radios">
+        <label><input type="radio" name="resolucion" value="refund" [checked]="devResolucion() === 'refund'" (change)="devResolucion.set('refund')"> Reembolso</label>
+        <label><input type="radio" name="resolucion" value="exchange" [checked]="devResolucion() === 'exchange'" (change)="devResolucion.set('exchange')"> Cambio</label>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="cerrarDevolucion()">CANCELAR</button>
+        <button class="btn-submit" (click)="enviarDevolucion()" [disabled]="enviandoDev()">
+          {{ enviandoDev() ? 'ENVIANDO...' : 'ENVIAR SOLICITUD' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
