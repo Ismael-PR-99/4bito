@@ -118,6 +118,7 @@
   </div>
 
   <!-- ── FRECUENTEMENTE COMPRADO JUNTO ─────────────── -->
+  @if (producto) {
   @if (frecuenteJuntos().length > 0) {
     <section class="related-section">
       <h2 class="related-title">LOS QUE COMPRARON ESTO TAMBIÉN SE LLEVARON</h2>
@@ -206,6 +207,7 @@
       </div>
     }
   </section>
+  } <!-- end @if (producto) -->
 
   <ng-template #noEncontrado>
     <div class="empty-state">
