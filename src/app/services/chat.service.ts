@@ -101,6 +101,20 @@ export class ChatService implements OnDestroy {
     });
   }
 
+  /** Añade un mensaje localmente sin enviar al backend */
+  addLocalMessage(text: string, sender: 'user' | 'bot' | 'admin') {
+    const now = new Date().toISOString();
+    const msg: ChatMessage = {
+      id: Date.now(),
+      conversation_id: this.conversationId() ?? 0,
+      sender,
+      message: text.trim(),
+      is_read: 1,
+      created_at: now,
+    };
+    this.messages.update(prev => [...prev, msg]);
+  }
+
   private startPolling() {
     this.stopPolling();
     this.pollTimer = setInterval(() => this.loadMessages(), 3000);

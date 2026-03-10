@@ -23,6 +23,18 @@
       @if (chatSvc.loading()) {
         <div class="chat-loading">Conectando...</div>
       }
+      @if (chatSvc.messages().length === 0 && !chatSvc.loading()) {
+        <div class="chat-bubble bot">
+          <span class="bubble-label">🤖 Bot</span>
+          <p>👋 ¡Hola! Soy el asistente de 4BITO. ¿En qué puedo ayudarte?</p>
+        </div>
+        <div class="quick-chips">
+          <button (click)="sendQuick('¿Cómo es el envío?')">🚚 Envíos</button>
+          <button (click)="sendQuick('¿Cómo devuelvo un producto?')">↩️ Devoluciones</button>
+          <button (click)="sendQuick('¿Cómo elijo mi talla?')">📏 Tallas</button>
+          <button (click)="sendQuick('¿Cómo pago?')">💳 Pagos</button>
+        </div>
+      }
       @for (msg of chatSvc.messages(); track msg.id) {
         <div class="chat-bubble" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'" [class.admin]="msg.sender === 'admin'">
           @if (msg.sender !== 'user') {

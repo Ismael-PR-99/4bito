@@ -1,11 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-// ── Obtén tu API key gratuita en https://www.football-data.org/client/register ──
-const API_KEY = 'TU_API_KEY_AQUI';
-const BASE_URL = 'https://api.football-data.org/v4';
+const PROXY_URL = 'http://localhost/4bito/4bito-api/football';
 
 export interface MatchTeam {
   id: number;
@@ -48,15 +46,11 @@ export const LEAGUES: { code: string; name: string; flag: string }[] = [
 export class FootballService {
   private http = inject(HttpClient);
 
-  private get headers(): HttpHeaders {
-    return new HttpHeaders({ 'X-Auth-Token': API_KEY });
-  }
-
   getMatchesByLeague(code: string): Observable<FootballMatch[]> {
     const today = new Date().toISOString().split('T')[0];
-    const url = `${BASE_URL}/competitions/${code}/matches?dateFrom=${today}&dateTo=${today}`;
+    const url = `${PROXY_URL}/matches.php?competition=${code}&dateFrom=${today}&dateTo=${today}`;
 
-    return this.http.get<{ matches: FootballMatch[] }>(url, { headers: this.headers }).pipe(
+    return this.http.get<{ matches: FootballMatch[] }>(url).pipe(
       map(res => res.matches ?? []),
       catchError(() => of([]))
     );

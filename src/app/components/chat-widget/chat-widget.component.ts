@@ -25,12 +25,14 @@ export class ChatWidgetComponent implements AfterViewChecked {
 
   toggle() {
     this.chatSvc.toggle();
-    if (this.chatSvc.isOpen() && !this.botGreeted && this.chatSvc.messages().length === 0) {
+    if (this.chatSvc.isOpen() && !this.botGreeted) {
+      this.botGreeted = true;
       setTimeout(() => {
-        const welcome = this.botSvc.getWelcomeMessage();
-        this.chatSvc.sendMessage(welcome, 'bot');
-        this.botGreeted = true;
-      }, 500);
+        if (this.chatSvc.messages().length === 0) {
+          const welcome = this.botSvc.getWelcomeMessage();
+          this.chatSvc.addLocalMessage(welcome, 'bot');
+        }
+      }, 800);
     }
   }
 
@@ -38,16 +40,18 @@ export class ChatWidgetComponent implements AfterViewChecked {
     const msg = this.newMessage.trim();
     if (!msg) return;
     this.newMessage = '';
-    this.chatSvc.sendMessage(msg, 'user');
+    this.chatSvc.addLocalMessage(msg, 'user');
     this.shouldScroll = true;
 
     // Bot response
     setTimeout(() => {
       const botReply = this.botSvc.getResponse(msg);
       if (botReply) {
-        this.chatSvc.sendMessage(botReply, 'bot');
-        this.shouldScroll = true;
+        this.chatSvc.addLocalMessage(botReply, 'bot');
+      } else {
+        this.chatSvc.addLocalMessage('No estoy seguro de cómo ayudarte con eso. ¿Puedes reformular tu pregunta?', 'bot');
       }
+      this.shouldScroll = true;
     }, 800);
   }
 
@@ -57,6 +61,11 @@ export class ChatWidgetComponent implements AfterViewChecked {
       el.scrollTop = el.scrollHeight;
       this.shouldScroll = false;
     }
+  }
+
+  sendQuick(text: string) {
+    this.newMessage = text;
+    this.send();
   }
 
   formatTime(dateStr: string): string {
