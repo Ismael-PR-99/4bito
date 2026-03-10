@@ -1,0 +1,635 @@
+<div class="dashboard" [class.sidebar-open]="sidebarAbierto()">
+
+  <!-- ── Hamburger (mobile) ─────────────────────────────── -->
+  <button class="hamburger" (click)="toggleSidebar()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- ── Overlay (mobile) ───────────────────────────────── -->
+  @if (sidebarAbierto()) {
+    <div class="sidebar-overlay" (click)="sidebarAbierto.set(false)"></div>
+  }
+
+  <!-- ── SIDEBAR ────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">4BITO</div>
+
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.id) {
+        <button
+          class="nav-item"
+          [class.active]="seccion() === item.id"
+          (click)="setSeccion(item.id)"
+        >
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/" class="btn-tienda">← TIENDA</a>
+      <button class="btn-logout" (click)="logout()">CERRAR SESIÓN</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ───────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="dash-header">
+      <h1 class="dash-title">PANEL DE ADMINISTRACIÓN</h1>
+      <div class="dash-user">
+        <span class="user-name">{{ usuario?.nombre?.toUpperCase() }}</span>
+        <span class="user-badge">ADMIN</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="dash-content">
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECCIÓN 1 · RESUMEN                            -->
+      <!-- ═══════════════════════════════════════════════ -->
+      @if (seccion() === 'resumen') {
+        <section class="section">
+          <h2 class="section-heading">📦 RESUMEN GENERAL</h2>
+
+          @if (cargandoMetricas()) {
+            <div class="loading-state">Cargando métricas...</div>
+          } @else {
+            <div class="metrics-grid">
+
+              <!-- Productos en tienda -->
+              <div class="metric-card">
+                <p class="metric-label">PRODUCTOS EN TIENDA</p>
+                <p class="metric-value accent">{{ metricas()?.totalProductos ?? 0 }}</p>
+                <p class="metric-trend neutral">— Total activos en BD</p>
+              </div>
+
+              <!-- Vendidos hoy -->
+              <div class="metric-card">
+                <p class="metric-label">VENDIDOS HOY</p>
+                <p class="metric-value accent">{{ metricas()?.vendidosHoy ?? 0 }}</p>
+                <p class="metric-trend"
+                  [class.up]="tendencia(metricas()?.vendidosHoy ?? 0, metricas()?.vendidosAyer ?? 0) === 'up'"
+                  [class.down]="tendencia(metricas()?.vendidosHoy ?? 0, metricas()?.vendidosAyer ?? 0) === 'down'"
+                  [class.neutral]="tendencia(metricas()?.vendidosHoy ?? 0, metricas()?.vendidosAyer ?? 0) === 'equal'">
+                  {{ tendencia(metricas()?.vendidosHoy ?? 0, metricas()?.vendidosAyer ?? 0) === 'up' ? '↑' :
+                     tendencia(metricas()?.vendidosHoy ?? 0, metricas()?.vendidosAyer ?? 0) === 'down' ? '↓' : '—' }}
+                  vs ayer ({{ metricas()?.vendidosAyer ?? 0 }})
+                </p>
+              </div>
+
+              <!-- Ingresos hoy -->
+              <div class="metric-card">
+                <p class="metric-label">INGRESOS HOY</p>
+                <p class="metric-value accent">{{ (metricas()?.ingresosHoy ?? 0) | currency:'EUR' }}</p>
+                <p class="metric-trend"
+                  [class.up]="tendencia(metricas()?.ingresosHoy ?? 0, metricas()?.ingresosAyer ?? 0) === 'up'"
+                  [class.down]="tendencia(metricas()?.ingresosHoy ?? 0, metricas()?.ingresosAyer ?? 0) === 'down'"
+                  [class.neutral]="tendencia(metricas()?.ingresosHoy ?? 0, metricas()?.ingresosAyer ?? 0) === 'equal'">
+                  {{ tendencia(metricas()?.ingresosHoy ?? 0, metricas()?.ingresosAyer ?? 0) === 'up' ? '↑' :
+                     tendencia(metricas()?.ingresosHoy ?? 0, metricas()?.ingresosAyer ?? 0) === 'down' ? '↓' : '—' }}
+                  vs ayer ({{ (metricas()?.ingresosAyer ?? 0) | currency:'EUR' }})
+                </p>
+              </div>
+
+              <!-- Pedidos pendientes -->
+              <div class="metric-card">
+                <p class="metric-label">PEDIDOS PENDIENTES</p>
+                <p class="metric-value accent">{{ metricas()?.pedidosPendientes ?? 0 }}</p>
+                <p class="metric-trend"
+                  [class.up]="tendencia(metricas()?.pedidosPendientes ?? 0, metricas()?.pedidosPendientesAyer ?? 0) === 'up'"
+                  [class.down]="tendencia(metricas()?.pedidosPendientes ?? 0, metricas()?.pedidosPendientesAyer ?? 0) === 'down'"
+                  [class.neutral]="tendencia(metricas()?.pedidosPendientes ?? 0, metricas()?.pedidosPendientesAyer ?? 0) === 'equal'">
+                  {{ tendencia(metricas()?.pedidosPendientes ?? 0, metricas()?.pedidosPendientesAyer ?? 0) === 'up' ? '↑' :
+                     tendencia(metricas()?.pedidosPendientes ?? 0, metricas()?.pedidosPendientesAyer ?? 0) === 'down' ? '↓' : '—' }}
+                  vs ayer ({{ metricas()?.pedidosPendientesAyer ?? 0 }})
+                </p>
+              </div>
+
+            </div>
+          }
+        </section>
+      }
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECCIÓN 2 · PEDIDOS                            -->
+      <!-- ═══════════════════════════════════════════════ -->
+      @if (seccion() === 'pedidos') {
+        <section class="section">
+          <h2 class="section-heading">🛍 GESTIÓN DE PEDIDOS</h2>
+
+          <!-- Tabs de filtro -->
+          <div class="filtros-tabs">
+            <button class="tab" [class.active]="filtroPedidos() === 'todos'"
+              (click)="filtroPedidos.set('todos')">
+              TODOS <span class="tab-badge">{{ contadores().todos }}</span>
+            </button>
+            <button class="tab" [class.active]="filtroPedidos() === 'procesando'"
+              (click)="filtroPedidos.set('procesando')">
+              PROCESANDO <span class="tab-badge procesando">{{ contadores().procesando }}</span>
+            </button>
+            <button class="tab" [class.active]="filtroPedidos() === 'enviado'"
+              (click)="filtroPedidos.set('enviado')">
+              ENVIADO <span class="tab-badge enviado">{{ contadores().enviado }}</span>
+            </button>
+            <button class="tab" [class.active]="filtroPedidos() === 'entregado'"
+              (click)="filtroPedidos.set('entregado')">
+              ENTREGADO <span class="tab-badge entregado">{{ contadores().entregado }}</span>
+            </button>
+            <button class="tab" [class.active]="filtroPedidos() === 'cancelado'"
+              (click)="filtroPedidos.set('cancelado')">
+              CANCELADO <span class="tab-badge cancelado">{{ contadores().cancelado }}</span>
+            </button>
+          </div>
+
+          @if (cargandoPedidos()) {
+            <div class="loading-state">Cargando pedidos...</div>
+          } @else if (pedidosFiltrados().length === 0) {
+            <div class="empty-state">No hay pedidos en este estado.</div>
+          } @else {
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID PEDIDO</th>
+                    <th>CLIENTE</th>
+                    <th>PRODUCTOS</th>
+                    <th>TOTAL</th>
+                    <th>ESTADO</th>
+                    <th>FECHA</th>
+                    <th>ACCIONES</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (pedido of pedidosFiltrados(); track pedido.id) {
+                    <tr>
+                      <td class="cell-id">#{{ pedido.id }}</td>
+                      <td>
+                        <span class="cliente-nombre">{{ pedido.clienteNombre }}</span>
+                        <span class="cliente-email">{{ pedido.clienteEmail }}</span>
+                      </td>
+                      <td>
+                        @for (prod of pedido.productos.slice(0, 2); track prod.id) {
+                          <span class="prod-chip">{{ prod.nombre }} ({{ prod.talla }})</span>
+                        }
+                        @if (pedido.productos.length > 2) {
+                          <span class="prod-chip-more">+{{ pedido.productos.length - 2 }} más</span>
+                        }
+                      </td>
+                      <td class="cell-precio">{{ pedido.total | currency:'EUR' }}</td>
+                      <td>
+                        <span class="estado-badge" [attr.data-estado]="pedido.estado">
+                          {{ pedido.estado | uppercase }}
+                        </span>
+                      </td>
+                      <td class="cell-fecha">{{ pedido.fechaCreacion | date:'dd/MM/yy' }}</td>
+                      <td class="cell-acciones">
+                        <div class="dropdown-wrap">
+                          <button class="btn-dropdown" (click)="toggleDropdown(pedido.id)">⋯</button>
+                          @if (dropdownAbierto() === pedido.id) {
+                            <div class="dropdown-menu">
+                              <button (click)="cambiarEstado(pedido.id, 'enviado')">📦 Marcar enviado</button>
+                              <button (click)="cambiarEstado(pedido.id, 'entregado')">✅ Marcar entregado</button>
+                              <button (click)="cambiarEstado(pedido.id, 'cancelado')">❌ Cancelar pedido</button>
+                              <hr class="dropdown-sep" />
+                              <button (click)="verDetalle(pedido.id)">🔍 Ver detalles</button>
+                            </div>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+        <!-- Modal lateral: detalle de pedido -->
+        @if (detallePedido(); as pedido) {
+          <div class="modal-overlay" (click)="cerrarDetalle()">
+            <div class="modal-lateral" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>PEDIDO #{{ pedido.id }}</h3>
+                <button class="modal-close" (click)="cerrarDetalle()">✕</button>
+              </div>
+              <div class="modal-body">
+
+                <div class="modal-section">
+                  <h4>CLIENTE</h4>
+                  <p>{{ pedido.clienteNombre }}</p>
+                  <p class="text-sec">{{ pedido.clienteEmail }}</p>
+                  <p class="text-sec">{{ pedido.telefono }}</p>
+                </div>
+
+                <div class="modal-section">
+                  <h4>DIRECCIÓN DE ENVÍO</h4>
+                  <p>{{ pedido.direccion }}</p>
+                  <p class="text-sec">{{ pedido.cp }} {{ pedido.ciudad }}, {{ pedido.pais }}</p>
+                </div>
+
+                <div class="modal-section">
+                  <h4>PRODUCTOS</h4>
+                  @for (prod of pedido.productos; track prod.id) {
+                    <div class="modal-prod">
+                      <img [src]="prod.imageUrl" [alt]="prod.nombre" class="modal-prod-img" />
+                      <div>
+                        <p class="modal-prod-nombre">{{ prod.nombre }}</p>
+                        <p class="modal-prod-meta">
+                          Talla {{ prod.talla }} · {{ prod.cantidad }}x · {{ prod.precio | currency:'EUR' }}
+                        </p>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="modal-section">
+                  <h4>PAGO</h4>
+                  <p class="modal-total">TOTAL: {{ pedido.total | currency:'EUR' }}</p>
+                  @if (pedido.paypalTransactionId) {
+                    <p class="modal-paypal">PayPal TX: {{ pedido.paypalTransactionId }}</p>
+                  }
+                </div>
+
+                @if (pedido.historialEstados.length > 0) {
+                  <div class="modal-section">
+                    <h4>HISTORIAL</h4>
+                    @for (h of pedido.historialEstados; track h.fecha) {
+                      <div class="historial-item">
+                        <span class="estado-badge" [attr.data-estado]="h.estado">{{ h.estado | uppercase }}</span>
+                        <span class="historial-fecha">{{ h.fecha | date:'dd/MM/yy HH:mm' }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECCIÓN 3 · INVENTARIO                         -->
+      <!-- ═══════════════════════════════════════════════ -->
+      @if (seccion() === 'inventario') {
+        <section class="section">
+          <div class="section-row">
+            <h2 class="section-heading">👕 INVENTARIO</h2>
+            <button class="btn-accent" (click)="mostrarFormAnadir.set(true)">+ AÑADIR PRODUCTO</button>
+          </div>
+
+          <!-- Filtros -->
+          <div class="inv-filtros">
+            <input
+              class="input-search"
+              type="text"
+              placeholder="BUSCAR POR NOMBRE O EQUIPO..."
+              [ngModel]="busquedaInv()"
+              (ngModelChange)="busquedaInv.set($event)"
+            />
+            <select class="input-select" [ngModel]="filtroCat()" (ngModelChange)="filtroCat.set($event)">
+              <option value="">TODAS LAS CATEGORÍAS</option>
+              @for (cat of categoriasUnicas(); track cat) {
+                <option [value]="cat">{{ cat | uppercase }}</option>
+              }
+            </select>
+          </div>
+
+          @if (cargandoInv()) {
+            <div class="loading-state">Cargando inventario...</div>
+          } @else if (productosFiltrados().length === 0) {
+            <div class="empty-state">No se encontraron productos.</div>
+          } @else {
+            <div class="productos-grid">
+              @for (p of productosFiltrados(); track p.id) {
+                <div class="prod-card">
+                  <img [src]="p.imageUrl" [alt]="p.name" class="prod-img" />
+                  <div class="prod-info">
+                    <p class="prod-nombre">{{ p.name }}</p>
+                    <p class="prod-meta">{{ p.team }} · {{ p.year }}</p>
+                    <p class="prod-precio">{{ p.price | currency:'EUR' }}</p>
+                    <p class="prod-cat">{{ p.category }}</p>
+
+                    <div class="tallas-wrap">
+                      @for (sz of p.sizes; track sz.size) {
+                        <span class="talla-badge"
+                          [class.agotado]="sz.stock === 0"
+                          [class.bajo]="sz.stock > 0 && sz.stock < 3">
+                          {{ sz.size }}: {{ sz.stock }}
+                        </span>
+                      }
+                    </div>
+
+                    @if (stockTotal(p) === 0) {
+                      <span class="stock-global agotado">AGOTADO</span>
+                    } @else if (stockTotal(p) < 3) {
+                      <span class="stock-global bajo">BAJO STOCK</span>
+                    }
+                  </div>
+                  <div class="prod-actions">
+                    <button class="btn-edit-stock" (click)="abrirModalStock(p)">EDITAR STOCK</button>
+                    <button class="btn-delete" (click)="confirmarEliminar(p)">ELIMINAR</button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- Modal: editar stock -->
+        @if (modalStock(); as prod) {
+          <div class="modal-overlay" (click)="cerrarModalStock()">
+            <div class="modal-centro" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>EDITAR STOCK · {{ prod.name }}</h3>
+                <button class="modal-close" (click)="cerrarModalStock()">✕</button>
+              </div>
+              <div class="modal-body">
+                <div class="stock-form">
+                  @for (sz of prod.sizes; track sz.size) {
+                    <div class="stock-row">
+                      <label class="stock-label">{{ sz.size }}</label>
+                      <input
+                        type="number"
+                        min="0"
+                        class="input-number"
+                        [ngModel]="stockEdicion()[sz.size]"
+                        (ngModelChange)="updateStockTalla(sz.size, +$event)"
+                      />
+                    </div>
+                  }
+                </div>
+                <button
+                  class="btn-accent full"
+                  [disabled]="guardandoStock()"
+                  (click)="guardarStock()">
+                  {{ guardandoStock() ? 'GUARDANDO...' : 'GUARDAR STOCK' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Modal: confirmar eliminación -->
+        @if (modalEliminar(); as prod) {
+          <div class="modal-overlay" (click)="modalEliminar.set(null)">
+            <div class="modal-centro modal-confirmar" (click)="$event.stopPropagation()">
+              <h3>¿ELIMINAR PRODUCTO?</h3>
+              <p>¿Seguro que quieres eliminar <strong>{{ prod.name }}</strong>?<br/>Esta acción no se puede deshacer.</p>
+              <div class="modal-btns">
+                <button class="btn-ghost-modal" (click)="modalEliminar.set(null)">CANCELAR</button>
+                <button class="btn-danger" (click)="eliminarProducto()">ELIMINAR</button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Modal: añadir producto -->
+        @if (mostrarFormAnadir()) {
+          <div class="modal-overlay" (click)="mostrarFormAnadir.set(false)">
+            <div class="modal-centro modal-anadir" (click)="$event.stopPropagation()">
+              <div class="modal-header">
+                <h3>AÑADIR PRODUCTO</h3>
+                <button class="modal-close" (click)="mostrarFormAnadir.set(false)">✕</button>
+              </div>
+              <div class="modal-body">
+                <p class="form-hint">
+                  Para añadir productos con imagen usa el panel clásico:
+                  <br/>
+                  <a routerLink="/admin" class="link-accent">→ Ir al Panel Clásico</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECCIÓN 4 · VENTAS                             -->
+      <!-- ═══════════════════════════════════════════════ -->
+      @if (seccion() === 'ventas') {
+        <section class="section">
+          <h2 class="section-heading">💰 VENTAS</h2>
+
+          <div class="ventas-layout">
+
+            <!-- Izquierda: gráfica + top productos -->
+            <div class="ventas-main">
+
+              <div class="chart-card">
+                <h3 class="chart-title">INGRESOS ÚLTIMOS 30 DÍAS</h3>
+                @if (cargandoVentas()) {
+                  <div class="loading-state">Cargando datos...</div>
+                } @else {
+                  <div class="chart-container">
+                    <svg
+                      class="chart-svg"
+                      viewBox="0 0 590 170"
+                      preserveAspectRatio="none"
+                    >
+                      <defs>
+                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%"   stop-color="var(--accent)" stop-opacity="0.25" />
+                          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path [attr.d]="chartAreaPath()" fill="url(#chartGrad)" />
+                      <path
+                        [attr.d]="chartPath()"
+                        fill="none"
+                        stroke="var(--accent)"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      @for (lbl of chartLabels(); track lbl.x) {
+                        <text
+                          [attr.x]="lbl.x"
+                          y="167"
+                          font-size="9"
+                          fill="var(--text-secondary)"
+                          text-anchor="middle"
+                        >{{ lbl.label }}</text>
+                      }
+                    </svg>
+                  </div>
+                }
+              </div>
+
+              <div class="top-card">
+                <h3 class="chart-title">TOP 10 PRODUCTOS MÁS VENDIDOS</h3>
+                @if (topProductos().length === 0) {
+                  <div class="empty-state">Sin datos de ventas aún.</div>
+                } @else {
+                  <div class="table-wrap">
+                    <table class="admin-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>PRODUCTO</th>
+                          <th>UNIDADES</th>
+                          <th>INGRESOS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (prod of topProductos(); track prod.id; let i = $index) {
+                          <tr>
+                            <td class="rank">{{ i + 1 }}</td>
+                            <td>
+                              <div class="top-prod-row">
+                                <img [src]="prod.imageUrl" [alt]="prod.nombre" class="top-img" />
+                                <span>{{ prod.nombre }}</span>
+                              </div>
+                            </td>
+                            <td>{{ prod.unidadesVendidas }}</td>
+                            <td>{{ prod.ingresos | currency:'EUR' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </div>
+
+            </div>
+
+            <!-- Derecha: resumen del mes -->
+            <aside class="ventas-sidebar">
+              <h3 class="chart-title">RESUMEN DEL MES</h3>
+              @if (resumenMes(); as r) {
+                <div class="resumen-item">
+                  <p class="resumen-label">INGRESOS TOTALES</p>
+                  <p class="resumen-value">{{ r.ingresos | currency:'EUR' }}</p>
+                </div>
+                <div class="resumen-item">
+                  <p class="resumen-label">PEDIDOS COMPLETADOS</p>
+                  <p class="resumen-value">{{ r.pedidosCompletados }}</p>
+                </div>
+                <div class="resumen-item">
+                  <p class="resumen-label">TICKET MEDIO</p>
+                  <p class="resumen-value">{{ r.ticketMedio | currency:'EUR' }}</p>
+                </div>
+                <div class="resumen-item">
+                  <p class="resumen-label">PRODUCTO ESTRELLA</p>
+                  <p class="resumen-value resumen-estrella">⭐ {{ r.productoEstrella }}</p>
+                </div>
+              } @else {
+                <div class="empty-state">Sin datos este mes.</div>
+              }
+            </aside>
+
+          </div>
+        </section>
+      }
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECCIÓN 5 · PIEZA DE LA SEMANA                 -->
+      <!-- ═══════════════════════════════════════════════ -->
+      @if (seccion() === 'pieza') {
+        <section class="section">
+          <h2 class="section-heading">⭐ PIEZA DE LA SEMANA</h2>
+
+          <!-- Pieza activa actual -->
+          @if (piezaActual(); as pieza) {
+            <div class="pieza-activa">
+              <span class="pieza-activa-label">ACTIVA AHORA</span>
+              <div class="pieza-activa-info">
+                <img [src]="pieza.imageUrl" [alt]="pieza.name" class="pieza-activa-img" />
+                <div>
+                  <p class="pieza-activa-nombre">{{ pieza.name }}</p>
+                  <p class="pieza-activa-meta">
+                    -{{ pieza.discountPercent }}% ·
+                    <span class="precio-final">{{ pieza.finalPrice | currency:'EUR' }}</span>
+                    <span class="precio-orig">{{ pieza.originalPrice | currency:'EUR' }}</span>
+                  </p>
+                  <p class="pieza-activa-hasta">Válida hasta {{ pieza.validUntil | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="pieza-panel">
+            <h3 class="ps-step">① SELECCIONAR PRODUCTO</h3>
+
+            <div class="autocomplete-wrap">
+              <input
+                class="input-search"
+                type="text"
+                placeholder="BUSCAR PRODUCTO POR NOMBRE O EQUIPO..."
+                [ngModel]="busquedaPieza()"
+                (ngModelChange)="busquedaPieza.set($event); onBusquedaChange()"
+                (blur)="cerrarAutocomplete()"
+              />
+              @if (autocomplVisible() && sugerenciasPieza().length > 0) {
+                <div class="autocomplete-list">
+                  @for (s of sugerenciasPieza(); track s.id) {
+                    <button class="autocomplete-item" (click)="selectPieza(s)">
+                      <img [src]="s.imageUrl" [alt]="s.name" class="ac-img" />
+                      <div>
+                        <p class="ac-nombre">{{ s.name }}</p>
+                        <p class="ac-meta">{{ s.team }} · {{ s.price | currency:'EUR' }}</p>
+                      </div>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (piezaSeleccionada(); as prod) {
+              <!-- Preview del producto -->
+              <div class="pieza-preview">
+                <img [src]="prod.imageUrl" [alt]="prod.name" class="preview-img" />
+                <div class="preview-info">
+                  <p class="preview-nombre">{{ prod.name }}</p>
+                  <p class="preview-meta">{{ prod.team }} · {{ prod.year }}</p>
+                  <p class="preview-precio-orig">{{ prod.price | currency:'EUR' }}</p>
+                  <p class="preview-precio-final">{{ precioFinalPieza() | currency:'EUR' }}</p>
+                  <p class="preview-desc">-{{ descuentoPieza() }}% DESCUENTO</p>
+                </div>
+              </div>
+
+              <h3 class="ps-step">② CONFIGURAR DESCUENTO Y VIGENCIA</h3>
+
+              <div class="pieza-config">
+                <div class="config-row">
+                  <label class="config-label">DESCUENTO (%)</label>
+                  <input
+                    type="number"
+                    class="input-number"
+                    min="1"
+                    max="90"
+                    [ngModel]="descuentoPieza()"
+                    (ngModelChange)="descuentoPieza.set(+$event)"
+                  />
+                </div>
+                <div class="config-row">
+                  <label class="config-label">VÁLIDO HASTA</label>
+                  <input
+                    type="datetime-local"
+                    class="input-date"
+                    [ngModel]="validHastaPieza()"
+                    (ngModelChange)="validHastaPieza.set($event)"
+                  />
+                </div>
+              </div>
+
+              <button
+                class="btn-activar"
+                [disabled]="guardandoPieza() || !validHastaPieza() || descuentoPieza() <= 0"
+                (click)="activarPieza()"
+              >
+                {{ guardandoPieza() ? 'GUARDANDO...' : '⭐ ACTIVAR COMO PIEZA DE LA SEMANA' }}
+              </button>
+            }
+          </div>
+
+        </section>
+      }
+
+    </main>
+  </div>
+</div>

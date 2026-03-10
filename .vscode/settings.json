@@ -20,6 +20,7 @@
   "intelephense.diagnostics.undefinedMethods": false,
   "intelephense.diagnostics.undefinedProperties": false,
   "intelephense.diagnostics.undefinedVariables": false,
+  "intelephense.diagnostics.notImportedSymbols": false,
 
   // ── Excluir node_modules de búsquedas y watcher ───
   "search.exclude": {
