@@ -1,16 +1,27 @@
-/* ─── VITRINA ─── */
+/* ─── VITRINA (Product Card) ─── */
 .vitrina {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 70vh;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all var(--transition-slow);
+}
+
+.vitrina:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-primary);
+  transform: translateY(-4px);
 }
 
 /* Visual */
 .vitrina__visual {
   position: relative;
   overflow: hidden;
+  background: var(--color-surface-2);
 }
 
 .vitrina__img {
@@ -18,81 +29,81 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: brightness(0.85);
-  transition: transform 0.6s ease;
+  transition: transform var(--transition-slow);
 }
 
 .vitrina__visual:hover .vitrina__img {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
 .vitrina__badge {
   position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-  background: var(--accent);
-  color: #000;
+  top: 12px;
+  left: 12px;
+  background: var(--color-primary);
+  color: #fff;
   font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.35rem 0.9rem;
+  padding: 4px 10px;
   z-index: 2;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  border-radius: var(--radius-sm);
 }
 
 .vitrina__countdown {
   position: absolute;
-  bottom: 1.5rem;
-  left: 1.5rem;
+  bottom: 12px;
+  left: 12px;
   background: var(--overlay);
-  padding: 0.75rem 1.25rem;
-  backdrop-filter: blur(4px);
+  padding: 10px 16px;
+  backdrop-filter: blur(8px);
   z-index: 2;
+  border-radius: var(--radius-sm);
 }
 
 .countdown__label {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 10px;
   letter-spacing: 0.15em;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
   text-transform: uppercase;
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .countdown__timer {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 4px;
 }
 
 .countdown__block {
   display: flex;
   align-items: baseline;
-  gap: 0.1rem;
+  gap: 2px;
 }
 
 .countdown__num {
   font-family: var(--font-display);
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
   line-height: 1;
 }
 
 .countdown__unit {
   font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 10px;
+  color: var(--color-text-muted);
   letter-spacing: 0.1em;
 }
 
 .countdown__sep {
   font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--text-muted);
+  font-size: 1.8rem;
+  color: var(--color-text-faint);
   line-height: 1;
   align-self: center;
 }
@@ -102,103 +113,109 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 3.5rem 4rem;
-  gap: 1.5rem;
+  padding: 48px 56px;
+  gap: 20px;
 }
 
 .vitrina__meta {
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  letter-spacing: 0.18em;
-  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--color-primary);
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .vitrina__name {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 4vw, 3.8rem);
-  font-weight: 900;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
   line-height: 0.95;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
 }
 
 .vitrina__price-wrap {
   display: flex;
   align-items: baseline;
-  gap: 1rem;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .vitrina__price {
   font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 900;
-  color: var(--text-primary);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-primary);
   line-height: 1;
 }
 
 .vitrina__original {
   font-family: var(--font-body);
-  font-size: 1.2rem;
-  color: var(--text-secondary);
+  font-size: 1.1rem;
+  color: var(--color-text-faint);
   text-decoration: line-through;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
 .vitrina__discount {
   font-family: var(--font-body);
-  background: var(--accent);
-  color: #000;
-  font-size: 0.85rem;
-  font-weight: 700;
-  padding: 0.2rem 0.5rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
   letter-spacing: 0.1em;
+  border-radius: var(--radius-sm);
 }
 
 .vitrina__sizes {
   display: flex;
-  gap: 0.6rem;
+  gap: 6px;
   list-style: none;
   flex-wrap: wrap;
 }
 
 .vitrina__size {
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  letter-spacing: 0.1em;
-  border: 1px solid var(--border-hover);
-  padding: 0.3rem 0.75rem;
-  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: all var(--transition);
+  border-radius: 3px;
 }
 
 .vitrina__size:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .vitrina__btn {
-  background: var(--accent);
-  color: #000;
+  background: var(--color-primary);
+  color: #fff;
   border: none;
-  font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 1rem 2.5rem;
+  padding: 14px 32px;
   cursor: pointer;
   width: fit-content;
-  transition: background 0.2s, transform 0.15s;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  box-shadow: 0 4px 14px var(--color-primary-glow);
 }
 
 .vitrina__btn:hover {
-  background: var(--accent-hover);
+  background: var(--color-primary-light);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--color-primary-glow);
 }
 
 @media (max-width: 900px) {
@@ -213,7 +230,7 @@
   }
 
   .vitrina__info {
-    padding: 2rem 1.5rem;
-    gap: 1rem;
+    padding: 24px 20px;
+    gap: 14px;
   }
 }

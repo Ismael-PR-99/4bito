@@ -71,7 +71,7 @@
   border-radius: 2px;
   vertical-align: middle;
 }
-.new-badge { background: var(--accent); color: #000; }
+.new-badge { background: var(--accent); color: #fff; }
 
 .col-count {
   font-size: 0.72rem;
@@ -186,7 +186,7 @@
 .sidebar-item:hover { color: var(--text-primary); }
 .sidebar-item.active {
   background: var(--accent);
-  color: #000;
+  color: #fff;
   font-weight: 700;
 }
 
@@ -243,7 +243,7 @@
   top: 0.5rem;
   left: 0.5rem;
   background: var(--accent);
-  color: #000;
+  color: #fff;
   font-size: 0.58rem;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -257,7 +257,7 @@
   top: 0.5rem;
   right: 0.5rem;
   background: var(--accent);
-  color: #000;
+  color: #fff;
   font-size: 0.65rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -371,7 +371,7 @@
 }
 .btn-clear-lg:hover {
   border-color: var(--accent);
-  color: #000;
+  color: #fff;
   background: var(--accent);
 }
 

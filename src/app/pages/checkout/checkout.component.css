@@ -68,13 +68,13 @@ input, select {
   appearance: none;
 }
 input:focus, select:focus { border-color: var(--accent); }
-input.input-error, select.input-error { border-color: #e53935; }
+input.input-error, select.input-error { border-color: var(--color-error); }
 
 select option { background: var(--bg-card); color: var(--text-primary); }
 
 .field-error {
   font-size: 0.72rem;
-  color: #e53935;
+  color: var(--color-error);
   letter-spacing: 0.04em;
 }
 
@@ -130,7 +130,7 @@ select option { background: var(--bg-card); color: var(--text-primary); }
   margin-top: 28px;
   width: 100%;
   background: var(--accent);
-  color: #000;
+  color: #fff;
   border: none;
   padding: 16px;
   font-family: var(--font-display, 'Barlow Condensed', sans-serif);
@@ -155,8 +155,8 @@ select option { background: var(--bg-card); color: var(--text-primary); }
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(0,0,0,0.3);
-  border-top-color: #000;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   display: inline-block;

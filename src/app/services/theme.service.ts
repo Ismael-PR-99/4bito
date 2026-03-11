@@ -3,23 +3,26 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private isDark = new BehaviorSubject<boolean>(true);
+  private isDark = new BehaviorSubject<boolean>(false);
   isDark$ = this.isDark.asObservable();
 
   constructor() {
-    const saved = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialDark = saved ? saved === 'dark' : prefersDark;
-    this.setTheme(initialDark);
+    // Leer preferencia guardada — tema claro es el default
+    const saved = localStorage.getItem('4bito_theme') as 'dark' | 'light' | null;
+    const theme = saved || 'light';
+    this.applyTheme(theme);
   }
 
   toggle() {
-    this.setTheme(!this.isDark.value);
+    const next = this.isDark.value ? 'light' : 'dark';
+    this.applyTheme(next);
   }
 
-  private setTheme(dark: boolean) {
-    this.isDark.next(dark);
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  private applyTheme(theme: 'dark' | 'light') {
+    this.isDark.next(theme === 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('4bito_theme', theme);
   }
+
+  isDarkMode(): boolean { return this.isDark.value; }
 }

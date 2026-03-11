@@ -227,6 +227,7 @@ export class AdminDashboardComponent implements OnInit {
     if (s === 'resenas'   && this.resenasPanel().length === 0) { this.cargarResenas(); }
     if (s === 'espera'    && this.waitlist().length === 0)     { this.cargarWaitlist(); }
     if (s === 'devoluciones' && this.adminReturns().length === 0) { this.cargarReturns(); }
+    if (s !== 'chats') { this.chatSvc.stopAdminPolling(); }
     if (s === 'chats') { this.chatSvc.loadRooms(); this.chatSvc.startAdminView(); }
   }
 

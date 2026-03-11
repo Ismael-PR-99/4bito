@@ -43,6 +43,8 @@ export class ChatService implements OnDestroy {
 
   private pollTimer: any = null;
   private adminPollTimer: any = null;
+  private lastRealId = 0;
+  private lastRealAdminId = 0;
 
   private headers() {
     const token = this.auth.getToken();
@@ -68,6 +70,8 @@ export class ChatService implements OnDestroy {
         this.conversationId.set(res.conversationId);
         this.sessionId.set(res.sessionId);
         localStorage.setItem('chat_session', res.sessionId);
+        this.lastRealId = 0;
+        this.messages.set([]);
         this.loadMessages();
         this.loading.set(false);
       },
@@ -78,12 +82,17 @@ export class ChatService implements OnDestroy {
   loadMessages() {
     const cid = this.conversationId();
     if (!cid) return;
-    const lastId = this.messages().length > 0 ? this.messages()[this.messages().length - 1].id : 0;
     this.http.get<ChatMessage[]>(`${this.api}/messages.php`, {
-      params: { conversationId: cid.toString(), after: lastId.toString() },
+      params: { conversationId: cid.toString(), after: this.lastRealId.toString() },
     }).subscribe(msgs => {
       if (msgs.length > 0) {
-        this.messages.update(prev => [...prev, ...msgs]);
+        this.lastRealId = Math.max(...msgs.map(m => m.id));
+        this.messages.update(prev => {
+          // Remove local placeholders that now exist in DB
+          const incoming = new Set(msgs.map(m => `${m.sender}|${m.message}`));
+          const cleaned = prev.filter(m => !(m.id > 1_000_000_000 && incoming.has(`${m.sender}|${m.message}`)));
+          return [...cleaned, ...msgs];
+        });
       }
     });
   }
@@ -135,6 +144,7 @@ export class ChatService implements OnDestroy {
   selectRoom(convId: number) {
     this.activeRoom.set(convId);
     this.activeMessages.set([]);
+    this.lastRealAdminId = 0;
     this.loadAdminMessages();
     this.startAdminPolling();
   }
@@ -142,12 +152,16 @@ export class ChatService implements OnDestroy {
   loadAdminMessages() {
     const rid = this.activeRoom();
     if (!rid) return;
-    const lastId = this.activeMessages().length > 0 ? this.activeMessages()[this.activeMessages().length - 1].id : 0;
     this.http.get<ChatMessage[]>(`${this.api}/messages.php`, {
-      params: { conversationId: rid.toString(), after: lastId.toString() },
+      params: { conversationId: rid.toString(), after: this.lastRealAdminId.toString() },
     }).subscribe(msgs => {
-      if (lastId === 0) this.activeMessages.set(msgs);
-      else if (msgs.length) this.activeMessages.update(prev => [...prev, ...msgs]);
+      if (this.lastRealAdminId === 0 && msgs.length) {
+        this.lastRealAdminId = Math.max(...msgs.map(m => m.id));
+        this.activeMessages.set(msgs);
+      } else if (msgs.length) {
+        this.lastRealAdminId = Math.max(...msgs.map(m => m.id));
+        this.activeMessages.update(prev => [...prev, ...msgs]);
+      }
     });
   }
 

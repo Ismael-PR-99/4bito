@@ -309,7 +309,7 @@
 .estado-procesando  { background: rgba(255,200,0,.15);           color: #c9a400; }
 .estado-enviado     { background: rgba(0,120,255,.15);           color: #0078ff; }
 .estado-entregado   { background: rgba(0,200,80,.15);            color: #00c853; }
-.estado-cancelado   { background: rgba(220,0,0,.15);             color: #e53935; }
+.estado-cancelado   { background: rgba(220,0,0,.15);             color: var(--color-error); }
 
 .pedido-total {
   font-size: 1rem;

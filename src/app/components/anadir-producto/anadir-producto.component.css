@@ -231,7 +231,7 @@ select.invalid { border-color: var(--red) !important; }
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
-.btn-add-size:hover { background: var(--green); color: #000; }
+.btn-add-size:hover { background: var(--green); color: #fff; }
 
 .sizes-list { display: flex; flex-direction: column; gap: 0.5rem; }
 
@@ -299,7 +299,7 @@ select.invalid { border-color: var(--red) !important; }
 .btn-submit {
   background: var(--green);
   border: 1px solid var(--green);
-  color: #000;
+  color: #fff;
   font-family: var(--font-body, 'Roboto Condensed', sans-serif);
   font-size: 0.82rem;
   font-weight: 700;

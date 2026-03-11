@@ -175,7 +175,7 @@
   font-size: 13px; pointer-events: none; font-weight: 700;
 }
 .cf-icon--ok { color: var(--accent); }
-.cf-icon--err { color: #ff4444; }
+.cf-icon--err { color: var(--color-error); }
 .cf-lock { position: absolute; right: 12px; font-size: 12px; }
 
 .card-type-badge {
@@ -202,13 +202,13 @@
 }
 .cf-group--cvv:hover .cvv-tooltip { display: block; }
 
-.cf-error { font-size: 11px; color: #ff4444; letter-spacing: 0.03em; margin-top: 5px; }
+.cf-error { font-size: 11px; color: var(--color-error); letter-spacing: 0.03em; margin-top: 5px; }
 
 /* ── Botón pagar ────────────────────────────── */
 .btn-pagar {
   margin-top: 8px; width: 100%;
   background: var(--accent);
-  color: #000; border: none; height: 56px; border-radius: 3px;
+  color: #fff; border: none; height: 56px; border-radius: 3px;
   font-family: var(--font-display, 'Barlow Condensed', sans-serif);
   font-size: 14px; font-weight: 900; letter-spacing: 3px;
   cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -472,11 +472,11 @@ input, select {
   appearance: none;
 }
 input:focus { border-color: var(--accent); }
-input.input-error { border-color: #e53935; }
+input.input-error { border-color: var(--color-error); }
 
 .field-error {
   font-size: 0.72rem;
-  color: #e53935;
+  color: var(--color-error);
   letter-spacing: 0.04em;
 }
 
@@ -485,7 +485,7 @@ input.input-error { border-color: #e53935; }
   margin-top: 8px;
   width: 100%;
   background: var(--accent);
-  color: #000;
+  color: #fff;
   border: none;
   padding: 16px;
   font-family: var(--font-display, 'Barlow Condensed', sans-serif);

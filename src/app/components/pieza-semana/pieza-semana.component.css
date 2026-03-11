@@ -206,7 +206,7 @@
   top: 12px;
   right: 12px;
   background: var(--accent);
-  color: #000;
+  color: #fff;
   font-family: 'Barlow Condensed', 'Impact', sans-serif;
   font-weight: 800;
   font-size: 13px;
@@ -321,7 +321,7 @@
 
 .ps-price-badge {
   background: var(--accent);
-  color: #000;
+  color: #fff;
   font-size: 11px;
   font-weight: 900;
   padding: 2px 6px;
@@ -365,7 +365,7 @@
 }
 
 .ps-cd-box--urgent .ps-cd-num {
-  color: #ff4444;
+  color: var(--color-error);
   animation: pulse-red 1s ease infinite;
 }
 
@@ -390,7 +390,7 @@
   padding-bottom: 14px;
   transition: color 0.3s;
 }
-.ps-cd-sep--urgent { color: #ff4444; }
+.ps-cd-sep--urgent { color: var(--color-error); }
 
 /* â”€â”€ BotÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .ps-btn {
@@ -415,7 +415,7 @@
 
 .ps-btn:hover {
   background: var(--accent);
-  color: #000;
+  color: #fff;
 }
 
 .ps-btn__arrow {
