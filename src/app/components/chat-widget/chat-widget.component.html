@@ -1,62 +1,124 @@
-<!-- Botón flotante -->
-<button class="chat-fab" (click)="toggle()" [class.active]="chatSvc.isOpen()">
-  <lucide-icon [img]="chatSvc.isOpen() ? icons.X : icons.MessageCircle" [size]="24"></lucide-icon>
+<!-- FAB flotante -->
+<button class="chat-fab" (click)="toggle()" [class.open]="isOpen" aria-label="Chat de soporte">
+  <span class="fab-icon">{{ isOpen ? '✕' : '💬' }}</span>
+  @if (!isOpen) {
+    <span class="fab-pulse"></span>
+  }
 </button>
 
-<!-- Panel de chat -->
-@if (chatSvc.isOpen()) {
-  <div class="chat-panel">
-    <div class="chat-header">
-      <div class="chat-header-info">
-        <img src="logo.svg" alt="4bito" class="chat-avatar">
-        <div>
-          <h4>4BITO Soporte</h4>
-          <span class="chat-status">En línea</span>
+<!-- Widget completo -->
+<div class="chat-widget" [class.open]="isOpen">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="header-info">
+      <img src="logo.svg" alt="4bito logo" class="chat-avatar">
+      <div class="header-text">
+        <strong>4BITO SOPORTE</strong>
+        <span class="chat-status">
+          <span class="status-dot"
+            [class.dot-blue]="mode === 'bot'"
+            [class.dot-orange]="mode === 'waiting_human'"
+            [class.dot-green]="mode === 'human'">
+          </span>
+          @if (mode === 'bot') { Asistente automático }
+          @if (mode === 'waiting_human') { Buscando agente... }
+          @if (mode === 'human') { 🛡 Agente conectado }
+        </span>
+      </div>
+    </div>
+
+    <!-- Selector bot/humano -->
+    <div class="mode-switcher">
+      @if (mode === 'bot') {
+        <button class="mode-btn" (click)="requestHuman()" title="Hablar con una persona">
+          🙋 Persona
+        </button>
+      }
+      @if (mode === 'waiting_human') {
+        <div class="mode-waiting">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <button class="cancel-btn" (click)="backToBot()">✕</button>
+        </div>
+      }
+      @if (mode === 'human') {
+        <button class="mode-btn mode-btn--active" (click)="backToBot()" title="Volver al asistente">
+          🤖 Bot
+        </button>
+      }
+    </div>
+
+    <button class="chat-close" (click)="toggle()" aria-label="Cerrar chat">✕</button>
+  </div>
+
+  <!-- Mensajes -->
+  <div class="chat-messages" #messagesEl>
+
+    @for (msg of messages; track $index) {
+
+      @if (msg.sender === 'system') {
+        <div class="msg-system">
+          <p [innerHTML]="msg.content | nl2br"></p>
+        </div>
+      }
+
+      @if (msg.sender !== 'system') {
+        <div class="msg-row"
+          [class.msg-user]="msg.sender === 'user'"
+          [class.msg-bot]="msg.sender === 'bot'"
+          [class.msg-admin]="msg.sender === 'admin'">
+          <div class="bubble">
+            @if (msg.sender === 'bot') {
+              <span class="bubble-label">🤖 Asistente</span>
+            }
+            @if (msg.sender === 'admin') {
+              <span class="bubble-label">🛡 Agente</span>
+            }
+            <p [innerHTML]="msg.content | nl2br"></p>
+            <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
+          </div>
+        </div>
+      }
+
+      @if (msg.quickReplies && msg.quickReplies.length > 0) {
+        <div class="quick-replies">
+          @for (qr of msg.quickReplies; track qr) {
+            <button (click)="send(qr)">{{ qr }}</button>
+          }
+        </div>
+      }
+
+    }
+
+    <!-- Typing indicator -->
+    @if (isTyping) {
+      <div class="msg-row msg-bot">
+        <div class="bubble typing">
+          <span></span><span></span><span></span>
         </div>
       </div>
-      <button class="chat-close" (click)="chatSvc.close()">
-        <lucide-icon [img]="icons.X" [size]="18"></lucide-icon>
-      </button>
-    </div>
+    }
 
-    <div class="chat-messages" #messagesContainer>
-      @if (chatSvc.loading()) {
-        <div class="chat-loading">Conectando...</div>
-      }
-      @if (chatSvc.messages().length === 0 && !chatSvc.loading()) {
-        <div class="chat-bubble bot">
-          <span class="bubble-label">🤖 Bot</span>
-          <p>👋 ¡Hola! Soy el asistente de 4BITO. ¿En qué puedo ayudarte?</p>
-        </div>
-        <div class="quick-chips">
-          <button (click)="sendQuick('¿Cómo es el envío?')">🚚 Envíos</button>
-          <button (click)="sendQuick('¿Cómo devuelvo un producto?')">↩️ Devoluciones</button>
-          <button (click)="sendQuick('¿Cómo elijo mi talla?')">📏 Tallas</button>
-          <button (click)="sendQuick('¿Cómo pago?')">💳 Pagos</button>
-        </div>
-      }
-      @for (msg of chatSvc.messages(); track msg.id) {
-        <div class="chat-bubble" [class.user]="msg.sender === 'user'" [class.bot]="msg.sender === 'bot'" [class.admin]="msg.sender === 'admin'">
-          @if (msg.sender !== 'user') {
-            <span class="bubble-label">{{ msg.sender === 'bot' ? '🤖 Bot' : '👤 Agente' }}</span>
-          }
-          <p>{{ msg.message }}</p>
-          <span class="bubble-time">{{ formatTime(msg.created_at) }}</span>
-        </div>
-      }
-    </div>
-
-    <div class="chat-input">
-      <input
-        type="text"
-        [(ngModel)]="newMessage"
-        placeholder="Escribe un mensaje..."
-        (keydown.enter)="send()"
-        maxlength="500"
-      />
-      <button class="chat-send" (click)="send()" [disabled]="!newMessage.trim()">
-        <lucide-icon [img]="icons.Send" [size]="18"></lucide-icon>
-      </button>
-    </div>
   </div>
-}
+
+  <!-- Input -->
+  <div class="chat-input-area">
+    <input
+      type="text"
+      [(ngModel)]="inputMessage"
+      (keydown.enter)="send()"
+      [placeholder]="mode === 'waiting_human' ? 'Esperando agente...' : 'Escribe un mensaje...'"
+      [disabled]="mode === 'waiting_human'"
+      maxlength="500"
+    />
+    <button
+      class="send-btn"
+      (click)="send()"
+      [disabled]="!inputMessage.trim() || mode === 'waiting_human'"
+      aria-label="Enviar mensaje">
+      ➤
+    </button>
+  </div>
+
+</div>
+
