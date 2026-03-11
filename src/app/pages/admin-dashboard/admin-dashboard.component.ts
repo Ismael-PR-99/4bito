@@ -13,6 +13,7 @@ import {
 } from '../../services/admin.service';
 import { ReturnsService, ReturnRequest } from '../../services/returns.service';
 import { ChatService, ChatConversation, ChatMessage } from '../../services/chat.service';
+import { LucideAngularModule } from 'lucide-angular';
 import { AnadirProductoComponent } from '../../components/anadir-producto/anadir-producto.component';
 
 type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'alertas' | 'historial' | 'resenas' | 'espera' | 'devoluciones' | 'chats';
@@ -20,7 +21,7 @@ type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'aler
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AnadirProductoComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, AnadirProductoComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
 })
@@ -39,17 +40,17 @@ export class AdminDashboardComponent implements OnInit {
   sidebarAbierto = signal(false);
 
   readonly navItems: { id: Section; icon: string; label: string }[] = [
-    { id: 'resumen',    icon: '📦', label: 'RESUMEN' },
-    { id: 'pedidos',    icon: '🛍',  label: 'PEDIDOS' },
-    { id: 'inventario', icon: '👕', label: 'INVENTARIO' },
-    { id: 'ventas',     icon: '💰', label: 'VENTAS' },
-    { id: 'pieza',      icon: '⭐', label: 'PIEZA SEMANA' },
-    { id: 'alertas',    icon: '🚨', label: 'ALERTAS STOCK' },
-    { id: 'historial',  icon: '📋', label: 'HISTORIAL' },
-    { id: 'resenas',    icon: '💬', label: 'RESEÑAS' },
-    { id: 'espera',     icon: '📬', label: 'LISTA ESPERA' },
-    { id: 'devoluciones', icon: '🔄', label: 'DEVOLUCIONES' },
-    { id: 'chats',      icon: '💭', label: 'CHAT SOPORTE' },
+    { id: 'resumen',      icon: 'layout-dashboard', label: 'RESUMEN' },
+    { id: 'pedidos',      icon: 'package',           label: 'PEDIDOS' },
+    { id: 'inventario',   icon: 'archive',           label: 'INVENTARIO' },
+    { id: 'ventas',       icon: 'trending-up',       label: 'VENTAS' },
+    { id: 'pieza',        icon: 'award',             label: 'PIEZA SEMANA' },
+    { id: 'alertas',      icon: 'bell-dot',          label: 'ALERTAS STOCK' },
+    { id: 'historial',    icon: 'clock-4',           label: 'HISTORIAL' },
+    { id: 'resenas',      icon: 'star',              label: 'RESEÑAS' },
+    { id: 'espera',       icon: 'hourglass',         label: 'LISTA ESPERA' },
+    { id: 'devoluciones', icon: 'undo-2',            label: 'DEVOLUCIONES' },
+    { id: 'chats',        icon: 'headset',           label: 'CHAT SOPORTE' },
   ];
 
   // ── SECCIÓN 1: RESUMEN ────────────────────────────────────

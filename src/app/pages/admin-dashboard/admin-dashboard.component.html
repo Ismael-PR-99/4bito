@@ -21,7 +21,7 @@
           [class.active]="seccion() === item.id"
           (click)="setSeccion(item.id)"
         >
-          <span class="nav-icon">{{ item.icon }}</span>
+          <lucide-icon [name]="item.icon" [size]="17" [strokeWidth]="1.6" class="nav-icon"></lucide-icon>
           <span class="nav-label">{{ item.label }}</span>
         </button>
       }
