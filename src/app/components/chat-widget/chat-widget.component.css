@@ -49,7 +49,12 @@
   gap: 10px;
 }
 .chat-avatar {
-  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  padding: 4px;
 }
 .chat-header h4 {
   margin: 0;
