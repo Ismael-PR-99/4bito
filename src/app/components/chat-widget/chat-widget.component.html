@@ -1,9 +1,17 @@
 <!-- FAB flotante -->
 <button class="chat-fab" (click)="toggle()" [class.open]="isOpen" aria-label="Chat de soporte">
   @if (isOpen) {
-    <lucide-icon name="x" [size]="20" [strokeWidth]="2" class="fab-icon"></lucide-icon>
+    <svg class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
   } @else {
-    <lucide-icon name="message-circle" [size]="22" [strokeWidth]="1.6" class="fab-icon"></lucide-icon>
+    <svg class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      <circle cx="9" cy="11" r="0.6" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="11" r="0.6" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="11" r="0.6" fill="currentColor" stroke="none"/>
+    </svg>
     <span class="fab-pulse"></span>
   }
 </button>
