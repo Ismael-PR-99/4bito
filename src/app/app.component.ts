@@ -9,7 +9,6 @@ import { CartDrawerService } from './services/cart-drawer.service';
 import { ThemeService } from './services/theme.service';
 import { WishlistService } from './services/wishlist.service';
 import { NotificationService } from './services/notification.service';
-import { LiveScoresDropdownComponent } from './components/live-scores-dropdown/live-scores-dropdown.component';
 import { CartDrawerComponent } from './components/cart-drawer/cart-drawer.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { CompareBarComponent } from './components/compare-bar/compare-bar.component';
@@ -19,7 +18,7 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, LiveScoresDropdownComponent, CartDrawerComponent, ToastComponent, CompareBarComponent, ChatWidgetComponent, NotificationDropdownComponent],
+  imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, CartDrawerComponent, ToastComponent, CompareBarComponent, ChatWidgetComponent, NotificationDropdownComponent],
   providers: [
     { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User, Heart }) }
   ],

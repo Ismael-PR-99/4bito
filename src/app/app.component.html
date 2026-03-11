@@ -11,9 +11,6 @@
       <a [routerLink]="['/categoria', 'retro-objetos']" routerLinkActive="active">OBJETOS</a>
       <a [routerLink]="['/']" [routerLinkActiveOptions]="{exact:true}" routerLinkActive="active">NOVEDADES</a>
 
-      <!-- Marcadores en vivo -->
-      <app-live-scores-dropdown></app-live-scores-dropdown>
-
       <!-- Toggle tema oscuro/claro -->
       <label class="theme-toggle" [title]="(themeService.isDark$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
         <input type="checkbox"
