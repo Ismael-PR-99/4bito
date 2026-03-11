@@ -1,115 +1,116 @@
 .confirmado-page {
-  min-height: 100vh;
-  background: var(--bg-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-}
-
-.confirmado-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  max-width: 520px;
-  width: 100%;
-  padding: 52px 40px;
-  text-align: center;
+  min-height: 90vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 24px;
+  position: relative;
+  background: var(--color-bg);
 }
 
-/* Check circle */
-.check-circle {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 8px;
+/* ── Balón animado ── */
+.ball-container {
+  font-size: 80px;
+  transform: scale(0) translateY(-40px) rotate(-180deg);
+  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-bottom: 32px;
+  filter: drop-shadow(0 12px 30px rgba(41, 82, 74, 0.4));
+  will-change: transform;
 }
-.check-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.check-circle-bg {
-  stroke-dasharray: 158;
-  stroke-dashoffset: 158;
-  animation: circle-draw 0.6s ease forwards;
-}
-.check-tick {
-  stroke-dasharray: 40;
-  stroke-dashoffset: 40;
-  animation: tick-draw 0.4s ease 0.55s forwards;
+.ball-container.scored {
+  transform: scale(1) translateY(0) rotate(0deg);
 }
 
-@keyframes circle-draw {
-  to { stroke-dashoffset: 0; }
-}
-@keyframes tick-draw {
-  to { stroke-dashoffset: 0; }
+@media (max-width: 768px) {
+  .ball-container { font-size: 60px; }
 }
 
-/* Título */
+/* ── Contenido principal ── */
+.confirmation-content {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s var(--ease-spring, cubic-bezier(0.25, 0.46, 0.45, 0.94));
+}
+.confirmation-content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── ¡GOL! ── */
+.goal-text {
+  font-family: var(--font-display, 'Barlow Condensed', sans-serif);
+  font-size: clamp(80px, 18vw, 180px);
+  font-weight: 900;
+  color: var(--color-primary);
+  line-height: 0.9;
+  margin-bottom: 16px;
+  animation: goalScale 0.6s 0.5s var(--ease-spring, cubic-bezier(0.25, 0.46, 0.45, 0.94)) both;
+}
+
+@keyframes goalScale {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Título ── */
 .conf-title {
   font-family: var(--font-display, 'Barlow Condensed', sans-serif);
-  font-size: 2rem;
+  font-size: clamp(20px, 4vw, 36px);
   font-weight: 900;
-  letter-spacing: 0.12em;
-  color: var(--text-primary);
-  margin: 0;
-}
-.conf-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.88rem;
-  margin: 0;
+  letter-spacing: 0.15em;
+  color: var(--color-text);
+  margin-bottom: 12px;
 }
 
-/* Número pedido */
+.conf-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+}
+
+/* ── Número de pedido ── */
 .conf-order-num {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   padding: 16px 32px;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  width: 100%;
+  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  min-width: 260px;
 }
 .conf-order-label {
   font-size: 0.7rem;
   letter-spacing: 0.12em;
-  color: var(--text-muted);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
 }
 .conf-order-val {
+  font-family: var(--font-display, 'Barlow Condensed', sans-serif);
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: 0.1em;
-  color: var(--accent);
+  color: var(--color-primary);
 }
 
 .conf-info {
   font-size: 0.83rem;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
   line-height: 1.7;
-  margin: 0;
+  margin-bottom: 32px;
+  max-width: 400px;
 }
-.conf-info strong { color: var(--text-primary); }
+.conf-info strong { color: var(--color-text); }
 
-/* Botón */
-.btn-volver {
-  margin-top: 8px;
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 13px 36px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.btn-volver:hover {
-  background: var(--accent);
-  color: #fff;
+/* ── Acciones ── */
+.confirmation-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
 }

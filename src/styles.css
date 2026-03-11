@@ -249,3 +249,231 @@ p, span, a, li {
 ::-webkit-scrollbar-track { background: var(--color-bg); }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-faint); }
+
+/* =============================================
+   4BITO — ANIMATION SYSTEM
+   Timing functions, durations, keyframes,
+   microinteracciones y utilidades de animación
+   ============================================= */
+
+/* ── Variables de animación ─────────────────────────────── */
+:root,
+[data-theme="light"] {
+  --ease-out-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:     cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-gentle:     cubic-bezier(0.4, 0, 0.6, 1);
+
+  --dur-fast:    200ms;
+  --dur-normal:  350ms;
+  --dur-slow:    600ms;
+  --dur-glacial: 900ms;
+
+  --transition-base:  var(--dur-normal) var(--ease-in-out);
+  --transition-slow:  var(--dur-slow) var(--ease-out-expo);
+  --transition-enter: var(--dur-slow) var(--ease-spring);
+}
+
+/* Mobile: duraciones 35% más rápidas */
+@media (max-width: 768px) {
+  :root {
+    --dur-fast:    150ms;
+    --dur-normal:  250ms;
+    --dur-slow:    400ms;
+    --dur-glacial: 600ms;
+  }
+}
+
+/* ── prefers-reduced-motion ─────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Glitch retro suave ──────────────────────────────────── */
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  color: inherit;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--color-primary);
+  animation: glitchBefore 6s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 38%, 0 38%);
+}
+.glitch::after {
+  color: var(--color-secondary);
+  animation: glitchAfter 6s infinite;
+  clip-path: polygon(0 62%, 100% 62%, 100% 100%, 0 100%);
+}
+
+@keyframes glitchBefore {
+  0%, 93%, 100% { transform: translate(0); opacity: 0; }
+  94%           { transform: translate(-3px, -1px); opacity: 0.8; }
+  95%           { transform: translate(2px, 1px); opacity: 0.6; }
+  96%           { transform: translate(0); opacity: 0; }
+}
+@keyframes glitchAfter {
+  0%, 93%, 100% { transform: translate(0); opacity: 0; }
+  94%           { transform: translate(3px, 1px); opacity: 0.7; }
+  95.5%         { transform: translate(-2px, -1px); opacity: 0.5; }
+  96%           { transform: translate(0); opacity: 0; }
+}
+
+/* Sin glitch en mobile */
+@media (max-width: 768px) {
+  .glitch::before,
+  .glitch::after { display: none; }
+}
+
+/* ── Botones — press feedback ────────────────────────────── */
+.btn:active:not(:disabled) {
+  animation: btnPress 0.25s var(--ease-spring);
+}
+@keyframes btnPress {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+/* ── Inputs — focus glow ─────────────────────────────────── */
+input, textarea, select {
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+/* ── Badge carrito — bump ────────────────────────────────── */
+.cart-badge.bump {
+  animation: badgeBump 0.4s var(--ease-spring);
+}
+@keyframes badgeBump {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
+
+/* ── Skeleton loader ─────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-2) 25%,
+    var(--color-surface-3) 50%,
+    var(--color-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+.toast {
+  animation: toastIn 0.4s var(--ease-spring) both;
+}
+.toast.hiding {
+  animation: toastOut 0.25s ease forwards;
+}
+@keyframes toastIn {
+  from { transform: translateY(80px) scale(0.85); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes toastOut {
+  to { transform: translateY(80px) scale(0.85); opacity: 0; }
+}
+
+/* ── Drawer carrito ──────────────────────────────────────── */
+.cart-drawer {
+  transform: translateX(100%);
+  transition: transform 0.4s var(--ease-out-expo);
+  will-change: transform;
+}
+.cart-drawer.open {
+  transform: translateX(0);
+}
+.cart-overlay {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.cart-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Dropdown marcadores ─────────────────────────────────── */
+.dropdown-menu {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+  pointer-events: none;
+}
+.dropdown-menu.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+/* ── Links de navegación — underline deslizante ─────────── */
+nav a {
+  position: relative;
+}
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 14px; right: 14px;
+  height: 2px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--transition-base);
+  border-radius: 1px;
+}
+nav a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+nav a.active::after {
+  transform: scaleX(1);
+}
+
+/* ── Confetti fall (pedido confirmado) ───────────────────── */
+@keyframes confettiFall {
+  0%   { transform: translateY(0) translateX(0) rotate(0); opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(105vh) translateX(var(--drift)) rotate(var(--rotation)); opacity: 0; }
+}
+
+/* ── Page transition wrapper ─────────────────────────────── */
+.page-wrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}

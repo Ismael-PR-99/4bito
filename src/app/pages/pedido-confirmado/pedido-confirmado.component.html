@@ -1,27 +1,38 @@
 <div class="confirmado-page">
-  <div class="confirmado-card">
 
-    <!-- Icono check animado -->
-    <div class="check-circle">
-      <svg class="check-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle class="check-circle-bg" cx="26" cy="26" r="25" stroke="#00ff6a" stroke-width="2"/>
-        <path class="check-tick" d="M14 26L22 34L38 18" stroke="#00ff6a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
+  <!-- Balón animado -->
+  <div class="ball-container" [class.scored]="scored">
+    <span class="ball-emoji" aria-hidden="true">⚽</span>
+  </div>
 
-    <h1 class="conf-title">¡PEDIDO CONFIRMADO!</h1>
-    <p class="conf-subtitle">Tu pedido ha sido recibido y está siendo procesado.</p>
+  <!-- Contenido que aparece después -->
+  <div class="confirmation-content" [class.visible]="showContent">
 
-    <div class="conf-order-num">
+    <!-- GOL! con glitch -->
+    <h1 class="goal-text glitch" data-text="¡GOL!">¡GOL!</h1>
+    <h2 class="conf-title" animateOnScroll="fadeUp">PEDIDO CONFIRMADO</h2>
+
+    <p class="conf-subtitle" animateOnScroll="fadeUp" [aosDelay]="80">Tu pedido ha sido recibido y está siendo procesado.</p>
+
+    <div class="conf-order-num" *ngIf="numeroPedido" animateOnScroll="fadeUp" [aosDelay]="160">
       <span class="conf-order-label">NÚMERO DE PEDIDO</span>
       <span class="conf-order-val">{{ numeroPedido }}</span>
     </div>
 
-    <p class="conf-info">
+    <p class="conf-info" animateOnScroll="fadeUp" [aosDelay]="240">
       Recibirás un email de confirmación en breve con todos los detalles de tu compra.<br>
       El envío se realizará en un plazo de <strong>24/48 horas</strong>.
     </p>
 
-    <button class="btn-volver" (click)="volverTienda()">VOLVER A LA TIENDA</button>
+    <div class="confirmation-actions" animateOnScroll="fadeUp" [aosDelay]="320">
+      <button class="btn btn-primary btn-lg" [routerLink]="['/perfil']">
+        VER MIS PEDIDOS
+      </button>
+      <button class="btn btn-ghost btn-lg" (click)="volverTienda()">
+        SEGUIR COMPRANDO
+      </button>
+    </div>
+
   </div>
 </div>
+

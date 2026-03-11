@@ -7,11 +7,12 @@ import { BandaHonorComponent } from '../../components/banda-honor/banda-honor.co
 import { PiezaSemanaComponent } from '../../components/pieza-semana/pieza-semana.component';
 import { TiendaService } from '../../services/tienda.service';
 import { Categoria } from '../../models/categoria.model';
+import { AnimateOnScrollDirective } from '../../shared/directives/animate-on-scroll.directive';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, HeroComponent, PorDecadaComponent, BandaHonorComponent, PiezaSemanaComponent],
+  imports: [CommonModule, RouterLink, HeroComponent, PorDecadaComponent, BandaHonorComponent, PiezaSemanaComponent, AnimateOnScrollDirective],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

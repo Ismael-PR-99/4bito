@@ -91,6 +91,8 @@
           *ngFor="let p of products(); let i = index"
           [routerLink]="['/producto', p.id]"
           [style.animation-delay]="i * 0.06 + 's'"
+          animateOnScroll="fadeUp"
+          [aosDelay]="(i % 12) * 60"
         >
           <div class="prod-img-wrap">
             <img [src]="p.imageUrl" [alt]="p.name" loading="lazy" />

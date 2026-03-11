@@ -5,11 +5,12 @@ import { ProductosService, ProductoApi, SortOption } from '../../services/produc
 import { TiendaService } from '../../services/tienda.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { CompareService } from '../../services/compare.service';
+import { AnimateOnScrollDirective } from '../../shared/directives/animate-on-scroll.directive';
 
 @Component({
   selector: 'app-coleccion',
   standalone: true,
-  imports: [CommonModule, RouterLink, CurrencyPipe, DecimalPipe],
+  imports: [CommonModule, RouterLink, CurrencyPipe, DecimalPipe, AnimateOnScrollDirective],
   templateUrl: './coleccion.component.html',
   styleUrls: ['./coleccion.component.css'],
 })

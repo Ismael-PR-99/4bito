@@ -2,7 +2,9 @@ import {
   Component,
   Output,
   EventEmitter,
+  OnInit,
   OnDestroy,
+  HostListener,
   signal,
   inject,
 } from '@angular/core';
@@ -16,8 +18,16 @@ import { Router } from '@angular/router';
   templateUrl: './hero.component.html',
   styleUrl: './hero.component.css',
 })
-export class HeroComponent implements OnDestroy {
+export class HeroComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+
+  // Parallax state
+  private ticking   = false;
+  private scrollY   = 0;
+  private isMobile  = window.innerWidth < 768;
+  private prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  private heroContentEl: HTMLElement | null = null;
+  private heroBgEl:      HTMLElement | null = null;
 
   @Output() decadeChange = new EventEmitter<string>();
 
@@ -54,5 +64,43 @@ export class HeroComponent implements OnDestroy {
     this.router.navigate(['/coleccion'], { queryParams: { new: 1 } });
   }
 
-  ngOnDestroy(): void {}
+  ngOnInit(): void {
+    if (this.prefersReduced || this.isMobile) return;
+    this.heroContentEl = document.querySelector('.hero-content');
+    this.heroBgEl      = document.querySelector('.grid-bg');
+  }
+
+  ngOnDestroy(): void {
+    this.heroContentEl = null;
+    this.heroBgEl      = null;
+  }
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    if (this.prefersReduced || this.isMobile) return;
+    this.scrollY = window.scrollY;
+
+    if (!this.ticking) {
+      requestAnimationFrame(() => {
+        this.updateParallax();
+        this.ticking = false;
+      });
+      this.ticking = true;
+    }
+  }
+
+  private updateParallax(): void {
+    const sy = this.scrollY;
+
+    if (this.heroBgEl) {
+      this.heroBgEl.style.transform = `translateY(${sy * 0.3}px)`;
+    }
+
+    if (this.heroContentEl) {
+      const opacity    = Math.max(0, 1 - sy / 600);
+      const translateY = sy * 0.12;
+      this.heroContentEl.style.transform = `translateY(${translateY}px)`;
+      this.heroContentEl.style.opacity   = String(opacity);
+    }
+  }
 }

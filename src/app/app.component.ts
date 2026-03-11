@@ -16,6 +16,7 @@ import { CompareBarComponent } from './components/compare-bar/compare-bar.compon
 import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
 import { NotificationDropdownComponent } from './components/notification-dropdown/notification-dropdown.component';
 import { Observable } from 'rxjs';
+import { pageTransition } from './shared/animations/page-transition.animation';
 
 @Component({
   selector: 'app-root',
@@ -25,11 +26,13 @@ import { Observable } from 'rxjs';
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  animations: [pageTransition],
 })
 export class AppComponent implements OnInit {
   title = '4BITO RETRO SPORTS';
   menuAbierto = false;
+  isMobile = window.innerWidth < 768;
 
   carritoCount$!: Observable<number>;
 
@@ -83,6 +86,13 @@ export class AppComponent implements OnInit {
     this.menuAbierto = false;
     this.auth.logout();
     this.router.navigate(['/']);
+  }
+
+  getRouteState(outlet: RouterOutlet): string {
+    if (this.isMobile) return '';
+    return outlet?.activatedRouteData?.['animation']
+      || outlet?.activatedRoute?.snapshot?.url?.[0]?.path
+      || '';
   }
 }
 

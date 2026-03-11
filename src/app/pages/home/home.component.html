@@ -7,8 +7,10 @@
     <div class="categorias-grid">
       <a
         class="categoria-card"
-        *ngFor="let categoria of categorias"
+        *ngFor="let categoria of categorias; let i = index"
         [routerLink]="['/categoria', categoria.slug]"
+        animateOnScroll="zoomIn"
+        [aosDelay]="i * 80"
       >
         <img [src]="categoria.imageUrl" [alt]="categoria.nombre" class="categoria-img" />
         <div class="categoria-overlay">
