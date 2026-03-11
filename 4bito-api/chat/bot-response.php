@@ -1,5 +1,10 @@
 <?php
-require_once __DIR__ . '/../helpers/cors.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: http://localhost:4200');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
 require_once __DIR__ . '/../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -155,8 +160,7 @@ try {
     $conn = $db->getConnection();
 
     $stmt = $conn->prepare(
-        "INSERT INTO chat_messages (conversation_id, sender, message, created_at)
-         VALUES (?, 'bot', ?, NOW())"
+        "INSERT INTO chat_messages (conversation_id, sender, message) VALUES (?, 'bot', ?)"
     );
     $stmt->execute([$conversationId, $response]);
     $messageId = (int)$conn->lastInsertId();

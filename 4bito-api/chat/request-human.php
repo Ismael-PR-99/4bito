@@ -1,5 +1,10 @@
 <?php
-require_once __DIR__ . '/../helpers/cors.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: http://localhost:4200');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
 require_once __DIR__ . '/../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -63,24 +68,30 @@ try {
     );
     $ins->execute([$conversationId, $systemMsg]);
 
-    // Insert notification for admin
-    $notifData = json_encode([
-        'conversationId' => $conversationId,
-        'inOfficeHours'  => $inOfficeHours,
-        'requestedAt'    => date('Y-m-d H:i:s'),
-    ]);
-
-    $notif = $conn->prepare(
-        "INSERT INTO notifications (type, title, message, data, created_at)
-         VALUES ('chat_human_request', 'Nuevo chat pendiente', ?, ?, NOW())"
-    );
-    $notif->execute(["El usuario solicita atención humana en la conversación #{$conversationId}", $notifData]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     exit;
 }
+
+// Intentar notificar al admin (no bloquea si falla)
+try {
+    $notifData = json_encode([
+        'conversationId' => $conversationId,
+        'inOfficeHours'  => $inOfficeHours,
+        'requestedAt'    => date('Y-m-d H:i:s'),
+    ]);
+    // Obtener el primer admin disponible
+    $adminStmt = $conn->query("SELECT id FROM usuarios WHERE rol='admin' LIMIT 1");
+    $admin = $adminStmt ? $adminStmt->fetch(PDO::FETCH_ASSOC) : null;
+    if ($admin) {
+        $notif = $conn->prepare(
+            "INSERT INTO notifications (user_id, type, title, message, data, created_at)
+             VALUES (?, 'chat_human_request', 'Nuevo chat pendiente', ?, ?, NOW())"
+        );
+        $notif->execute([$admin['id'], "Usuario solicita atención humana en conversación #{$conversationId}", $notifData]);
+    }
+} catch (Exception $ignored) { /* notificación opcional */ }
 
 echo json_encode([
     'success'       => true,
