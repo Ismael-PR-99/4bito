@@ -72,9 +72,7 @@
 </section>
 
 <!-- Grid de categorías y secciones (lazy-loaded) -->
-<main class="page-wrapper" [@routeAnimations]="getRouteState(outlet)">
-  <router-outlet #outlet="outlet"></router-outlet>
-</main>
+<router-outlet></router-outlet>
 
 <!-- Cart Drawer -->
 <app-cart-drawer></app-cart-drawer>
