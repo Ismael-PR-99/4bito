@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Verificar JWT con rol admin
 requireAdmin();
 
-// ── Validar campos de texto ────────────────────────────────────────────────
+// -- Validar campos de texto --
 $name     = trim($_POST['name']   ?? '');
 $team     = trim($_POST['team']   ?? '');
 $league   = trim($_POST['league'] ?? '');
@@ -58,7 +58,7 @@ if (!empty($sizes)) {
     }
 }
 
-// ── Subida de imagen ───────────────────────────────────────────────────────
+// -- Subida de imagen --
 if (empty($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
     http_response_code(400);
     echo json_encode(['error' => 'La imagen es obligatoria']);
@@ -86,8 +86,15 @@ if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
 
-$ext      = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-$filename = uniqid('product_', true) . '.' . strtolower($ext);
+$ext      = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+// Extensiones permitidas (whitelist)
+$allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
+if (!in_array($ext, $allowedExts, true)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Extensión de imagen no permitida']);
+    exit();
+}
+$filename = 'product_' . bin2hex(random_bytes(16)) . '.' . $ext;
 $destPath = $uploadDir . $filename;
 
 if (!move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
@@ -98,7 +105,7 @@ if (!move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
 
 $imageUrl = 'http://localhost/4bito/uploads/' . $filename;
 
-// ── Insertar en base de datos ──────────────────────────────────────────────
+// -- Insertar en base de datos --
 try {
     $db = (new Database())->getConnection();
 
@@ -146,6 +153,6 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error en la base de datos: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Error interno del servidor']);
 }
 ?>

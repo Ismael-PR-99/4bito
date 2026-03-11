@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $validSizes = ['XS','S','M','L','XL','XXL', null];
     if (!in_array($camisetas, $validSizes) || !in_array($chaquetas, $validSizes) || !in_array($pantalones, $validSizes)) {
-        http_response_code(400); echo json_encode(['error' => 'Talla no válida']); exit;
+        http_response_code(400); echo json_encode(['error' => 'Talla no vÃ¡lida']); exit;
     }
 
     try {
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         )->execute([$userId, $camisetas, $chaquetas, $pantalones]);
         echo json_encode(['ok' => true]);
     } catch (PDOException $e) {
-        http_response_code(500); echo json_encode(['error' => $e->getMessage()]);
+        http_response_code(500); echo json_encode(['error' => 'Error interno del servidor']);
     }
     exit;
 }

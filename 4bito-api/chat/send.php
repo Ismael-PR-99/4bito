@@ -1,17 +1,24 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:4200');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/security.php';
+require_once __DIR__ . '/../helpers/rate-limiter.php';
+
+// Rate limiting: máx 30 mensajes por IP cada 5 minutos
+if (!rateLimitCheck('chat_send', 30, 300)) {
+    rateLimitExceeded();
+}
 
 $data = json_decode(file_get_contents('php://input'), true);
 if (!$data) { http_response_code(400); echo json_encode(['error' => 'Body requerido']); exit; }
 
 $convId  = intval($data['conversationId'] ?? 0);
-$message = trim($data['message'] ?? '');
+$message = sanitizeInput(trim($data['message'] ?? ''), 2000);
 $sender  = $data['sender'] ?? 'user';
 
 if (!$convId || !$message) {

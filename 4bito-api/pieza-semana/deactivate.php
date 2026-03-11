@@ -7,9 +7,16 @@ header("Content-Type: application/json; charset=UTF-8");
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
 
 require_once '../config/database.php';
-// Este endpoint puede ser llamado desde el AppComponent (sin auth) para expiración automática,
-// pero también desde admin. Verificamos si hay token; si no lo hay, es la llamada de expiración automática.
-// Para seguridad extra: solo desactivamos piezas que ya vencieron (valid_until < NOW()).
+require_once '../config/security.php';
+require_once '../helpers/rate-limiter.php';
+
+// Rate limiting para evitar abuso (máx 10 llamadas por minuto por IP)
+if (!rateLimitCheck('pieza_deactivate', 10, 60)) {
+    rateLimitExceeded();
+}
+
+// Este endpoint desactiva SOLO piezas con valid_until < NOW() (ya expiradas).
+// Es seguro sin auth porque no modifica datos arbitrariamente.
 
 try {
     $db = (new Database())->getConnection();
@@ -39,7 +46,6 @@ try {
     echo json_encode(['ok' => true, 'deactivated' => $count]);
 } catch (PDOException $e) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    handleServerError('Error al desactivar piezas', $e);
 }
 ?>

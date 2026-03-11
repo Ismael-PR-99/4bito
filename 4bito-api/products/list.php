@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -22,7 +22,7 @@ $decade   = trim($_GET['decade']   ?? '');
 $isNew    = isset($_GET['new']) && $_GET['new'] === '1';
 $sort     = trim($_GET['sort'] ?? 'newest'); // newest | price-asc | price-desc
 
-// Convierte "90s" → [1990, 1999], "00s" → [2000, 2009], etc.
+// Convierte "90s" -> [1990, 1999], "00s" -> [2000, 2009], etc.
 function decadeToRange(string $dec): ?array {
     if (!preg_match('/^(\d{2})s$/', $dec, $m)) return null;
     $d    = (int) $m[1];
@@ -95,6 +95,6 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error en la base de datos: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Error interno del servidor']);
 }
 ?>

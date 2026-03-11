@@ -10,11 +10,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config/database.php';
+require_once '../config/security.php';
+require_once '../helpers/rate-limiter.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["error" => "Método no permitido"]);
     exit();
+}
+
+// Rate limiting: máx 3 registros por IP cada 10 minutos
+if (!rateLimitCheck('registro', 3, 600)) {
+    rateLimitExceeded();
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -35,6 +42,20 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit();
 }
 
+// Validar longitud mínima del password (OWASP recomienda >= 8)
+if (strlen($password) < 8) {
+    http_response_code(400);
+    echo json_encode(["error" => "La contraseña debe tener al menos 8 caracteres"]);
+    exit();
+}
+
+// Validar longitud máxima del nombre
+if (mb_strlen($nombre) > 100) {
+    http_response_code(400);
+    echo json_encode(["error" => "El nombre es demasiado largo (máx 100 caracteres)"]);
+    exit();
+}
+
 try {
     $db = (new Database())->getConnection();
 
@@ -48,7 +69,7 @@ try {
         exit();
     }
 
-    $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+    $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
     $rol = 'cliente';
 
     $insert = $db->prepare(
@@ -74,6 +95,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(["error" => "Error en el servidor: " . $e->getMessage()]);
+    handleServerError('Error en el servidor', $e);
 }

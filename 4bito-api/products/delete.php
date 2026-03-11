@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 requireAdmin();
 
-// ── Leer body JSON o POST normal ───────────────────────────────────────────
+// -- Leer body JSON o POST normal --
 $body = json_decode(file_get_contents('php://input'), true);
 $id   = (int) ($body['id'] ?? $_POST['id'] ?? 0);
 
@@ -62,5 +62,5 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error de base de datos: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Error interno del servidor']);
 }

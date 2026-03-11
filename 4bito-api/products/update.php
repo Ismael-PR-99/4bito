@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 requireAdmin();
 
-// ── Campos obligatorios (vienen por multipart/form-data) ──────────────────
+// -- Campos obligatorios (vienen por multipart/form-data) --
 $id     = (int) ($_POST['id']     ?? 0);
 $name   = trim($_POST['name']   ?? '');
 $team   = trim($_POST['team']   ?? '');
@@ -80,7 +80,7 @@ try {
     $imageUrl  = $row['image_url'];
     $uploadDir = __DIR__ . '/../../uploads/';
 
-    // ── Si se sube nueva imagen ────────────────────────────────────────────
+    // -- Si se sube nueva imagen --
     if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
         $maxSize      = 5 * 1024 * 1024;
@@ -103,8 +103,14 @@ try {
         }
 
         // Guardar nueva imagen
-        $ext      = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('product_', true) . '.' . strtolower($ext);
+        $ext      = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!in_array($ext, $allowedExts, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Extensión de imagen no permitida']);
+            exit();
+        }
+        $filename = 'product_' . bin2hex(random_bytes(16)) . '.' . $ext;
         $destPath = $uploadDir . $filename;
 
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
@@ -123,7 +129,7 @@ try {
         $imageUrl = 'http://localhost/4bito/uploads/' . $filename;
     }
 
-    // ── Actualizar registro ────────────────────────────────────────────────
+    // -- Actualizar registro --
     $upd = $db->prepare(
         "UPDATE productos
          SET name = :name, price = :price, team = :team, year = :year,
@@ -157,5 +163,5 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error de base de datos: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Error interno del servidor']);
 }

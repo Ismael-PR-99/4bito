@@ -87,7 +87,7 @@ try {
     echo json_encode(['productos' => $productos]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'Error interno del servidor']);
 }
 
 function fallbackByCategory($db, int $productId, string $category): void {

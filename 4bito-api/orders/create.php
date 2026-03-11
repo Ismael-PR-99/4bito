@@ -12,7 +12,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 require_once '../config/database.php';
+require_once '../config/security.php';
 require_once '../helpers/jwt.php';
+require_once '../helpers/rate-limiter.php';
+
+// Rate limiting: máx 10 pedidos por IP cada 10 minutos
+if (!rateLimitCheck('order_create', 10, 600)) {
+    rateLimitExceeded();
+}
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
@@ -21,8 +28,8 @@ if (!$input) {
     exit;
 }
 
-// Campos requeridos
-$required = ['nombre', 'email', 'telefono', 'direccion', 'ciudad', 'cp', 'pais', 'productos', 'total'];
+// Campos requeridos (se elimina 'total' — se calcula en servidor)
+$required = ['nombre', 'email', 'telefono', 'direccion', 'ciudad', 'cp', 'pais', 'productos'];
 foreach ($required as $field) {
     if (empty($input[$field]) && $input[$field] !== 0) {
         http_response_code(400);
@@ -50,22 +57,93 @@ if (!empty($authHeader) && str_starts_with($authHeader, 'Bearer ')) {
     }
 }
 
-$nombre    = trim($input['nombre']);
+$nombre    = sanitizeInput($input['nombre'], 200);
 $email     = trim($input['email']);
-$telefono  = trim($input['telefono']);
-$direccion = trim($input['direccion']);
-$ciudad    = trim($input['ciudad']);
-$cp        = trim($input['cp']);
-$pais      = trim($input['pais']);
-$total     = (float)$input['total'];
+$telefono  = sanitizeInput($input['telefono'], 30);
+$direccion = sanitizeInput($input['direccion'], 500);
+$ciudad    = sanitizeInput($input['ciudad'], 100);
+$cp        = sanitizeInput($input['cp'], 20);
+$pais      = sanitizeInput($input['pais'], 100);
 $productos = $input['productos']; // array de {id, nombre, imageUrl, talla, cantidad, precio}
-$paypalTxn = trim($input['paypalTransactionId'] ?? '');
+$paypalTxn = sanitizeInput($input['paypalTransactionId'] ?? '', 200);
+
+if (!is_array($productos) || empty($productos)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Los productos son obligatorios']);
+    exit;
+}
 
 try {
     $db = (new Database())->getConnection();
     $db->beginTransaction();
 
-    // 1. Insertar pedido
+    // ═══════════════════════════════════════════════════════════════════════
+    // SEGURIDAD: Recalcular total desde la base de datos (NUNCA confiar en el frontend)
+    // ═══════════════════════════════════════════════════════════════════════
+    $totalCalculado = 0.0;
+    $productosValidados = [];
+
+    foreach ($productos as $prod) {
+        $prodId   = (int)($prod['id'] ?? 0);
+        $talla    = $prod['talla'] ?? '';
+        $cantidad = (int)($prod['cantidad'] ?? 1);
+
+        if ($prodId <= 0 || empty($talla) || $cantidad <= 0) {
+            $db->rollBack();
+            http_response_code(400);
+            echo json_encode(['error' => 'Producto con datos inválidos']);
+            exit;
+        }
+
+        // Obtener precio real y stock de la BD
+        $stmtP = $db->prepare("SELECT id, name, price, discounted_price, sizes, image_url FROM productos WHERE id = ? FOR UPDATE");
+        $stmtP->execute([$prodId]);
+        $dbProd = $stmtP->fetch(PDO::FETCH_ASSOC);
+
+        if (!$dbProd) {
+            $db->rollBack();
+            http_response_code(400);
+            echo json_encode(['error' => "Producto #{$prodId} no encontrado"]);
+            exit;
+        }
+
+        // Usar precio con descuento si existe, si no el precio normal
+        $precioReal = ($dbProd['discounted_price'] && $dbProd['discounted_price'] > 0)
+            ? (float)$dbProd['discounted_price']
+            : (float)$dbProd['price'];
+
+        // Verificar stock disponible
+        $sizes = json_decode($dbProd['sizes'], true) ?: [];
+        $stockDisponible = 0;
+        foreach ($sizes as $s) {
+            if ($s['size'] === $talla) {
+                $stockDisponible = (int)$s['stock'];
+                break;
+            }
+        }
+
+        if ($stockDisponible < $cantidad) {
+            $db->rollBack();
+            http_response_code(400);
+            echo json_encode(['error' => "Stock insuficiente para {$dbProd['name']} talla {$talla} (disponible: {$stockDisponible})"]);
+            exit;
+        }
+
+        $totalCalculado += $precioReal * $cantidad;
+
+        $productosValidados[] = [
+            'id'       => $prodId,
+            'nombre'   => $dbProd['name'],
+            'imageUrl' => $dbProd['image_url'],
+            'talla'    => $talla,
+            'cantidad' => $cantidad,
+            'precio'   => $precioReal,
+        ];
+    }
+
+    $total = round($totalCalculado, 2);
+
+    // 1. Insertar pedido con total calculado en servidor
     $stmt = $db->prepare("
         INSERT INTO pedidos (user_id, nombre_cliente, email, telefono, direccion, ciudad, cp, pais, total, estado, paypal_transaction_id, productos_json, fecha_creacion)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'procesando', ?, ?, NOW())
@@ -81,7 +159,7 @@ try {
         $pais,
         $total,
         $paypalTxn ?: null,
-        json_encode($productos),
+        json_encode($productosValidados),
     ]);
     $pedidoId = (int)$db->lastInsertId();
 
@@ -90,11 +168,10 @@ try {
     $stmt2->execute([$pedidoId]);
 
     // 3. Descontar stock de cada producto/talla
-    foreach ($productos as $prod) {
-        $prodId   = (int)($prod['id'] ?? 0);
-        $talla    = $prod['talla'] ?? '';
-        $cantidad = (int)($prod['cantidad'] ?? 1);
-        if ($prodId <= 0 || empty($talla)) continue;
+    foreach ($productosValidados as $prod) {
+        $prodId   = $prod['id'];
+        $talla    = $prod['talla'];
+        $cantidad = $prod['cantidad'];
 
         // Leer sizes JSON actual
         $stmtP = $db->prepare("SELECT sizes FROM productos WHERE id = ?");
@@ -130,8 +207,7 @@ try {
 
 } catch (PDOException $e) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();
-    http_response_code(500);
-    echo json_encode(['error' => 'Error al crear el pedido: ' . $e->getMessage()]);
+    handleServerError('Error al crear el pedido', $e);
 }
 
 // ─── Funciones de email ────────────────────────────────────────────

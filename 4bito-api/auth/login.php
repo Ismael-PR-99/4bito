@@ -10,12 +10,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config/database.php';
+require_once '../config/security.php';
 require_once '../helpers/jwt.php';
+require_once '../helpers/rate-limiter.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(["error" => "Método no permitido"]);
     exit();
+}
+
+// Rate limiting: máx 5 intentos de login por IP cada 5 minutos
+if (!rateLimitCheck('login', 5, 300)) {
+    rateLimitExceeded();
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
@@ -74,6 +81,5 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(["error" => "Error en el servidor: " . $e->getMessage()]);
+    handleServerError('Error en el servidor', $e);
 }

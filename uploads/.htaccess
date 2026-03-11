@@ -1,0 +1,14 @@
+# Prevent PHP execution in uploads directory
+# Security measure to prevent uploaded shell scripts from being executed
+
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
+
+# Disable script execution
+Options -ExecCGI
+RemoveHandler .php .php3 .php4 .php5 .php7 .phtml .pht
+AddType text/plain .php .php3 .php4 .php5 .php7 .phtml .pht
+
+# Prevent directory listing
+Options -Indexes
