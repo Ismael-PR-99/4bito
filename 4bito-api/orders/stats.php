@@ -38,7 +38,7 @@ if ($tipo === 'chart') {
                    COALESCE(SUM(total), 0) as ingresos,
                    COUNT(*) as pedidos
             FROM pedidos
-            WHERE estado = 'entregado'
+            WHERE estado != 'cancelado'
               AND fecha_creacion >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
             GROUP BY dia
         ");
@@ -65,7 +65,7 @@ if ($tipo === 'top') {
         $stmt = $db->query("
             SELECT COALESCE(SUM(total),0) as ingresos, COUNT(*) as pedidos
             FROM pedidos
-            WHERE estado = 'entregado'
+            WHERE estado != 'cancelado'
               AND MONTH(fecha_creacion) = MONTH(CURDATE())
               AND YEAR(fecha_creacion)  = YEAR(CURDATE())
         ");
@@ -78,7 +78,7 @@ if ($tipo === 'top') {
 
         // Top productos desde productos_json (requiere JSON_TABLE — MySQL 8+)
         // Fallback sencillo: leer todos los productos_json y procesar en PHP
-        $topStmt = $db->query("SELECT productos_json FROM pedidos WHERE estado = 'entregado' AND productos_json IS NOT NULL");
+        $topStmt = $db->query("SELECT productos_json FROM pedidos WHERE estado != 'cancelado' AND productos_json IS NOT NULL");
         $conteo = [];
         foreach ($topStmt->fetchAll(PDO::FETCH_COLUMN) as $json) {
             $prods = json_decode($json, true) ?: [];

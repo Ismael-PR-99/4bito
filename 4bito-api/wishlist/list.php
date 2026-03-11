@@ -38,16 +38,30 @@ try {
     if (empty($ids)) { echo json_encode(['productos' => []]); exit; }
 
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $pStmt = $db->prepare("SELECT * FROM productos WHERE id IN ($placeholders)");
+    $pStmt = $db->prepare(
+        "SELECT id, name, price, discount_percent, discounted_price,
+                team, year, league, image_url, category, sizes, is_new
+         FROM productos WHERE id IN ($placeholders)"
+    );
     $pStmt->execute($ids);
-    $productos = $pStmt->fetchAll(PDO::FETCH_ASSOC);
+    $rows = $pStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    foreach ($productos as &$p) {
-        $p['id']    = (int)$p['id'];
-        $p['price'] = (float)$p['price'];
-        $p['year']  = (int)$p['year'];
-        $p['sizes'] = json_decode($p['sizes'] ?? '[]', true);
-    }
+    $productos = array_map(function($p) {
+        return [
+            'id'              => (int) $p['id'],
+            'name'            => $p['name'],
+            'price'           => (float) $p['price'],
+            'discountPercent' => (float) ($p['discount_percent'] ?? 0),
+            'discountedPrice' => $p['discounted_price'] !== null ? (float) $p['discounted_price'] : null,
+            'team'            => $p['team'],
+            'year'            => (int) $p['year'],
+            'league'          => $p['league'],
+            'imageUrl'        => $p['image_url'],
+            'category'        => $p['category'],
+            'sizes'           => json_decode($p['sizes'] ?? '[]', true),
+            'isNew'           => (bool) $p['is_new'],
+        ];
+    }, $rows);
 
     echo json_encode(['productos' => $productos]);
 } catch (PDOException $e) {

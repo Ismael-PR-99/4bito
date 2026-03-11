@@ -390,21 +390,10 @@
 
         <!-- Modal: añadir producto -->
         @if (mostrarFormAnadir()) {
-          <div class="modal-overlay" (click)="mostrarFormAnadir.set(false)">
-            <div class="modal-centro modal-anadir" (click)="$event.stopPropagation()">
-              <div class="modal-header">
-                <h3>AÑADIR PRODUCTO</h3>
-                <button class="modal-close" (click)="mostrarFormAnadir.set(false)">✕</button>
-              </div>
-              <div class="modal-body">
-                <p class="form-hint">
-                  Para añadir productos con imagen usa el panel clásico:
-                  <br/>
-                  <a routerLink="/admin" class="link-accent">→ Ir al Panel Clásico</a>
-                </p>
-              </div>
-            </div>
-          </div>
+          <app-anadir-producto
+            (cerrar)="mostrarFormAnadir.set(false)"
+            (productoCreado)="onProductoCreado($event)">
+          </app-anadir-producto>
         }
       }
 

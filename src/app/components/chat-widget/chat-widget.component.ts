@@ -43,14 +43,18 @@ export class ChatWidgetComponent implements AfterViewChecked {
     this.chatSvc.addLocalMessage(msg, 'user');
     this.shouldScroll = true;
 
+    // Persistir mensaje del usuario en BD
+    this.chatSvc.sendMessage(msg, 'user');
+
     // Bot response
     setTimeout(() => {
       const botReply = this.botSvc.getResponse(msg);
-      if (botReply) {
-        this.chatSvc.addLocalMessage(botReply, 'bot');
-      } else {
-        this.chatSvc.addLocalMessage('No estoy seguro de cómo ayudarte con eso. ¿Puedes reformular tu pregunta?', 'bot');
-      }
+      const reply = botReply || 'No estoy seguro de cómo ayudarte con eso. ¿Puedes reformular tu pregunta?';
+      this.chatSvc.addLocalMessage(reply, 'bot');
+
+      // Persistir respuesta del bot en BD
+      this.chatSvc.sendMessage(reply, 'bot');
+
       this.shouldScroll = true;
     }, 800);
   }

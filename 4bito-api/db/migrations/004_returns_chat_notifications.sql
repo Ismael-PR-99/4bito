@@ -31,7 +31,9 @@ CREATE TABLE IF NOT EXISTS chat_conversations (
   user_id      INT,
   session_id   VARCHAR(64) NOT NULL,
   user_name    VARCHAR(100),
-  status       ENUM('active','waiting','resolved','abandoned') NOT NULL DEFAULT 'active',
+  status       ENUM('active','waiting','resolved','abandoned','closed') NOT NULL DEFAULT 'active',
+  subject      VARCHAR(255) DEFAULT 'Consulta general',
+  updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   admin_id     INT,
   created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
   resolved_at  DATETIME,
@@ -45,11 +47,10 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   conversation_id INT NOT NULL,
   sender          ENUM('user','bot','admin') NOT NULL,
   sender_name     VARCHAR(100) NOT NULL DEFAULT '',
-  content         TEXT NOT NULL,
+  message         TEXT NOT NULL,
   is_read         TINYINT(1) NOT NULL DEFAULT 0,
   created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_conv (conversation_id),
-  FOREIGN KEY (conversation_id) REFERENCES chat_conversations(id) ON DELETE CASCADE
+  INDEX idx_conv (conversation_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ── NOTIFICACIONES ──────────────────────────────────────────

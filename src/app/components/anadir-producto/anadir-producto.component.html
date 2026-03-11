@@ -96,6 +96,28 @@
       </div>
     </div>
 
+    <!-- ── Categoría (solo visible cuando no se pasa categoriaSlug) ── -->
+    @if (!categoriaSlug) {
+      <div class="form-row">
+        <div class="form-field half">
+          <label for="category">Categoría *</label>
+          <select
+            id="category"
+            formControlName="category"
+            [class.invalid]="ctrl('category').invalid && ctrl('category').touched"
+          >
+            <option value="" disabled>— Selecciona una categoría —</option>
+            @for (cat of CATEGORIAS; track cat.value) {
+              <option [value]="cat.value">{{ cat.label }}</option>
+            }
+          </select>
+          <span class="field-error" *ngIf="ctrl('category').invalid && ctrl('category').touched">
+            Selecciona una categoría
+          </span>
+        </div>
+      </div>
+    }
+
     <!-- ── Imagen ──────────────────────────────────────────────────── -->
     <div class="form-field">
       <label>Imagen de la camiseta *</label>

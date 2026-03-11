@@ -6,9 +6,12 @@
 
 -- ── Añadir columnas a productos ─────────────────────────
 ALTER TABLE productos
-  ADD COLUMN IF NOT EXISTS sku          VARCHAR(50)    NULL UNIQUE,
-  ADD COLUMN IF NOT EXISTS rating_avg   DECIMAL(3,2)   NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS rating_count INT            NOT NULL DEFAULT 0;
+  ADD COLUMN sku              VARCHAR(30)    NULL,
+  ADD COLUMN rating_avg       DECIMAL(3,2)   NOT NULL DEFAULT 0,
+  ADD COLUMN rating_count     INT            NOT NULL DEFAULT 0,
+  ADD COLUMN is_new           TINYINT(1)     NOT NULL DEFAULT 0,
+  ADD COLUMN discount_percent DECIMAL(5,2)   NOT NULL DEFAULT 0,
+  ADD COLUMN discounted_price DECIMAL(10,2)  NULL;
 
 -- ── Alertas de stock bajo ────────────────────────────────
 CREATE TABLE IF NOT EXISTS stock_alerts (
@@ -54,9 +57,9 @@ CREATE TABLE IF NOT EXISTS wishlist (
 -- ── Notificaciones de stock agotado ─────────────────────
 CREATE TABLE IF NOT EXISTS stock_notifications (
   id         INT AUTO_INCREMENT PRIMARY KEY,
-  email      VARCHAR(255) NOT NULL,
+  email      VARCHAR(100) NOT NULL,
   product_id INT          NOT NULL,
-  size       VARCHAR(20)  NOT NULL,
+  size       VARCHAR(10)  NOT NULL,
   sent       TINYINT(1)   NOT NULL DEFAULT 0,
   sent_at    TIMESTAMP    NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

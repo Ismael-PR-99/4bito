@@ -48,14 +48,23 @@ export class AnadirProductoComponent implements OnInit {
     return this.esCategoriaConMedidas(this.categoriaSlug);
   }
 
+  readonly CATEGORIAS = [
+    { value: 'camisetas',       label: 'Camisetas Retro' },
+    { value: 'cuadros',         label: 'Cuadros Retro' },
+    { value: 'objetos',         label: 'Objetos Retro' },
+    { value: 'coleccionismo',   label: 'Coleccionismo' },
+    { value: 'accesorios',      label: 'Accesorios' },
+  ];
+
   ngOnInit(): void {
     this.form = this.fb.group({
-      name:   ['', [Validators.required, Validators.minLength(3)]],
-      team:   ['', [Validators.required, Validators.minLength(2)]],
-      league: ['', [Validators.required, Validators.minLength(2)]],
-      price:  [null, [Validators.required, Validators.min(0.01)]],
-      year:   [null, [Validators.required, Validators.min(1900), Validators.max(this.anioActual)]],
-      sizes:  this.fb.array([this.newTallaGroup()]),
+      name:     ['', [Validators.required, Validators.minLength(3)]],
+      team:     ['', [Validators.required, Validators.minLength(2)]],
+      league:   ['', [Validators.required, Validators.minLength(2)]],
+      price:    [null, [Validators.required, Validators.min(0.01)]],
+      year:     [null, [Validators.required, Validators.min(1900), Validators.max(this.anioActual)]],
+      category: [this.categoriaSlug || '', Validators.required],
+      sizes:    this.fb.array([this.newTallaGroup()]),
     });
   }
 
@@ -128,7 +137,7 @@ export class AnadirProductoComponent implements OnInit {
     fd.append('league',   v.league);
     fd.append('price',    String(v.price));
     fd.append('year',     String(v.year));
-    fd.append('category', this.categoriaSlug);
+    fd.append('category', v.category);
     fd.append('sizes',    JSON.stringify(v.sizes));
     fd.append('image',    this.imagenFile);
 

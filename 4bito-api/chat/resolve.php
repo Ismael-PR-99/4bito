@@ -9,14 +9,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../helpers/jwt.php';
 require_once __DIR__ . '/../middleware/admin.php';
 
-$headers = getallheaders();
-$authHeader = $headers['Authorization'] ?? '';
-if (!preg_match('/Bearer\s(\S+)/', $authHeader, $m)) {
-    http_response_code(401); echo json_encode(['error' => 'Token requerido']); exit;
-}
-$payload = verificarJWT($m[1]);
-if (!$payload) { http_response_code(401); echo json_encode(['error' => 'Token inválido']); exit; }
-requireAdmin($payload);
+$payload = requireAdmin();
 
 $data = json_decode(file_get_contents('php://input'), true);
 $convId = intval($data['conversationId'] ?? 0);

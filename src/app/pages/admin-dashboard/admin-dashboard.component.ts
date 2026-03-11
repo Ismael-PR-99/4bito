@@ -13,13 +13,14 @@ import {
 } from '../../services/admin.service';
 import { ReturnsService, ReturnRequest } from '../../services/returns.service';
 import { ChatService, ChatConversation, ChatMessage } from '../../services/chat.service';
+import { AnadirProductoComponent } from '../../components/anadir-producto/anadir-producto.component';
 
 type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'alertas' | 'historial' | 'resenas' | 'espera' | 'devoluciones' | 'chats';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AnadirProductoComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
 })
@@ -189,6 +190,12 @@ export class AdminDashboardComponent implements OnInit {
       next: lista => { this.productos.set(lista); this.cargandoInv.set(false); },
       error: ()   => this.cargandoInv.set(false),
     });
+  }
+
+  onProductoCreado(producto: ProductoApi): void {
+    this.productos.update(lista => [producto, ...lista]);
+    this.mostrarFormAnadir.set(false);
+    this.toastSvc.show('Producto añadido correctamente', 'success');
   }
 
   private cargarVentas(): void {

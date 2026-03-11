@@ -35,12 +35,12 @@ $ingresosHoy = 0.0; $ingresosAyer = 0.0;
 $pedidosPendientes = 0; $pedidosPendientesAyer = 0;
 
 if ($tablaExists) {
-    $stmt = $db->prepare("SELECT COUNT(*) FROM pedidos WHERE estado='entregado' AND DATE(fecha_creacion) = ?");
+    $stmt = $db->prepare("SELECT COUNT(*) FROM pedidos WHERE estado != 'cancelado' AND DATE(fecha_creacion) = ?");
 
     $stmt->execute([$hoy]);  $vendidosHoy  = (int)$stmt->fetchColumn();
     $stmt->execute([$ayer]); $vendidosAyer = (int)$stmt->fetchColumn();
 
-    $stmt = $db->prepare("SELECT COALESCE(SUM(total),0) FROM pedidos WHERE estado='entregado' AND DATE(fecha_creacion) = ?");
+    $stmt = $db->prepare("SELECT COALESCE(SUM(total),0) FROM pedidos WHERE estado != 'cancelado' AND DATE(fecha_creacion) = ?");
 
     $stmt->execute([$hoy]);  $ingresosHoy  = (float)$stmt->fetchColumn();
     $stmt->execute([$ayer]); $ingresosAyer = (float)$stmt->fetchColumn();
