@@ -1,7 +1,9 @@
 <!-- FAB flotante -->
 <button class="chat-fab" (click)="toggle()" [class.open]="isOpen" aria-label="Chat de soporte">
-  <span class="fab-icon">{{ isOpen ? '✕' : '💬' }}</span>
-  @if (!isOpen) {
+  @if (isOpen) {
+    <lucide-icon name="x" [size]="20" [strokeWidth]="2" class="fab-icon"></lucide-icon>
+  } @else {
+    <lucide-icon name="message-circle" [size]="22" [strokeWidth]="1.6" class="fab-icon"></lucide-icon>
     <span class="fab-pulse"></span>
   }
 </button>

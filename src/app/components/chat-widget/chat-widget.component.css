@@ -21,7 +21,13 @@
 .chat-fab:hover { transform: scale(1.08); }
 .chat-fab.open  { background: var(--color-surface-2); color: var(--color-text); box-shadow: 0 4px 16px rgba(0,0,0,.15); }
 
-.fab-icon { line-height: 1; }
+.fab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: #fff;
+}
 
 .fab-pulse {
   position: absolute;

@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { Nl2brPipe } from '../../shared/pipes/nl2br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 import { environment } from '../../../environments/environment';
 
 interface ChatMsg {
@@ -26,7 +27,7 @@ type ChatMode = 'bot' | 'waiting_human' | 'human';
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, FormsModule, Nl2brPipe],
+  imports: [CommonModule, FormsModule, Nl2brPipe, LucideAngularModule],
   templateUrl: './chat-widget.component.html',
   styleUrl: './chat-widget.component.css',
 })
