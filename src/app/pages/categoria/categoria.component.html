@@ -26,7 +26,7 @@
       (click)="irAProducto(producto.id)"
     >
       <div class="producto-img-wrap">
-        <img [src]="producto.imageUrl" [alt]="producto.nombre" class="producto-img" />
+        <img [src]="producto.imageUrl" [alt]="producto.nombre" class="producto-img" loading="lazy" />
       </div>
 
       <!-- Botones de acción admin (fuera del img-wrap para no ser recortados) -->

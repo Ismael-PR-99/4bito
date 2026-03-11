@@ -2,7 +2,7 @@
   <!-- Visual -->
   <div class="vitrina__visual">
     <span class="vitrina__badge">⭐ Pieza de la semana</span>
-    <img [src]="product.imageUrl" [alt]="product.name" class="vitrina__img" />
+    <img [src]="product.imageUrl" [alt]="product.name" class="vitrina__img" loading="lazy" />
     <!-- Countdown -->
     <div class="vitrina__countdown">
       <span class="countdown__label">Oferta termina en</span>
@@ -39,7 +39,7 @@
     </div>
 
     <ul class="vitrina__sizes">
-      <li *ngFor="let size of product.sizes" class="vitrina__size">{{ size }}</li>
+      <li *ngFor="let size of product.sizes; trackBy: trackBySize" class="vitrina__size">{{ size }}</li>
     </ul>
 
     <button class="vitrina__btn" (click)="onAddToCart()">

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductosService, ProductoApi, SortOption } from '../../services/productos.service';
@@ -13,6 +13,7 @@ import { AnimateOnScrollDirective } from '../../shared/directives/animate-on-scr
   imports: [CommonModule, RouterLink, CurrencyPipe, DecimalPipe, AnimateOnScrollDirective],
   templateUrl: './coleccion.component.html',
   styleUrls: ['./coleccion.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ColeccionComponent implements OnInit {
   private route   = inject(ActivatedRoute);
@@ -152,4 +153,9 @@ export class ColeccionComponent implements OnInit {
   navigate(params: Record<string, string | null>): void {
     this.router.navigate(['/coleccion'], { queryParams: params });
   }
+
+  trackByOptValue(_: number, opt: { value: string; label: string }): string { return opt.value; }
+  trackByDecade(_: number, d: string): string { return d; }
+  trackByCatSlug(_: number, cat: { slug: string; nombre: string }): string { return cat.slug; }
+  trackByProductId(_: number, p: ProductoApi): number { return p.id; }
 }

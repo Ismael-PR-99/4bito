@@ -1,11 +1,14 @@
+<!-- Skip to main content (accessibility) -->
+<a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
 <!-- Header -->
-<header class="header">
+<header class="header" role="banner">
   <div class="container">
     <div class="logo">
-      <img src="logo.svg" alt="4bito logo" class="logo-img">
+      <img src="logo.svg" alt="4bito logo" class="logo-img" width="28" height="28">
       <h1>{{ title }}</h1>
     </div>
-    <nav class="nav">
+    <nav class="nav" role="navigation" aria-label="Navegación principal">
       <a [routerLink]="['/categoria', 'retro-selecciones']" routerLinkActive="active">FÚTBOL</a>
       <a [routerLink]="['/categoria', 'retro-chaquetas']" routerLinkActive="active">CASUAL</a>
       <a [routerLink]="['/categoria', 'retro-objetos']" routerLinkActive="active">OBJETOS</a>
@@ -22,13 +25,13 @@
         </div>
       </label>
 
-      <button class="cart-btn" (click)="abrirCarrito()">
+      <button class="cart-btn" (click)="abrirCarrito()" aria-label="Abrir carrito de compras">
         <lucide-icon name="shopping-cart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
         <span class="cart-badge" *ngIf="(carritoCount$ | async)! > 0">{{ carritoCount$ | async }}</span>
       </button>
 
       <!-- Wishlist icon -->
-      <a *ngIf="loggedIn" [routerLink]="['/wishlist']" class="cart-btn wishlist-btn" title="Lista de deseos">
+      <a *ngIf="loggedIn" [routerLink]="['/wishlist']" class="cart-btn wishlist-btn" title="Lista de deseos" aria-label="Lista de deseos">
         <lucide-icon name="heart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
         <span class="cart-badge cart-badge--wishlist" *ngIf="wishlistSvc.count() > 0">{{ wishlistSvc.count() }}</span>
       </a>
@@ -69,7 +72,9 @@
 </section>
 
 <!-- Grid de categorías y secciones (lazy-loaded) -->
-<router-outlet></router-outlet>
+<main id="main-content" role="main">
+  <router-outlet></router-outlet>
+</main>
 
 <!-- Cart Drawer -->
 <app-cart-drawer></app-cart-drawer>
@@ -84,7 +89,7 @@
 <app-chat-widget></app-chat-widget>
 
 <!-- Footer -->
-<footer class="footer">
+<footer class="footer" role="contentinfo">
   <div class="container">
     <div class="footer-content">
       <div class="footer-section">

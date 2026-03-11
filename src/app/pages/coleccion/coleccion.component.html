@@ -23,7 +23,7 @@
         <h3 class="sidebar-title">Ordenar por</h3>
         <ul class="sidebar-list">
           <li
-            *ngFor="let opt of sortOptions"
+            *ngFor="let opt of sortOptions; trackBy: trackByOptValue"
             class="sidebar-item"
             [class.active]="sort() === opt.value"
             (click)="setSort(opt.value)"
@@ -44,7 +44,7 @@
         <h3 class="sidebar-title">Década</h3>
         <ul class="sidebar-list">
           <li
-            *ngFor="let d of decades"
+            *ngFor="let d of decades; trackBy: trackByDecade"
             class="sidebar-item"
             [class.active]="activeDecade() === d"
             (click)="setDecade(d)"
@@ -56,7 +56,7 @@
         <h3 class="sidebar-title">Categoría</h3>
         <ul class="sidebar-list">
           <li
-            *ngFor="let cat of categorias"
+            *ngFor="let cat of categorias; trackBy: trackByCatSlug"
             class="sidebar-item"
             [class.active]="activeCategory() === cat.slug"
             (click)="setCategory(cat.slug)"
@@ -88,7 +88,7 @@
 
         <a
           class="prod-card"
-          *ngFor="let p of products(); let i = index"
+          *ngFor="let p of products(); let i = index; trackBy: trackByProductId"
           [routerLink]="['/producto', p.id]"
           [style.animation-delay]="i * 0.06 + 's'"
           animateOnScroll="fadeUp"

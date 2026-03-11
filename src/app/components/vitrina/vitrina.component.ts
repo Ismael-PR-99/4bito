@@ -5,6 +5,9 @@ import {
   EventEmitter,
   OnInit,
   OnDestroy,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  inject,
 } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RetroProduct } from '../../models/product.model';
@@ -15,8 +18,10 @@ import { RetroProduct } from '../../models/product.model';
   imports: [CommonModule, CurrencyPipe],
   templateUrl: './vitrina.component.html',
   styleUrl: './vitrina.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VitrinaComponent implements OnInit, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
   @Input() product!: RetroProduct;
   @Output() addToCart = new EventEmitter<RetroProduct>();
 
@@ -37,6 +42,8 @@ export class VitrinaComponent implements OnInit, OnDestroy {
     this.interval = setInterval(() => this.updateCountdown(), 1000);
   }
 
+  trackBySize(_: number, size: string): string { return size; }
+
   ngOnDestroy(): void {
     if (this.interval) clearInterval(this.interval);
   }
@@ -56,6 +63,7 @@ export class VitrinaComponent implements OnInit, OnDestroy {
       minutes: String(m).padStart(2, '0'),
       seconds: String(s).padStart(2, '00'),
     };
+    this.cdr.markForCheck();
   }
 
   onAddToCart(): void {

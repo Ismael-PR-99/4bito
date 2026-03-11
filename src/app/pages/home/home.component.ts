@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HeroComponent } from '../../components/hero/hero.component';
@@ -15,12 +15,15 @@ import { AnimateOnScrollDirective } from '../../shared/directives/animate-on-scr
   imports: [CommonModule, RouterLink, HeroComponent, PorDecadaComponent, BandaHonorComponent, PiezaSemanaComponent, AnimateOnScrollDirective],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
   private tiendaService = inject(TiendaService);
 
   readonly categorias: Categoria[] = this.tiendaService.getCategorias();
   selectedDecade: string = '';
+
+  trackBySlug(_: number, cat: Categoria): string { return cat.slug; }
 
   onDecadeChange(decade: string): void {
     this.selectedDecade = decade;

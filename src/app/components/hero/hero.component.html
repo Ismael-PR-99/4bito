@@ -11,7 +11,7 @@
 
   <!-- Stats derecha -->
   <aside class="hero-stats" aria-label="Estadísticas">
-    <div class="stat" *ngFor="let s of stats">
+    <div class="stat" *ngFor="let s of stats; trackBy: trackByStat">
       <span class="stat__value">{{ s.value }}</span>
       <span class="stat__label">{{ s.label }}</span>
     </div>
@@ -21,7 +21,7 @@
   <aside class="hero-decades" aria-label="Selector de décadas">
     <span class="decades__label">Década</span>
     <button
-      *ngFor="let d of decades"
+      *ngFor="let d of decades; trackBy: trackByDecade"
       class="decade-btn"
       [class.active]="d === activeDecade()"
       (click)="setDecade(d)"
@@ -55,11 +55,11 @@
   <!-- Ticker inferior -->
   <div class="hero-ticker" aria-hidden="true">
     <div class="ticker-track">
-      <span class="ticker-item" *ngFor="let item of tickerItems">
+      <span class="ticker-item" *ngFor="let item of tickerItems; trackBy: trackByTicker">
         <span class="ticker-dot">●</span> {{ item }}
       </span>
       <!-- Track duplicado para loop infinito -->
-      <span class="ticker-item" *ngFor="let item of tickerItems">
+      <span class="ticker-item" *ngFor="let item of tickerItems; trackBy: trackByTicker">
         <span class="ticker-dot">●</span> {{ item }}
       </span>
     </div>

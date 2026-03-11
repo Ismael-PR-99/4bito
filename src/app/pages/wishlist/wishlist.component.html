@@ -30,7 +30,7 @@
     @for (product of items(); track product.id) {
       <div class="wish-card">
         <a [routerLink]="['/producto', product.id]" class="wish-card__img-wrap">
-          <img [src]="product.imageUrl" [alt]="product.name" class="wish-card__img">
+          <img [src]="product.imageUrl" [alt]="product.name" class="wish-card__img" loading="lazy">
           <span class="badge-new" *ngIf="product.isNew">NEW</span>
         </a>
         <div class="wish-card__info">

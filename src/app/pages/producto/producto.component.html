@@ -126,7 +126,7 @@
         @for (p of frecuenteJuntos(); track p.id) {
           <a [routerLink]="['/producto', p.id]" class="related-card">
             <div class="related-badge-top">COMPRA FRECUENTE</div>
-            <img [src]="p.imageUrl" [alt]="p.name" class="related-img">
+            <img [src]="p.imageUrl" [alt]="p.name" class="related-img" loading="lazy">
             <div class="related-info">
               <p class="related-nombre">{{ p.name }}</p>
               <p class="related-precio">{{ p.discountedPrice ?? p.price }}€</p>
@@ -137,14 +137,14 @@
     </section>
   }
 
-  <!-- ── TAMBIÉN TE PUEDE GUSTAR ────────────────────── -->
+  <!-- ── TAMBIÉN TE PUEDE GUSTAR ──────────────────────────── -->
   @if (relacionados().length > 0) {
     <section class="related-section">
       <h2 class="related-title">TAMBIÉN TE PUEDE GUSTAR</h2>
       <div class="related-grid">
         @for (p of relacionados(); track p.id) {
           <a [routerLink]="['/producto', p.id]" class="related-card">
-            <img [src]="p.imageUrl" [alt]="p.name" class="related-img">
+            <img [src]="p.imageUrl" [alt]="p.name" class="related-img" loading="lazy">
             <div class="related-info">
               <p class="related-nombre">{{ p.name }}</p>
               <p class="related-precio">{{ p.discountedPrice ?? p.price }}€</p>

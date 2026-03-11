@@ -7,6 +7,7 @@ import {
   HostListener,
   signal,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -17,6 +18,7 @@ import { Router } from '@angular/router';
   imports: [CommonModule],
   templateUrl: './hero.component.html',
   styleUrl: './hero.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -55,6 +57,10 @@ export class HeroComponent implements OnInit, OnDestroy {
     this.activeDecade.set(decade);
     this.decadeChange.emit(decade);
   }
+
+  trackByStat(_: number, s: { value: string; label: string }): string { return s.label; }
+  trackByDecade(_: number, d: string): string { return d; }
+  trackByTicker(i: number, _: string): number { return i; }
 
   goToCollection(): void {
     this.router.navigate(['/coleccion']);
