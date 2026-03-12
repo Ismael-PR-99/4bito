@@ -200,9 +200,11 @@ try {
     sendAdminNewOrderEmail($pedidoId, $nombre, $total);
 
     echo json_encode([
-        'ok'       => true,
-        'pedidoId' => $pedidoId,
-        'mensaje'  => 'Pedido creado correctamente',
+        'success' => true,
+        'data' => [
+            'pedidoId' => $pedidoId,
+            'mensaje'  => 'Pedido creado correctamente',
+        ],
     ]);
 
 } catch (PDOException $e) {

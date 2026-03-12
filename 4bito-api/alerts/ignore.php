@@ -27,7 +27,7 @@ $db = $database->getConnection();
 try {
     $stmt = $db->prepare("UPDATE stock_alerts SET ignored = 1 WHERE id = ?");
     $stmt->execute([$id]);
-    echo json_encode(['ok' => true]);
+    echo json_encode(['success' => true]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

@@ -1,7 +1,35 @@
 <section class="hero">
 
+  <!-- CRT Intro Overlay -->
+  <div class="crt-intro" [class.done]="introComplete">
+    <!-- Línea de encendido CRT -->
+    <div class="crt-line"></div>
+    <!-- Static noise -->
+    <div class="crt-static"></div>
+    <!-- VHS tracking -->
+    <div class="vhs-tracking"></div>
+  </div>
+
+  <!-- Scanline noise overlay (permanente, sutil) -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
   <!-- Fondo: grid -->
   <div class="grid-bg" aria-hidden="true"></div>
+
+  <!-- Gradient orbs de fondo -->
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+  <div class="orb orb--3" aria-hidden="true"></div>
+
+  <!-- Líneas decorativas geométricas -->
+  <div class="deco-lines" aria-hidden="true">
+    <div class="deco-line deco-line--h1"></div>
+    <div class="deco-line deco-line--h2"></div>
+    <div class="deco-line deco-line--v1"></div>
+    <div class="deco-line deco-line--v2"></div>
+    <div class="deco-corner deco-corner--tl"></div>
+    <div class="deco-corner deco-corner--br"></div>
+  </div>
 
   <!-- Línea verde superior -->
   <div class="hero-topline" aria-hidden="true"></div>
@@ -11,9 +39,10 @@
 
   <!-- Stats derecha -->
   <aside class="hero-stats" aria-label="Estadísticas">
-    <div class="stat" *ngFor="let s of stats; trackBy: trackByStat">
+    <div class="stat" *ngFor="let s of stats; let i = index; trackBy: trackByStat">
       <span class="stat__value">{{ s.value }}</span>
       <span class="stat__label">{{ s.label }}</span>
+      <span class="stat__bar" *ngIf="i < 2"></span>
     </div>
   </aside>
 
@@ -30,7 +59,11 @@
 
   <!-- Contenido central -->
   <div class="hero-content">
-    <p class="hero-eyebrow">Tienda retro deportiva</p>
+    <div class="hero-eyebrow-wrap">
+      <span class="eyebrow-line"></span>
+      <p class="hero-eyebrow">Tienda retro deportiva</p>
+      <span class="eyebrow-line"></span>
+    </div>
 
     <h1
       class="hero-h1"
@@ -62,6 +95,19 @@
       <span class="ticker-item" *ngFor="let item of tickerItems; trackBy: trackByTicker">
         <span class="ticker-dot">●</span> {{ item }}
       </span>
+    </div>
+  </div>
+
+  <!-- Pixel particles -->
+  <div class="pixel-particles" aria-hidden="true">
+    <div class="pixel" *ngFor="let p of pixels"
+         [style.left.%]="p.x"
+         [style.top.%]="p.y"
+         [style.animationDelay.s]="p.delay"
+         [style.animationDuration.s]="p.dur"
+         [style.width.px]="p.size"
+         [style.height.px]="p.size"
+         [style.opacity]="p.opacity">
     </div>
   </div>
 

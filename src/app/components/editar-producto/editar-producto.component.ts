@@ -5,6 +5,7 @@ import {
   Input,
   inject,
   OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -24,6 +25,7 @@ import { Producto } from '../../models/producto.model';
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './editar-producto.component.html',
   styleUrl: './editar-producto.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditarProductoComponent implements OnInit {
   @Input()  producto!: Producto;

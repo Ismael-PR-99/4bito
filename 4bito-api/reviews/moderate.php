@@ -20,11 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $approved = ($status === 'approved') ? 1 : 0;
 
     $stmt = $db->prepare(
-        "SELECT r.*, p.name as product_name
+        "SELECT r.id, r.product_id, r.user_id, r.user_name, r.rating, r.comment, r.verified, r.approved, r.created_at, p.name as product_name
          FROM reviews r
          LEFT JOIN productos p ON p.id = r.product_id
          WHERE r.approved = ?
-         ORDER BY r.created_at DESC"
+         ORDER BY r.created_at DESC
+         LIMIT 100"
     );
     $stmt->execute([$approved]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -33,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $r['verified'] = (bool)(int)$r['verified'];
         $r['approved'] = (bool)(int)$r['approved'];
     }
-    echo json_encode(['reviews' => $rows]);
+    echo json_encode(['success' => true, 'data' => $rows]);
     exit;
 }
 
@@ -60,10 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  WHERE id=?"
             )->execute([$pid, $pid, $pid]);
         }
-        echo json_encode(['ok' => true]);
+        echo json_encode(['success' => true]);
     } else {
         $db->prepare("DELETE FROM reviews WHERE id=?")->execute([$id]);
-        echo json_encode(['ok' => true]);
+        echo json_encode(['success' => true]);
     }
     exit;
 }

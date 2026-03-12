@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -24,6 +24,7 @@ type Section = 'resumen' | 'pedidos' | 'inventario' | 'ventas' | 'pieza' | 'aler
   imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, AnadirProductoComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminDashboardComponent implements OnInit {
   private authSvc      = inject(AuthService);
@@ -180,7 +181,7 @@ export class AdminDashboardComponent implements OnInit {
   private cargarPedidos(): void {
     this.cargandoPedidos.set(true);
     this.adminSvc.getPedidos().subscribe({
-      next: r  => { this.pedidosTodos.set(r.pedidos ?? []); this.cargandoPedidos.set(false); },
+      next: pedidos  => { this.pedidosTodos.set(pedidos ?? []); this.cargandoPedidos.set(false); },
       error: () => { this.pedidosTodos.set([]); this.cargandoPedidos.set(false); },
     });
   }
@@ -202,7 +203,7 @@ export class AdminDashboardComponent implements OnInit {
   private cargarVentas(): void {
     this.cargandoVentas.set(true);
     this.adminSvc.getVentasChart().subscribe({
-      next: r  => { this.ventasDias.set(r.dias ?? []); this.cargandoVentas.set(false); },
+      next: dias  => { this.ventasDias.set(dias ?? []); this.cargandoVentas.set(false); },
       error: () => { this.ventasDias.set(this.mockDias(30)); this.cargandoVentas.set(false); },
     });
     this.adminSvc.getTopProductos().subscribe({
@@ -260,7 +261,7 @@ export class AdminDashboardComponent implements OnInit {
   verDetalle(id: number): void {
     this.dropdownAbierto.set(null);
     this.adminSvc.getPedidoDetalle(id).subscribe({
-      next: r  => this.detallePedido.set(r.pedido),
+      next: pedido  => this.detallePedido.set(pedido),
       error: () => {
         const p = this.pedidosTodos().find(x => x.id === id);
         if (p) this.detallePedido.set(p);
@@ -484,7 +485,7 @@ export class AdminDashboardComponent implements OnInit {
   cargarResenas(): void {
     this.cargandoResenas.set(true);
     this.reviewSvcAdm.getPending().subscribe({
-      next: r  => { this.resenasPanel.set(r.reviews ?? []); this.cargandoResenas.set(false); },
+      next: reviews  => { this.resenasPanel.set(reviews ?? []); this.cargandoResenas.set(false); },
       error: () => this.cargandoResenas.set(false),
     });
   }
@@ -508,7 +509,7 @@ export class AdminDashboardComponent implements OnInit {
   cargarWaitlist(): void {
     this.cargandoWaitlist.set(true);
     this.stockMgmtSvc.getWaitlist().subscribe({
-      next: r  => { this.waitlist.set(r.waitlist ?? []); this.cargandoWaitlist.set(false); },
+      next: items  => { this.waitlist.set(items ?? []); this.cargandoWaitlist.set(false); },
       error: () => this.cargandoWaitlist.set(false),
     });
   }

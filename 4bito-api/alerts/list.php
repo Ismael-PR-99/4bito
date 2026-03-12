@@ -22,7 +22,8 @@ try {
         "SELECT id, product_id, product_name, size, current_stock, threshold, created_at
          FROM stock_alerts
          WHERE ignored = 0
-         ORDER BY created_at DESC"
+         ORDER BY created_at DESC
+         LIMIT 100"
     );
     $alerts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -34,7 +35,7 @@ try {
         $a['threshold']     = (int)$a['threshold'];
     }
 
-    echo json_encode(['alerts' => $alerts, 'total' => count($alerts)]);
+    echo json_encode(['success' => true, 'data' => ['alerts' => $alerts, 'total' => count($alerts)]]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

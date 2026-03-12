@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, inject, HostListener, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, inject, HostListener, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { LucideAngularModule, ShoppingCart, User, Heart, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
@@ -25,6 +25,7 @@ import { Observable } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent implements OnInit {
   title = '4BITO RETRO SPORTS';

@@ -63,7 +63,7 @@ try {
     );
     $stmt->execute([$productId, $userId, $userName, $rating, $comment, $purchased ? 1 : 0]);
 
-    echo json_encode(['ok' => true, 'pendingApproval' => true]);
+    echo json_encode(['success' => true, 'data' => ['pendingApproval' => true]]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

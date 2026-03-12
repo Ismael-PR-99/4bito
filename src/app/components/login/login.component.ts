@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -50,7 +50,8 @@ import { AuthService } from '../../services/auth.service';
           style({ opacity: 1, transform: 'scale(1)' }))
       ])
     ])
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent implements OnInit {
   email = '';
@@ -60,6 +61,8 @@ export class LoginComponent implements OnInit {
   loginExitoso = false;
   shakeState: 'ok' | 'error' = 'ok';
   particulas: { x: number; y: number; delay: number; dur: number }[] = [];
+
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -84,6 +87,7 @@ export class LoginComponent implements OnInit {
       next: (res) => {
         this.cargando = false;
         this.loginExitoso = true;
+        this.cdr.markForCheck();
         setTimeout(() => {
           if (res.usuario.rol === 'admin') {
             this.router.navigate(['/admin']);
@@ -96,12 +100,13 @@ export class LoginComponent implements OnInit {
         this.cargando = false;
         this.error = err?.error?.mensaje || err?.error?.error || 'Credenciales incorrectas.';
         this.triggerShake();
+        this.cdr.markForCheck();
       },
     });
   }
 
   private triggerShake(): void {
     this.shakeState = 'ok';
-    setTimeout(() => (this.shakeState = 'error'), 10);
+    setTimeout(() => { this.shakeState = 'error'; this.cdr.markForCheck(); }, 10);
   }
 }

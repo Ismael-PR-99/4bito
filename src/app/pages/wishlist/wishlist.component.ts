@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
@@ -13,6 +13,7 @@ import { ProductoApi } from '../../services/productos.service';
   imports: [CommonModule, RouterLink],
   templateUrl: './wishlist.component.html',
   styleUrl: './wishlist.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WishlistComponent implements OnInit {
   private wishlistSvc = inject(WishlistService);
@@ -27,8 +28,8 @@ export class WishlistComponent implements OnInit {
     this.wishlistSvc.syncFromApi().pipe(
       switchMap(() => this.wishlistSvc.getWishlistItems())
     ).subscribe({
-      next: res => {
-        this.items.set(res.productos ?? []);
+      next: items => {
+        this.items.set(items ?? []);
         this.cargando.set(false);
       },
       error: () => {

@@ -42,7 +42,7 @@ try {
          VALUES (?,?,?,?,?,?,?,?,?,?)"
     );
     $stmt->execute([$productId, $productName, $size, $type, $quantity, $previousStock, $newStock, $reason, $orderId, $adminId]);
-    echo json_encode(['ok' => true, 'id' => (int)$db->lastInsertId()]);
+    echo json_encode(['success' => true, 'id' => (int)$db->lastInsertId()]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

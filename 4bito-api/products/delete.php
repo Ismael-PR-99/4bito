@@ -58,7 +58,7 @@ try {
     $del = $db->prepare("DELETE FROM productos WHERE id = :id");
     $del->execute([':id' => $id]);
 
-    echo json_encode(['mensaje' => 'Producto eliminado correctamente', 'id' => $id]);
+    echo json_encode(['success' => true, 'data' => ['mensaje' => 'Producto eliminado correctamente', 'id' => $id]]);
 
 } catch (PDOException $e) {
     http_response_code(500);

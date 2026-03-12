@@ -188,7 +188,7 @@
                       <td class="cell-fecha">{{ pedido.fechaCreacion | date:'dd/MM/yy' }}</td>
                       <td class="cell-acciones">
                         <div class="dropdown-wrap">
-                          <button class="btn-dropdown" (click)="toggleDropdown(pedido.id)">⋯</button>
+                          <button class="btn-dropdown" (click)="toggleDropdown(pedido.id)" aria-label="Más opciones">⋯</button>
                           @if (dropdownAbierto() === pedido.id) {
                             <div class="dropdown-menu">
                               <button (click)="cambiarEstado(pedido.id, 'enviado')">📦 Marcar enviado</button>
@@ -214,7 +214,7 @@
             <div class="modal-lateral" (click)="$event.stopPropagation()">
               <div class="modal-header">
                 <h3>PEDIDO #{{ pedido.id }}</h3>
-                <button class="modal-close" (click)="cerrarDetalle()">✕</button>
+                <button class="modal-close" (click)="cerrarDetalle()" aria-label="Cerrar modal">✕</button>
               </div>
               <div class="modal-body">
 
@@ -290,6 +290,7 @@
               placeholder="BUSCAR POR NOMBRE O EQUIPO..."
               [ngModel]="busquedaInv()"
               (ngModelChange)="busquedaInv.set($event)"
+              aria-label="Buscar productos"
             />
             <select class="input-select" [ngModel]="filtroCat()" (ngModelChange)="filtroCat.set($event)">
               <option value="">TODAS LAS CATEGORÍAS</option>
@@ -346,7 +347,7 @@
             <div class="modal-centro" (click)="$event.stopPropagation()">
               <div class="modal-header">
                 <h3>EDITAR STOCK · {{ prod.name }}</h3>
-                <button class="modal-close" (click)="cerrarModalStock()">✕</button>
+                <button class="modal-close" (click)="cerrarModalStock()" aria-label="Cerrar modal">✕</button>
               </div>
               <div class="modal-body">
                 <div class="stock-form">
@@ -552,6 +553,7 @@
                 [ngModel]="busquedaPieza()"
                 (ngModelChange)="busquedaPieza.set($event); onBusquedaChange()"
                 (blur)="cerrarAutocomplete()"
+                aria-label="Buscar productos"
               />
               @if (autocomplVisible() && sugerenciasPieza().length > 0) {
                 <div class="autocomplete-list">
@@ -765,6 +767,7 @@
               placeholder="Buscar producto..."
               [ngModel]="busquedaWaitlist()"
               (ngModelChange)="busquedaWaitlist.set($event)"
+              aria-label="Buscar productos"
             />
           </div>
 
@@ -926,7 +929,7 @@
                   }
                 </div>
                 <div class="admin-chat-input">
-                  <input type="text" [ngModel]="adminChatInput()" (ngModelChange)="adminChatInput.set($event)" placeholder="Responder..." (keydown.enter)="enviarMsgAdmin()" maxlength="500" />
+                  <input type="text" [ngModel]="adminChatInput()" (ngModelChange)="adminChatInput.set($event)" placeholder="Responder..." (keydown.enter)="enviarMsgAdmin()" maxlength="500" aria-label="Responder al chat" />
                   <button (click)="enviarMsgAdmin()" [disabled]="!adminChatInput().trim()">ENVIAR</button>
                 </div>
                 <div class="admin-chat-actions">

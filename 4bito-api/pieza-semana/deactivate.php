@@ -9,14 +9,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit();
 require_once '../config/database.php';
 require_once '../config/security.php';
 require_once '../helpers/rate-limiter.php';
+require_once '../middleware/admin.php';
 
 // Rate limiting para evitar abuso (máx 10 llamadas por minuto por IP)
 if (!rateLimitCheck('pieza_deactivate', 10, 60)) {
     rateLimitExceeded();
 }
 
-// Este endpoint desactiva SOLO piezas con valid_until < NOW() (ya expiradas).
-// Es seguro sin auth porque no modifica datos arbitrariamente.
+requireAdmin();
 
 try {
     $db = (new Database())->getConnection();
@@ -26,7 +26,7 @@ try {
     $expiradas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($expiradas)) {
-        echo json_encode(['ok' => true, 'deactivated' => 0, 'message' => 'No hay piezas expiradas']);
+        echo json_encode(['success' => true, 'deactivated' => 0, 'message' => 'No hay piezas expiradas']);
         exit();
     }
 
@@ -43,7 +43,7 @@ try {
     }
     $db->commit();
 
-    echo json_encode(['ok' => true, 'deactivated' => $count]);
+    echo json_encode(['success' => true, 'deactivated' => $count]);
 } catch (PDOException $e) {
     if (isset($db) && $db->inTransaction()) $db->rollBack();
     handleServerError('Error al desactivar piezas', $e);

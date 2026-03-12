@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -17,6 +17,7 @@ declare var paypal: any;
   imports: [CommonModule, AsyncPipe, ReactiveFormsModule, RouterLink],
   templateUrl: './pago.component.html',
   styleUrl: './pago.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PagoComponent implements OnInit, OnDestroy {
   private fb              = inject(FormBuilder);
@@ -24,6 +25,7 @@ export class PagoComponent implements OnInit, OnDestroy {
   private checkoutService = inject(CheckoutService);
   private toastService    = inject(ToastService);
   private router          = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private subs: Subscription[] = [];
 
   items$      !: Observable<CartItem[]>;
@@ -121,6 +123,7 @@ export class PagoComponent implements OnInit, OnDestroy {
       },
       onApprove: (data: any, actions: any) => {
         this.paymentStatus = 'processing';
+        this.cdr.markForCheck();
         return actions.order.capture().then(() => {
           this.completarPedido(data.orderID);
         });
@@ -131,6 +134,7 @@ export class PagoComponent implements OnInit, OnDestroy {
       onError: (err: any) => {
         console.error('PayPal error:', err);
         this.paymentStatus = 'error';
+        this.cdr.markForCheck();
         this.toastService.show('ERROR EN EL PAGO — Inténtalo de nuevo', 'error');
       }
     }).render('#paypal-button-container');
@@ -215,6 +219,7 @@ export class PagoComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.paymentStatus = 'error';
+        this.cdr.markForCheck();
         this.toastService.show('ERROR AL REGISTRAR EL PEDIDO', 'error');
       },
     });

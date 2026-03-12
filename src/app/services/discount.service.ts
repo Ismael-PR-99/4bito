@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, map, tap, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ProductosService } from './productos.service';
+import { environment } from '../../environments/environment';
 
 export interface PiezaSemana {
   id: number;
@@ -22,7 +23,7 @@ export interface PiezaSemana {
 
 @Injectable({ providedIn: 'root' })
 export class DiscountService {
-  private readonly apiUrl = 'http://localhost/4bito/4bito-api/pieza-semana';
+  private readonly apiUrl = `${environment.apiUrl}/pieza-semana`;
   private http      = inject(HttpClient);
   private auth      = inject(AuthService);
   private productos = inject(ProductosService);
@@ -34,9 +35,9 @@ export class DiscountService {
   /** Carga la pieza de la semana activa desde la API */
   cargarPieza(): Observable<PiezaSemana | null> {
     return this.http
-      .get<{ pieza: PiezaSemana | null }>(`${this.apiUrl}/get.php`)
+      .get<any>(`${this.apiUrl}/get.php`)
       .pipe(
-        map(res => res.pieza),
+        map(res => res.data),
         tap(pieza => {
           this._pieza$.next(pieza);
           // Propagar el descuento al store de productos
@@ -72,7 +73,7 @@ export class DiscountService {
     const prevPieza = this._pieza$.getValue();
 
     return this.http
-      .post<{ ok: boolean; piezaId: number }>(`${this.apiUrl}/set.php`, body, { headers })
+      .post<any>(`${this.apiUrl}/set.php`, body, { headers })
       .pipe(
         // Encadenar: tras el POST exitoso, recargar la pieza desde la BD
         switchMap(() => {
@@ -87,10 +88,11 @@ export class DiscountService {
   }
 
   /** Desactiva piezas expiradas (sin autenticación — expiración automática) */
-  desactivarExpiradas(): Observable<{ ok: boolean; deactivated: number }> {
+  desactivarExpiradas(): Observable<{ deactivated: number }> {
     return this.http
-      .post<{ ok: boolean; deactivated: number }>(`${this.apiUrl}/deactivate.php`, {})
+      .post<any>(`${this.apiUrl}/deactivate.php`, {})
       .pipe(
+        map(res => res.data),
         tap(res => {
           if (res.deactivated > 0) {
             const pieza = this._pieza$.getValue();

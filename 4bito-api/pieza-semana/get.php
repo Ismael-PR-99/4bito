@@ -24,12 +24,13 @@ try {
     $row  = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) {
-        echo json_encode(['pieza' => null]);
+        echo json_encode(['success' => true, 'data' => null]);
         exit();
     }
 
     echo json_encode([
-        'pieza' => [
+        'success' => true,
+        'data' => [
             'id'              => (int) $row['id'],
             'productId'       => (int) $row['product_id'],
             'discountPercent' => (float) $row['discount_percent'],

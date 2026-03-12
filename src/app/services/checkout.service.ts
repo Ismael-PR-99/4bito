@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface ShippingData {
   nombre:    string;
@@ -31,7 +32,7 @@ export interface CrearPedidoData {
 export class CheckoutService {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
-  private readonly apiUrl = 'http://localhost/4bito/4bito-api/orders';
+  private readonly apiUrl = `${environment.apiUrl}/orders`;
   private _shippingData: ShippingData | null = null;
 
   set shippingData(data: ShippingData) {
@@ -50,13 +51,13 @@ export class CheckoutService {
     this._shippingData = null;
   }
 
-  crearPedido(data: CrearPedidoData): Observable<{ ok: boolean; pedidoId: number; mensaje: string }> {
+  crearPedido(data: CrearPedidoData): Observable<{ pedidoId: number; mensaje: string }> {
     const token = this.auth.getToken();
     const headers = token
       ? new HttpHeaders({ Authorization: `Bearer ${token}` })
       : new HttpHeaders();
-    return this.http.post<{ ok: boolean; pedidoId: number; mensaje: string }>(
+    return this.http.post<any>(
       `${this.apiUrl}/create.php`, data, { headers }
-    );
+    ).pipe(map(res => res.data));
   }
 }

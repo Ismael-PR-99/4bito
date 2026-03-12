@@ -28,7 +28,7 @@ try {
     $db->prepare(
         "INSERT IGNORE INTO stock_notifications (email, product_id, size) VALUES (?,?,?)"
     )->execute([$email, $productId, $size]);
-    echo json_encode(['ok' => true]);
+    echo json_encode(['success' => true]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

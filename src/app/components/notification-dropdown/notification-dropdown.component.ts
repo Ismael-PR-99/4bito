@@ -1,4 +1,4 @@
-import { Component, inject, HostListener, ElementRef } from '@angular/core';
+import { Component, inject, HostListener, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NotificationService, AppNotification } from '../../services/notification.service';
@@ -10,6 +10,7 @@ import { LucideAngularModule, Bell, Check, CheckCheck } from 'lucide-angular';
   imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './notification-dropdown.component.html',
   styleUrl: './notification-dropdown.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationDropdownComponent {
   notifSvc = inject(NotificationService);

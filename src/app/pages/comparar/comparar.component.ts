@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductosService, ProductoApi } from '../../services/productos.service';
@@ -12,6 +12,7 @@ import { CompareService } from '../../services/compare.service';
   imports: [CommonModule, RouterLink],
   templateUrl: './comparar.component.html',
   styleUrl: './comparar.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompararComponent implements OnInit {
   private route      = inject(ActivatedRoute);

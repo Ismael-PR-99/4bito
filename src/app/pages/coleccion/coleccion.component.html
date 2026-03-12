@@ -102,8 +102,8 @@
             </span>
             <!-- Wishlist + Compare overlay btns -->
             <div class="prod-overlay-actions">
-              <button class="prod-oa-btn" [class.active]="wishlistSvc.isInWishlist(p.id)" (click)="toggleWishlist($event, p)" title="Añadir a wishlist">♡</button>
-              <button class="prod-oa-btn" [class.active]="compareSvc.isInCompare(p.id)" (click)="toggleCompare($event, p)" title="Comparar">∓</button>
+              <button class="prod-oa-btn" [class.active]="wishlistSvc.isInWishlist(p.id)" (click)="toggleWishlist($event, p)" title="Añadir a wishlist" aria-label="Añadir a favoritos">♡</button>
+              <button class="prod-oa-btn" [class.active]="compareSvc.isInCompare(p.id)" (click)="toggleCompare($event, p)" title="Comparar" aria-label="Comparar producto">∓</button>
             </div>
           </div>
           <div class="prod-info">

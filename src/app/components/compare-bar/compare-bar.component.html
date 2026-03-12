@@ -8,7 +8,7 @@
           <div class="cb-product">
             <img [src]="p.imageUrl" [alt]="p.name" class="cb-img">
             <span class="cb-nombre">{{ p.name }}</span>
-            <button class="cb-remove" (click)="remove(p.id)" title="Quitar">✕</button>
+            <button class="cb-remove" (click)="remove(p.id)" title="Quitar" aria-label="Quitar de comparación">✕</button>
           </div>
         }
         @for (slot of [].constructor(3 - items.length); track $index) {

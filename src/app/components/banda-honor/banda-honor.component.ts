@@ -5,6 +5,7 @@ import {
   inject,
   computed,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -17,6 +18,7 @@ import { ProductosService, ProductoApi } from '../../services/productos.service'
   imports: [CommonModule, CurrencyPipe, DecimalPipe],
   templateUrl: './banda-honor.component.html',
   styleUrl: './banda-honor.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BandaHonorComponent implements OnInit, OnDestroy {
   private svc    = inject(ProductosService);

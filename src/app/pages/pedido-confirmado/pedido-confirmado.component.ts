@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -10,6 +10,7 @@ import { AnimateOnScrollDirective } from '../../shared/directives/animate-on-scr
   imports: [CommonModule, RouterLink, AnimateOnScrollDirective],
   templateUrl: './pedido-confirmado.component.html',
   styleUrl: './pedido-confirmado.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PedidoConfirmadoComponent implements OnInit {
   private cartService = inject(CartService);

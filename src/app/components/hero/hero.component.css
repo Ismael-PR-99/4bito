@@ -53,12 +53,12 @@
 
 @keyframes yearfade {
   from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-  to   { opacity: 0.025; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
 @keyframes yearfade-light {
   from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-  to   { opacity: 0.04; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
 /* ── Host ──────────────────────────────────────────────── */
@@ -77,8 +77,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(var(--accent-rgb), 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(var(--accent-rgb), 0.04) 0%, transparent 50%),
+    var(--bg-primary);
   color: var(--text-primary);
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.4);
 }
 
 .hero::before {
@@ -137,13 +141,14 @@
   font-weight: 900;
   font-size: clamp(18rem, 40vw, 36rem);
   line-height: 1;
-  color: var(--text-primary);
+  -webkit-text-stroke: 2px rgba(var(--accent-rgb), 0.08);
+  color: transparent;
   opacity: 0;
   pointer-events: none;
   user-select: none;
   z-index: 1;
   white-space: nowrap;
-  animation: yearfade 1s ease 0.2s forwards;
+  animation: yearfade 1s ease 1.3s forwards;
 }
 
 /* ── Stats derecha ─────────────────────────────────────── */
@@ -157,23 +162,25 @@
   flex-direction: column;
   gap: 2rem;
   z-index: 15;
-  animation: fadeup 0.7s ease 0.9s both;
+  animation: fadeup 0.7s ease 2.3s both;
 }
 
 .stat {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.1rem;
+  gap: 0.15rem;
+  position: relative;
 }
 
 .stat__value {
   font-family: var(--font-display, 'Big Shoulders Stencil Display', sans-serif);
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 900;
   color: var(--accent);
   line-height: 1;
   letter-spacing: 0.04em;
+  text-shadow: 0 0 30px rgba(var(--accent-rgb), 0.3);
 }
 
 .stat__label {
@@ -196,7 +203,7 @@
   flex-direction: column;
   gap: 0.6rem;
   z-index: 15;
-  animation: fadeup 0.7s ease 1s both;
+  animation: fadeup 0.7s ease 2.5s both;
 }
 
 .decades__label {
@@ -211,22 +218,24 @@
 
 .decade-btn {
   background: transparent;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
   color: var(--text-muted);
   font-family: var(--font-display, 'Big Shoulders Stencil Display', sans-serif);
   font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.35rem 1rem;
+  padding: 0.4rem 1.2rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  position: relative;
 }
 
 .decade-btn:hover {
-  color: var(--color-text);
-  border-color: var(--color-primary);
+  color: var(--accent);
+  border-color: rgba(var(--accent-rgb), 0.4);
+  transform: translateX(4px);
 }
 
 .decade-btn.active {
@@ -234,6 +243,7 @@
   border-color: var(--color-primary);
   background: var(--color-primary);
   border-radius: var(--radius-sm);
+  box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 /* ── Contenido central ─────────────────────────────────── */
@@ -250,6 +260,25 @@
   will-change: transform, opacity;
 }
 
+.hero-eyebrow-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 0.75rem;
+  animation: fadeup 0.6s ease 1.8s both;
+}
+
+.eyebrow-line {
+  display: block;
+  width: 50px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent));
+}
+
+.eyebrow-line:last-child {
+  background: linear-gradient(to left, transparent, var(--accent));
+}
+
 .hero-eyebrow {
   font-family: var(--font-body, 'Teko', sans-serif);
   font-size: 0.85rem;
@@ -257,8 +286,7 @@
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 0.75rem;
-  animation: fadeup 0.6s ease 0.3s both;
+  margin-bottom: 0;
 }
 
 /* ── H1 con glitch ─────────────────────────────────────── */
@@ -299,9 +327,9 @@
   line-height: 0.9;
 }
 
-.h1-line--1 { animation: slideup 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both; }
-.h1-line--2 { animation: slideup 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both; }
-.h1-line--3 { animation: slideup 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both; }
+.h1-line--1 { animation: slideup 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.5s both; }
+.h1-line--2 { animation: slideup 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.7s both; }
+.h1-line--3 { animation: slideup 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.9s both; }
 
 .accent {
   color: var(--accent);
@@ -317,13 +345,13 @@
   text-transform: uppercase;
   color: var(--text-secondary);
   margin-bottom: 2rem;
-  animation: fadeup 0.6s ease 0.85s both;
+  animation: fadeup 0.6s ease 2.2s both;
 }
 
 .hero-cta {
   display: flex;
   gap: 1rem;
-  animation: fadeup 0.6s ease 1s both;
+  animation: fadeup 0.6s ease 2.4s both;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -341,29 +369,48 @@
 }
 
 .btn--primary {
-  background: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: #fff;
   border-radius: var(--radius-sm);
-  box-shadow: 0 4px 14px var(--color-primary-glow);
+  box-shadow: 0 4px 14px var(--color-primary-glow), 0 0 40px rgba(var(--accent-rgb), 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn--primary:hover::before {
+  left: 100%;
 }
 
 .btn--primary:hover {
-  background: var(--color-primary-light);
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
+  box-shadow: 0 8px 25px var(--color-primary-glow), 0 0 60px rgba(var(--accent-rgb), 0.2);
 }
 
 .btn--ghost {
-  background: transparent;
-  border: 1.5px solid var(--color-text-muted);
+  background: rgba(var(--accent-rgb), 0.03);
+  border: 1.5px solid rgba(var(--accent-rgb), 0.25);
   color: var(--color-text);
   border-radius: var(--radius-sm);
+  backdrop-filter: blur(4px);
 }
 
 .btn--ghost:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
   transform: translateY(-2px);
+  background: rgba(var(--accent-rgb), 0.08);
 }
 
 /* ── Ticker inferior ───────────────────────────────────── */
@@ -432,8 +479,443 @@
   .hero-decades { display: none; }
   .hero-content { padding: 0 1.5rem; }
   .year-bg      { font-size: clamp(10rem, 60vw, 18rem); }
+  .orb          { display: none; }
+  .deco-lines   { display: none; }
+  .eyebrow-line { display: none; }
 }
 
 @media (max-width: 480px) {
   .hero-h1 { font-size: clamp(3.5rem, 18vw, 5rem); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   CRT INTRO — Encendido de TV retro
+   ═══════════════════════════════════════════════════════ */
+
+/* ── CRT Power On ──────────────────────────────────────── */
+.crt-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  pointer-events: none;
+  animation: crtFadeOut 0.6s ease 2.8s forwards;
+}
+
+.crt-intro.done {
+  display: none;
+}
+
+.crt-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #fff;
+  transform: translateY(-50%) scaleY(1);
+  animation: crtExpand 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+  box-shadow: 0 0 30px 10px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes crtExpand {
+  0% {
+    transform: translateY(-50%) scaleY(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-50%) scaleY(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50%) scaleY(3);
+    opacity: 0.9;
+  }
+  70% {
+    height: 100vh;
+    transform: translateY(-50%) scaleY(1);
+    opacity: 0.8;
+  }
+  85% {
+    height: 100vh;
+    transform: translateY(-50%) scaleY(1);
+    opacity: 0.3;
+  }
+  100% {
+    height: 100vh;
+    transform: translateY(-50%) scaleY(1);
+    opacity: 0;
+  }
+}
+
+/* ── Static Noise ──────────────────────────────────────── */
+.crt-static {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: staticShow 2s ease 0.5s forwards;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  mix-blend-mode: overlay;
+}
+
+@keyframes staticShow {
+  0% { opacity: 0.8; }
+  20% { opacity: 0.6; }
+  40% { opacity: 0.9; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.5; }
+  90% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+/* ── VHS Tracking Lines ────────────────────────────────── */
+.vhs-tracking {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: vhsShow 2.2s ease 0.6s forwards;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(255, 255, 255, 0.03) 2px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+  background-size: 100% 4px;
+}
+
+.vhs-tracking::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: vhsScan 1.5s linear 0.7s 2;
+}
+
+@keyframes vhsShow {
+  0% { opacity: 1; }
+  70% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+@keyframes vhsScan {
+  from { top: -30px; }
+  to { top: 100%; }
+}
+
+/* ── CRT Overall Fade Out ──────────────────────────────── */
+@keyframes crtFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ── Noise overlay permanente (muy sutil) ──────────────── */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── Pixel particles ───────────────────────────────────── */
+.pixel-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pixel {
+  position: absolute;
+  background: var(--accent);
+  border-radius: 0;
+  animation: pixelFloat linear infinite;
+  opacity: 0;
+}
+
+@keyframes pixelFloat {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--pixel-opacity, 0.2);
+  }
+  50% {
+    transform: translateY(-40px) translateX(15px);
+  }
+  90% {
+    opacity: var(--pixel-opacity, 0.2);
+  }
+  100% {
+    transform: translateY(-80px) translateX(-10px);
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ENHANCED TITLE — RGB Split / Chromatic Aberration
+   ═══════════════════════════════════════════════════════ */
+
+.h1-line--2 {
+  position: relative;
+}
+
+.h1-line--2::before,
+.h1-line--2::after {
+  content: 'RETRO';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+}
+
+.h1-line--2::before {
+  color: #0ff;
+  animation: rgbSplitLeft 4s ease-in-out infinite;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+.h1-line--2::after {
+  color: #f0f;
+  animation: rgbSplitRight 4s ease-in-out infinite;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+@keyframes rgbSplitLeft {
+  0%, 90%, 100% { transform: translateX(0); opacity: 0; }
+  92% { transform: translateX(-3px) translateY(1px); opacity: 0.6; }
+  94% { transform: translateX(2px) translateY(-1px); opacity: 0.4; }
+  96% { transform: translateX(-1px); opacity: 0.3; }
+  98% { transform: translateX(0); opacity: 0; }
+}
+
+@keyframes rgbSplitRight {
+  0%, 90%, 100% { transform: translateX(0); opacity: 0; }
+  92% { transform: translateX(3px) translateY(-1px); opacity: 0.6; }
+  94% { transform: translateX(-2px) translateY(1px); opacity: 0.4; }
+  96% { transform: translateX(1px); opacity: 0.3; }
+  98% { transform: translateX(0); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   ENHANCED: CRT flicker + scanlines cinematográficas
+   ═══════════════════════════════════════════════════════ */
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 13;
+  pointer-events: none;
+  background: transparent;
+  animation: crtFlicker 0.15s infinite;
+}
+
+@keyframes crtFlicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PREFERS REDUCED MOTION
+   ═══════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-intro { display: none; }
+  .pixel-particles { display: none; }
+  .noise-overlay { display: none; }
+  .hero::after { display: none; }
+  .hero-eyebrow { animation-delay: 0.3s; }
+  .h1-line--1 { animation-delay: 0.3s; }
+  .h1-line--2 { animation-delay: 0.5s; }
+  .h1-line--3 { animation-delay: 0.7s; }
+  .hero-sub { animation-delay: 0.85s; }
+  .hero-cta { animation-delay: 1s; }
+  .hero-stats { animation-delay: 0.9s; }
+  .hero-decades { animation-delay: 1s; }
+  .orb { animation: none; }
+  .deco-line, .deco-corner { animation: none; opacity: 1; transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GRADIENT ORBS — Profundidad visual
+   ═══════════════════════════════════════════════════════ */
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  z-index: 1;
+}
+
+.orb--1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.12) 0%, transparent 70%);
+  top: 10%;
+  right: -5%;
+  animation: orbFloat1 12s ease-in-out infinite;
+}
+
+.orb--2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%);
+  bottom: 20%;
+  left: -10%;
+  animation: orbFloat2 15s ease-in-out infinite;
+}
+
+.orb--3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.06) 0%, transparent 70%);
+  top: 50%;
+  left: 40%;
+  animation: orbFloat3 10s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 20px) scale(1.1); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -30px) scale(1.05); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  50% { transform: translate(-15px, -20px) scale(1.15); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   DECORATIVE LINES — Estilo editorial deportivo
+   ═══════════════════════════════════════════════════════ */
+
+.deco-lines {
+  position: absolute;
+  inset: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.deco-line {
+  position: absolute;
+  background: rgba(var(--accent-rgb), 0.07);
+}
+
+.deco-line--h1 {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform-origin: left;
+  animation: lineReveal 1s ease 1.5s both;
+}
+
+.deco-line--h2 {
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform-origin: right;
+  animation: lineReveal 1s ease 1.7s both;
+}
+
+.deco-line--v1 {
+  top: 0;
+  left: 0;
+  width: 1px;
+  bottom: 0;
+  transform-origin: top;
+  animation: lineRevealV 1s ease 1.6s both;
+}
+
+.deco-line--v2 {
+  top: 0;
+  right: 0;
+  width: 1px;
+  bottom: 0;
+  transform-origin: top;
+  animation: lineRevealV 1s ease 1.8s both;
+}
+
+@keyframes lineReveal {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes lineRevealV {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* Esquinas decorativas */
+.deco-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(var(--accent-rgb), 0.15);
+  border-style: solid;
+  animation: fadeup 0.5s ease 2s both;
+}
+
+.deco-corner--tl {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.deco-corner--br {
+  bottom: 39px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   STAT BAR — Separador entre stats
+   ═══════════════════════════════════════════════════════ */
+
+.stat__bar {
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent), transparent);
+  margin-top: 0.8rem;
+  opacity: 0.4;
+  align-self: flex-end;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TITLE GLOW — Efecto luminoso en el título
+   ═══════════════════════════════════════════════════════ */
+
+.hero-h1 {
+  text-shadow: 0 0 60px rgba(var(--accent-rgb), 0.08);
+}
+
+.h1-line--2 {
+  text-shadow: 0 0 40px rgba(var(--accent-rgb), 0.25);
 }

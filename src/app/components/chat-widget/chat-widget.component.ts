@@ -5,6 +5,8 @@ import {
   ViewChild,
   ElementRef,
   inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +31,7 @@ type ChatMode = 'bot' | 'waiting_human' | 'human';
   imports: [CommonModule, FormsModule, Nl2brPipe],
   templateUrl: './chat-widget.component.html',
   styleUrl: './chat-widget.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatWidgetComponent implements OnInit, OnDestroy {
   @ViewChild('messagesEl') messagesEl!: ElementRef;
@@ -36,6 +39,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private api  = environment.apiUrl + '/chat';
+  private cdr  = inject(ChangeDetectorRef);
 
   isOpen        = false;
   messages: ChatMsg[] = [];
@@ -84,10 +88,12 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
       sessionId: this.sessionId,
     }).subscribe({
       next: (res) => {
-        if (res.conversationId) {
-          this.conversationId = res.conversationId;
-          localStorage.setItem('4bito_conv_' + this.sessionId, String(res.conversationId));
-          if (res.isNew && this.messages.length === 0) {
+        const data = res.data;
+        if (data.conversationId) {
+          this.conversationId = data.conversationId;
+          this.cdr.markForCheck();
+          localStorage.setItem('4bito_conv_' + this.sessionId, String(data.conversationId));
+          if (data.isNew && this.messages.length === 0) {
             setTimeout(() => this.addMsg({
               sender:      'bot',
               content:     '👋 ¡Hola! Soy el asistente virtual de 4BITO Retro Sports. Puedo ayudarte con información sobre envíos, devoluciones, tallas, pagos y más. Si necesitas hablar con un agente, solo dímelo. ¿En qué puedo ayudarte?',
@@ -115,7 +121,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
         sender:         'user',
       }).subscribe({
         next: (r) => {
-          if (r.messageId) this.lastMsgId = Math.max(this.lastMsgId, r.messageId);
+          if (r.data?.messageId) this.lastMsgId = Math.max(this.lastMsgId, r.data.messageId);
         },
       });
     }
@@ -131,19 +137,22 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         this.isTyping = false;
+        this.cdr.markForCheck();
         if (res.success) {
-          if (res.messageId) this.lastMsgId = Math.max(this.lastMsgId, res.messageId);
+          const data = res.data;
+          if (data.messageId) this.lastMsgId = Math.max(this.lastMsgId, data.messageId);
           this.addMsg({
-            id:          res.messageId,
+            id:          data.messageId,
             sender:      'bot',
-            content:     res.response,
+            content:     data.response,
             timestamp:   new Date(),
-            quickReplies: res.quickReplies ?? [],
+            quickReplies: data.quickReplies ?? [],
           });
         }
       },
       error: () => {
         this.isTyping = false;
+        this.cdr.markForCheck();
         this.addMsg({
           sender:      'bot',
           content:     '😕 Ha ocurrido un error. ¿Quieres hablar con un agente?',
@@ -164,8 +173,9 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (res) => {
         if (res.success) {
-          this.addMsg({ sender: 'system', content: res.message, timestamp: new Date() });
-          if (!res.inOfficeHours) {
+          const data = res.data;
+          this.addMsg({ sender: 'system', content: data.message, timestamp: new Date() });
+          if (!data.inOfficeHours) {
             this.waitingTimer = setTimeout(() => this.backToBot(false), 5000);
           }
         }
@@ -194,15 +204,16 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   private pollNew(): void {
     if (!this.conversationId || !this.isOpen) return;
-    this.http.get<any[]>(`${this.api}/messages.php`, {
+    this.http.get<any>(`${this.api}/messages.php`, {
       params: {
         conversationId: String(this.conversationId),
         after:          String(this.lastMsgId),
       },
     }).subscribe({
-      next: (msgs) => {
+      next: (res) => {
+        const msgs = res.data ?? [];
         if (!msgs?.length) return;
-        msgs.forEach(m => {
+        msgs.forEach((m: any) => {
           this.lastMsgId = Math.max(this.lastMsgId, m.id);
           if (m.sender === 'user') return; // already shown locally
           if (this.messages.some(x => x.id === m.id)) return; // already shown
@@ -227,6 +238,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   private addMsg(msg: ChatMsg): void {
     this.messages.push(msg);
+    this.cdr.markForCheck();
     this.saveState();
     this.scrollToBottom(60);
   }

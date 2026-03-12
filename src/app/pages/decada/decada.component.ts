@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductosService, ProductoApi } from '../../services/productos.service';
@@ -10,6 +10,7 @@ import { switchMap, tap } from 'rxjs';
   imports: [CommonModule, RouterLink],
   templateUrl: './decada.component.html',
   styleUrls: ['./decada.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DecadaComponent implements OnInit {
   private route = inject(ActivatedRoute);

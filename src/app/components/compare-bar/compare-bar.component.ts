@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CompareService } from '../../services/compare.service';
@@ -10,6 +10,7 @@ import { ProductoApi } from '../../services/productos.service';
   imports: [CommonModule],
   templateUrl: './compare-bar.component.html',
   styleUrl: './compare-bar.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareBarComponent {
   compareService = inject(CompareService);

@@ -7,6 +7,7 @@ import {
   inject,
   signal,
   ElementRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -18,6 +19,7 @@ import { ProductosService, ProductoApi } from '../../services/productos.service'
   imports: [CommonModule, RouterLink],
   templateUrl: './por-decada.component.html',
   styleUrl: './por-decada.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PorDecadaComponent implements OnInit, OnChanges {
   private productosService = inject(ProductosService);

@@ -43,24 +43,22 @@ try {
     }
 
     http_response_code(200);
-    echo json_encode([
-        'producto' => [
-            'id'              => (int) $row['id'],
-            'name'            => $row['name'],
-            'price'           => (float) $row['price'],
-            'discountPercent' => (float) ($row['discount_percent'] ?? 0),
-            'discountedPrice' => $row['discounted_price'] !== null ? (float) $row['discounted_price'] : null,
-            'team'            => $row['team'],
-            'year'            => (int) $row['year'],
-            'league'          => $row['league'],
-            'imageUrl'        => $row['image_url'],
-            'category'        => $row['category'],
-            'sizes'           => json_decode($row['sizes'], true) ?? [],
-            'sku'             => $row['sku'] ?? null,
-            'ratingAvg'       => round((float)($row['rating_avg'] ?? 0), 1),
-            'ratingCount'     => (int)($row['rating_count'] ?? 0),
-        ],
-    ]);
+    echo json_encode(['success' => true, 'data' => [
+        'id'              => (int) $row['id'],
+        'name'            => $row['name'],
+        'price'           => (float) $row['price'],
+        'discountPercent' => (float) ($row['discount_percent'] ?? 0),
+        'discountedPrice' => $row['discounted_price'] !== null ? (float) $row['discounted_price'] : null,
+        'team'            => $row['team'],
+        'year'            => (int) $row['year'],
+        'league'          => $row['league'],
+        'imageUrl'        => $row['image_url'],
+        'category'        => $row['category'],
+        'sizes'           => json_decode($row['sizes'], true) ?? [],
+        'sku'             => $row['sku'] ?? null,
+        'ratingAvg'       => round((float)($row['rating_avg'] ?? 0), 1),
+        'ratingCount'     => (int)($row['rating_count'] ?? 0),
+    ]]);
 
 } catch (PDOException $e) {
     http_response_code(500);

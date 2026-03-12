@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -50,7 +50,8 @@ import { AuthService } from '../../services/auth.service';
           style({ opacity: 1, transform: 'scale(1)' }))
       ])
     ])
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegistroComponent implements OnInit {
   nombre = '';
@@ -62,6 +63,8 @@ export class RegistroComponent implements OnInit {
   cargando = false;
   shakeState: 'ok' | 'error' = 'ok';
   particulas: { x: number; y: number; delay: number; dur: number }[] = [];
+
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -100,18 +103,20 @@ export class RegistroComponent implements OnInit {
       next: () => {
         this.cargando = false;
         this.registroExitoso = true;
+        this.cdr.markForCheck();
         setTimeout(() => this.router.navigate(['/login']), 1800);
       },
       error: (err) => {
         this.cargando = false;
         this.error = err?.error?.mensaje || err?.error?.error || 'Error al crear la cuenta. Inténtalo de nuevo.';
         this.triggerShake();
+        this.cdr.markForCheck();
       },
     });
   }
 
   private triggerShake(): void {
     this.shakeState = 'ok';
-    setTimeout(() => (this.shakeState = 'error'), 10);
+    setTimeout(() => { this.shakeState = 'error'; this.cdr.markForCheck(); }, 10);
   }
 }

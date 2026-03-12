@@ -1,15 +1,16 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { ProductoApi } from './productos.service';
+import { environment } from '../../environments/environment';
 
 const LS_KEY = '4bito_wishlist';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
-  private readonly apiUrl = 'http://localhost/4bito/4bito-api/wishlist';
+  private readonly apiUrl = `${environment.apiUrl}/wishlist`;
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
@@ -62,9 +63,10 @@ export class WishlistService {
     if (!this.auth.isLoggedIn()) return of(null);
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get<{ productos: ProductoApi[] }>(`${this.apiUrl}/list.php`, { headers }).pipe(
-      tap(res => {
-        const apiIds = new Set<number>((res.productos ?? []).map((p: ProductoApi) => p.id));
+    return this.http.get<any>(`${this.apiUrl}/list.php`, { headers }).pipe(
+      map(res => res.data),
+      tap(products => {
+        const apiIds = new Set<number>((products ?? []).map((p: ProductoApi) => p.id));
         const localIds = this._ids();
         // Subir a la API los IDs que están en local pero no en la BD
         localIds.forEach(id => {
@@ -83,10 +85,12 @@ export class WishlistService {
     );
   }
 
-  getWishlistItems(): Observable<{ productos: ProductoApi[] }> {
-    if (!this.auth.isLoggedIn()) return of({ productos: [] });
+  getWishlistItems(): Observable<ProductoApi[]> {
+    if (!this.auth.isLoggedIn()) return of([]);
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get<{ productos: ProductoApi[] }>(`${this.apiUrl}/list.php`, { headers });
+    return this.http.get<any>(`${this.apiUrl}/list.php`, { headers }).pipe(
+      map(res => res.data)
+    );
   }
 }

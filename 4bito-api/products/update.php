@@ -159,7 +159,7 @@ try {
     $producto['year']   = (int) $producto['year'];
     $producto['id']     = (int) $producto['id'];
 
-    echo json_encode(['mensaje' => 'Producto actualizado correctamente', 'producto' => $producto]);
+    echo json_encode(['success' => true, 'data' => ['mensaje' => 'Producto actualizado correctamente', 'producto' => $producto]]);
 
 } catch (PDOException $e) {
     http_response_code(500);

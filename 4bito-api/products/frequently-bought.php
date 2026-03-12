@@ -73,7 +73,7 @@ try {
     }
 
     $placeholders = implode(',', array_fill(0, count($topIds), '?'));
-    $pStmt = $db->prepare("SELECT * FROM productos WHERE id IN ($placeholders)");
+    $pStmt = $db->prepare("SELECT id, name, price, team, year, league, image_url, category, sizes, discount_percent, discounted_price, is_new FROM productos WHERE id IN ($placeholders)");
     $pStmt->execute($topIds);
     $productos = $pStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -84,7 +84,7 @@ try {
         $p['sizes'] = json_decode($p['sizes'] ?? '[]', true);
     }
 
-    echo json_encode(['productos' => $productos]);
+    echo json_encode(['success' => true, 'data' => $productos]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);
@@ -92,7 +92,7 @@ try {
 
 function fallbackByCategory($db, int $productId, string $category): void {
     $stmt = $db->prepare(
-        "SELECT * FROM productos WHERE category=? AND id!=? ORDER BY RAND() LIMIT 4"
+        "SELECT id, name, price, team, year, league, image_url, category, sizes, discount_percent, discounted_price, is_new FROM productos WHERE category=? AND id!=? ORDER BY RAND() LIMIT 4"
     );
     $stmt->execute([$category, $productId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -101,5 +101,5 @@ function fallbackByCategory($db, int $productId, string $category): void {
         $p['year'] = (int)$p['year'];
         $p['sizes'] = json_decode($p['sizes'] ?? '[]', true);
     }
-    echo json_encode(['productos' => $rows]);
+    echo json_encode(['success' => true, 'data' => $rows]);
 }

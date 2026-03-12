@@ -68,7 +68,8 @@ try {
     $sql  = "SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, created_at
              FROM productos
              $whereSQL
-             $orderSQL";
+             $orderSQL
+             LIMIT 100";
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -91,7 +92,7 @@ try {
     }, $rows);
 
     http_response_code(200);
-    echo json_encode(['productos' => $productos]);
+    echo json_encode(['success' => true, 'data' => $productos]);
 
 } catch (PDOException $e) {
     http_response_code(500);

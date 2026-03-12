@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TiendaService } from '../../services/tienda.service';
@@ -30,6 +30,7 @@ function apiToProducto(p: ProductoApi): Producto {
   imports: [CommonModule, AnadirProductoComponent, EditarProductoComponent],
   templateUrl: './categoria.component.html',
   styleUrl: './categoria.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriaComponent implements OnInit {
   private route            = inject(ActivatedRoute);
@@ -37,6 +38,7 @@ export class CategoriaComponent implements OnInit {
   private tiendaService    = inject(TiendaService);
   private authService      = inject(AuthService);
   private productosService = inject(ProductosService);
+  private cdr = inject(ChangeDetectorRef);
 
   categoria:       Categoria | undefined;
   productos:       Producto[] = [];
@@ -52,6 +54,7 @@ export class CategoriaComponent implements OnInit {
       this.slugActual = params.get('slug') ?? '';
       this.categoria  = this.tiendaService.getCategoriaBySlug(this.slugActual);
       this.cargarProductos();
+      this.cdr.markForCheck();
     });
   }
 
@@ -61,34 +64,40 @@ export class CategoriaComponent implements OnInit {
       next: lista => {
         this.productos = lista.map(apiToProducto);
         this.cargando  = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.productos = [];
         this.cargando  = false;
+        this.cdr.markForCheck();
       },
     });
   }
 
 
 
-  abrirModal(): void  { this.mostrarModal = true; }
-  cerrarModal(): void { this.mostrarModal = false; }
+  abrirModal(): void  { this.mostrarModal = true; this.cdr.markForCheck(); }
+  cerrarModal(): void { this.mostrarModal = false; this.cdr.markForCheck(); }
 
   onProductoCreado(nuevo: ProductoApi): void {
     this.productos = [apiToProducto(nuevo), ...this.productos];
+    this.cdr.markForCheck();
   }
 
   editarProducto(producto: Producto): void {
     this.productoEditando = producto;
+    this.cdr.markForCheck();
   }
 
   cerrarModalEditar(): void {
     this.productoEditando = null;
+    this.cdr.markForCheck();
   }
 
   onProductoActualizado(actualizado: ProductoApi): void {
     const p = apiToProducto(actualizado);
     this.productos = this.productos.map(x => x.id === p.id ? p : x);
+    this.cdr.markForCheck();
   }
 
   eliminarProducto(id: string): void {
@@ -96,6 +105,7 @@ export class CategoriaComponent implements OnInit {
     this.productosService.eliminar(id).subscribe({
       next: () => {
         this.productos = this.productos.filter(p => p.id !== id);
+        this.cdr.markForCheck();
       },
       error: () => alert('Error al eliminar el producto'),
     });

@@ -35,7 +35,7 @@ try {
     $stmt->execute([$userId]);
     $ids = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 
-    if (empty($ids)) { echo json_encode(['productos' => []]); exit; }
+    if (empty($ids)) { echo json_encode(['success' => true, 'data' => []]); exit; }
 
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
     $pStmt = $db->prepare(
@@ -63,7 +63,7 @@ try {
         ];
     }, $rows);
 
-    echo json_encode(['productos' => $productos]);
+    echo json_encode(['success' => true, 'data' => $productos]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

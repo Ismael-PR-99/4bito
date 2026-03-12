@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface AppNotification {
   id: number;
@@ -17,7 +18,7 @@ export interface AppNotification {
 export class NotificationService implements OnDestroy {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
-  private api = 'http://localhost/4bito/4bito-api/notifications';
+  private api = `${environment.apiUrl}/notifications`;
 
   notifications = signal<AppNotification[]>([]);
   unreadCount = signal(0);
@@ -41,10 +42,11 @@ export class NotificationService implements OnDestroy {
 
   loadNotifications() {
     if (!this.auth.isLoggedIn()) return;
-    this.http.get<AppNotification[]>(`${this.api}/list.php`, { headers: this.headers() })
-      .subscribe(data => {
+    this.http.get<any>(`${this.api}/list.php`, { headers: this.headers() })
+      .subscribe(res => {
+        const data = res.data;
         this.notifications.set(data);
-        this.unreadCount.set(data.filter(n => !n.is_read).length);
+        this.unreadCount.set(data.filter((n: any) => !n.is_read).length);
       });
   }
 

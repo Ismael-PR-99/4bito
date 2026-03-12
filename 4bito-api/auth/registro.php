@@ -85,12 +85,15 @@ try {
 
     http_response_code(201);
     echo json_encode([
-        "mensaje" => "Usuario registrado correctamente",
-        "usuario" => [
-            "id"     => $nuevoId,
-            "nombre" => $nombre,
-            "email"  => $email,
-            "rol"    => $rol
+        "success" => true,
+        "data" => [
+            "mensaje" => "Usuario registrado correctamente",
+            "usuario" => [
+                "id"     => $nuevoId,
+                "nombre" => $nombre,
+                "email"  => $email,
+                "rol"    => $rol
+            ]
         ]
     ]);
 

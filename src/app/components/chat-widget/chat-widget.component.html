@@ -48,7 +48,7 @@
       @if (mode === 'waiting_human') {
         <div class="mode-waiting">
           <span class="dots"><i></i><i></i><i></i></span>
-          <button class="cancel-btn" (click)="backToBot()">✕</button>
+          <button class="cancel-btn" (click)="backToBot()" aria-label="Cerrar chat">✕</button>
         </div>
       }
       @if (mode === 'human') {
@@ -119,6 +119,7 @@
       (keydown.enter)="send()"
       [placeholder]="mode === 'waiting_human' ? 'Escribe mientras esperas...' : 'Escribe un mensaje...'"
       maxlength="500"
+      aria-label="Escribe un mensaje"
     />
     <button
       class="send-btn"

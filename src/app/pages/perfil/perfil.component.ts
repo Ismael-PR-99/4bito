@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,6 +16,7 @@ type PerfilTab = 'info' | 'tallas' | 'pedidos';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PerfilComponent implements OnInit {
   private auth       = inject(AuthService);
@@ -23,6 +24,7 @@ export class PerfilComponent implements OnInit {
   private cartSvc    = inject(CartService);
   private toastSvc   = inject(ToastService);
   private returnsSvc = inject(ReturnsService);
+  private cdr        = inject(ChangeDetectorRef);
 
   usuario = this.auth.getUsuario();
 
@@ -53,8 +55,9 @@ export class PerfilComponent implements OnInit {
   }
 
   private cargarTallas(): void {
-    this.profileSvc.getSizes().subscribe(res => {
-      this.tallas = { ...res.sizes };
+    this.profileSvc.getSizes().subscribe(sizes => {
+      this.tallas = { ...sizes };
+      this.cdr.markForCheck();
     });
   }
 
@@ -84,7 +87,7 @@ export class PerfilComponent implements OnInit {
   private cargarPedidos(): void {
     this.cargando.set(true);
     this.profileSvc.getOrders().subscribe({
-      next: res => { this.pedidos.set(res.pedidos ?? []); this.cargando.set(false); },
+      next: pedidos => { this.pedidos.set(pedidos ?? []); this.cargando.set(false); },
       error: () => this.cargando.set(false),
     });
   }

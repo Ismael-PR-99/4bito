@@ -24,7 +24,8 @@ try {
         "SELECT id, product_id, user_id, user_name, rating, comment, verified, approved, created_at
          FROM reviews
          WHERE product_id = ? AND approved = 1
-         ORDER BY created_at DESC"
+         ORDER BY created_at DESC
+         LIMIT 50"
     );
     $stmt->execute([$productId]);
     $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -45,11 +46,11 @@ try {
     $statStmt->execute([$productId]);
     $stats = $statStmt->fetch(PDO::FETCH_ASSOC);
 
-    echo json_encode([
+    echo json_encode(['success' => true, 'data' => [
         'reviews'    => $reviews,
         'avg_rating' => round((float)($stats['avg_rating'] ?? 0), 1),
         'total'      => (int)($stats['total'] ?? 0),
-    ]);
+    ]]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

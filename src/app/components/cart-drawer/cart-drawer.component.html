@@ -12,7 +12,7 @@
         <span class="drawer-title">TU CARRITO</span>
         <span class="drawer-count">({{ vm.count }} {{ vm.count === 1 ? 'PRODUCTO' : 'PRODUCTOS' }})</span>
       </div>
-      <button class="drawer-close" (click)="close()">✕</button>
+      <button class="drawer-close" (click)="close()" aria-label="Cerrar carrito">✕</button>
     </div>
 
     <!-- Lista de items -->
@@ -33,10 +33,10 @@
             <span class="item-talla-badge">{{ item.talla }}</span>
             <p class="item-precio">{{ (item.precio * item.cantidad).toFixed(2) }}€</p>
             <div class="item-qty">
-              <button class="qty-btn" (click)="updateQty(item.id, item.talla, -1)" [disabled]="item.cantidad <= 1">−</button>
+              <button class="qty-btn" (click)="updateQty(item.id, item.talla, -1)" [disabled]="item.cantidad <= 1" aria-label="Reducir cantidad">−</button>
               <span class="qty-val">{{ item.cantidad }}</span>
-              <button class="qty-btn" (click)="updateQty(item.id, item.talla, 1)" [disabled]="item.cantidad >= 10">+</button>
-              <button class="item-remove" (click)="removeItem(item.id, item.talla)" title="Eliminar">✕</button>
+              <button class="qty-btn" (click)="updateQty(item.id, item.talla, 1)" [disabled]="item.cantidad >= 10" aria-label="Aumentar cantidad">+</button>
+              <button class="item-remove" (click)="removeItem(item.id, item.talla)" title="Eliminar" aria-label="Eliminar producto">✕</button>
             </div>
           </div>
         </div>
@@ -54,6 +54,7 @@
             [(ngModel)]="discountInput"
             placeholder="INTRODUCE TU CÓDIGO"
             (keyup.enter)="applyCode()"
+            aria-label="Código de descuento"
           />
           <button class="btn-apply" (click)="applyCode()">APLICAR</button>
         </div>

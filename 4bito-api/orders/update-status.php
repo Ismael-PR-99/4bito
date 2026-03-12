@@ -52,7 +52,7 @@ try {
     }
 
     $db->commit();
-    echo json_encode(['ok' => true]);
+    echo json_encode(['success' => true, 'data' => null]);
 
 } catch (PDOException $e) {
     $db->rollBack();

@@ -55,4 +55,4 @@ $pedido = [
     'historialEstados'    => $historial,
 ];
 
-echo json_encode(['pedido' => $pedido]);
+echo json_encode(['success' => true, 'data' => $pedido]);

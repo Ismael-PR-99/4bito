@@ -136,18 +136,21 @@ try {
 
     http_response_code(201);
     echo json_encode([
-        'mensaje'  => 'Producto creado correctamente',
-        'producto' => [
-            'id'       => $newId,
-            'name'     => $name,
-            'price'    => (float) $price,
-            'team'     => $team,
-            'year'     => (int) $year,
-            'league'   => $league,
-            'imageUrl' => $imageUrl,
-            'category' => $category,
-            'sizes'    => $sizesDecoded,
-            'sku'      => $sku,
+        'success' => true,
+        'data' => [
+            'mensaje'  => 'Producto creado correctamente',
+            'producto' => [
+                'id'       => $newId,
+                'name'     => $name,
+                'price'    => (float) $price,
+                'team'     => $team,
+                'year'     => (int) $year,
+                'league'   => $league,
+                'imageUrl' => $imageUrl,
+                'category' => $category,
+                'sizes'    => $sizesDecoded,
+                'sku'      => $sku,
+            ],
         ],
     ]);
 

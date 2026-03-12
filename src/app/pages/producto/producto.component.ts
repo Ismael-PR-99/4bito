@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,6 +14,7 @@ import { UserProfileService } from '../../services/user-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule, ShoppingCart, Heart, GitCompare, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
+import { environment } from '../../../environments/environment';
 
 
 function apiToProducto(p: ProductoApi): Producto {
@@ -42,6 +43,7 @@ function apiToProducto(p: ProductoApi): Producto {
   ],
   templateUrl: './producto.component.html',
   styleUrl: './producto.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductoComponent implements OnInit {
   private route            = inject(ActivatedRoute);
@@ -57,7 +59,8 @@ export class ProductoComponent implements OnInit {
   private authSvc          = inject(AuthService);
   private http             = inject(HttpClient);
 
-  private readonly apiUrl  = 'http://localhost/4bito/4bito-api';
+  private readonly apiUrl  = environment.apiUrl;
+  private cdr              = inject(ChangeDetectorRef);
 
   producto:       Producto | undefined;
   rawProducto:    ProductoApi | undefined;
@@ -111,6 +114,7 @@ export class ProductoComponent implements OnInit {
           this.rawProducto = p;
           this.producto = apiToProducto(p);
           this.cargando = false;
+          this.cdr.markForCheck();
           this.cargarReviews(id);
           this.cargarRelacionados(id);
           this.cargarFrecuentes(id);
@@ -119,6 +123,7 @@ export class ProductoComponent implements OnInit {
         error: () => {
           this.errorMsg = 'Producto no encontrado';
           this.cargando = false;
+          this.cdr.markForCheck();
         },
       });
     });
@@ -144,9 +149,9 @@ export class ProductoComponent implements OnInit {
   }
 
   private cargarRelacionados(productId: number): void {
-    this.http.get<{ productos: ProductoApi[] }>(`${this.apiUrl}/products/list.php`).subscribe({
+    this.http.get<any>(`${this.apiUrl}/products/list.php`).subscribe({
       next: res => {
-        const todos = res.productos ?? [];
+        const todos: ProductoApi[] = res.data ?? [];
         const cat = this.rawProducto?.category;
         const rel = todos.filter(p => p.category === cat && p.id !== productId).slice(0, 6);
         this.relacionados.set(rel);
@@ -156,17 +161,17 @@ export class ProductoComponent implements OnInit {
   }
 
   private cargarFrecuentes(productId: number): void {
-    this.http.get<{ productos: ProductoApi[] }>(
+    this.http.get<any>(
       `${this.apiUrl}/products/frequently-bought.php?product_id=${productId}`
     ).subscribe({
-      next: res => this.frecuenteJuntos.set(res.productos ?? []),
+      next: res => this.frecuenteJuntos.set(res.data ?? []),
       error: () => {},
     });
   }
 
   private cargarTallasGuardadas(): void {
     this.profileSvc.getSizes().subscribe({
-      next: res => { this.tallasGuardadas = res.sizes; },
+      next: sizes => { this.tallasGuardadas = sizes; this.cdr.markForCheck(); },
       error: () => {},
     });
   }
@@ -210,6 +215,7 @@ export class ProductoComponent implements OnInit {
       next: () => {
         this.enviandoResena.set(false);
         this.miResena = { rating: 0, comment: '' };
+        this.cdr.markForCheck();
         this.toastService.show('Resena enviada. Pendiente de moderacion.', 'success');
         this.cargarReviews(this.rawProducto!.id);
       },

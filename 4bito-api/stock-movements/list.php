@@ -34,7 +34,7 @@ if ($type && in_array($type, ['entrada','salida','ajuste','devolucion'], true)) 
 if ($dateFrom) { $where[] = 'created_at >= ?'; $params[] = $dateFrom . ' 00:00:00'; }
 if ($dateTo)   { $where[] = 'created_at <= ?'; $params[] = $dateTo   . ' 23:59:59'; }
 
-$sql = "SELECT * FROM stock_movements";
+$sql = "SELECT id, product_id, product_name, size, type, quantity, previous_stock, new_stock, reason, order_id, admin_id, created_at FROM stock_movements";
 if ($where) $sql .= " WHERE " . implode(' AND ', $where);
 $sql .= " ORDER BY created_at DESC LIMIT {$limit} OFFSET {$offset}";
 
@@ -58,7 +58,7 @@ try {
     $cntStmt->execute($params);
     $total = (int)$cntStmt->fetchColumn();
 
-    echo json_encode(['movements' => $rows, 'total' => $total]);
+    echo json_encode(['success' => true, 'data' => ['movements' => $rows, 'total' => $total]]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

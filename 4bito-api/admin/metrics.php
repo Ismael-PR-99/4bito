@@ -51,7 +51,7 @@ if ($tablaExists) {
     $stmt->execute([$ayer]); $pedidosPendientesAyer = (int)$stmt->fetchColumn();
 }
 
-echo json_encode([
+echo json_encode(['success' => true, 'data' => [
     'totalProductos'         => $totalProductos,
     'vendidosHoy'            => $vendidosHoy,
     'vendidosAyer'           => $vendidosAyer,
@@ -59,4 +59,4 @@ echo json_encode([
     'ingresosAyer'           => round($ingresosAyer, 2),
     'pedidosPendientes'      => $pedidosPendientes,
     'pedidosPendientesAyer'  => $pedidosPendientesAyer,
-]);
+]]);

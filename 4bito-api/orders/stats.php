@@ -51,7 +51,7 @@ if ($tipo === 'chart') {
         }
     }
 
-    echo json_encode(['dias' => array_values($dias)]);
+    echo json_encode(['success' => true, 'data' => array_values($dias)]);
     exit;
 }
 
@@ -118,7 +118,7 @@ if ($tipo === 'top') {
         }
     }
 
-    echo json_encode(['productos' => $topProductos, 'resumen' => $resumen]);
+    echo json_encode(['success' => true, 'data' => ['productos' => $topProductos, 'resumen' => $resumen]]);
     exit;
 }
 

@@ -8,6 +8,7 @@ import {
   signal,
   inject,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -22,6 +23,18 @@ import { Router } from '@angular/router';
 })
 export class HeroComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  introComplete = false;
+
+  readonly pixels = Array.from({ length: 30 }, () => ({
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    delay: 2.5 + Math.random() * 2,
+    dur: 4 + Math.random() * 6,
+    size: 2 + Math.floor(Math.random() * 4),
+    opacity: 0.1 + Math.random() * 0.3,
+  }));
 
   // Parallax state
   private ticking   = false;
@@ -71,6 +84,12 @@ export class HeroComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Marcar intro como completa tras la animación
+    setTimeout(() => {
+      this.introComplete = true;
+      this.cdr.markForCheck();
+    }, 3500);
+
     if (this.prefersReduced || this.isMobile) return;
     this.heroContentEl = document.querySelector('.hero-content');
     this.heroBgEl      = document.querySelector('.grid-bg');

@@ -7,6 +7,7 @@ import {
   signal,
   computed,
   ElementRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -27,6 +28,7 @@ export interface CountdownParts {
   imports: [CommonModule],
   templateUrl: './pieza-semana.component.html',
   styleUrl: './pieza-semana.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PiezaSemanaComponent implements OnInit, AfterViewInit, OnDestroy {
   private discount = inject(DiscountService);

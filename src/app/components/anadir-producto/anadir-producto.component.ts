@@ -5,6 +5,7 @@ import {
   Input,
   inject,
   OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -23,6 +24,7 @@ import { ProductosService, ProductoApi } from '../../services/productos.service'
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './anadir-producto.component.html',
   styleUrl: './anadir-producto.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnadirProductoComponent implements OnInit {
   @Input()  categoriaSlug: string = '';

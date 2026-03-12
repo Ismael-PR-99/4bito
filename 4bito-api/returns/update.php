@@ -25,7 +25,7 @@ if (!$id || !in_array($status, $validStatuses)) {
 
 $db = (new Database())->getConnection();
 
-$stmt = $db->prepare('SELECT * FROM returns_requests WHERE id = ?');
+$stmt = $db->prepare('SELECT id, order_id, user_id, status, resolution, products_json, case_number FROM returns_requests WHERE id = ?');
 $stmt->execute([$id]);
 $ret = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$ret) { http_response_code(404); echo json_encode(['error' => 'No encontrado']); exit; }
@@ -69,4 +69,4 @@ if (isset($titles[$status])) {
     ]);
 }
 
-echo json_encode(['success' => true, 'message' => 'Estado actualizado']);
+echo json_encode(['success' => true, 'data' => ['message' => 'Estado actualizado']]);

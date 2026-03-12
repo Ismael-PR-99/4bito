@@ -20,7 +20,7 @@ $db = (new Database())->getConnection();
 try {
     $db->query("SELECT 1 FROM pedidos LIMIT 1");
 } catch (PDOException $e) {
-    echo json_encode(['pedidos' => []]); exit;
+    echo json_encode(['success' => true, 'data' => []]); exit;
 }
 
 $estado = $_GET['estado'] ?? null;
@@ -71,4 +71,4 @@ $pedidos = array_map(function ($row) use ($db) {
     ];
 }, $rows);
 
-echo json_encode(['pedidos' => $pedidos]);
+echo json_encode(['success' => true, 'data' => $pedidos]);

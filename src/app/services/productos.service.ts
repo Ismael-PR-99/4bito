@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, map, tap } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 // ── Modelo de producto tal como llega de la API ────────────────────────────
 export interface ProductoApi {
@@ -29,8 +30,8 @@ export interface TallaForm {
 
 @Injectable({ providedIn: 'root' })
 export class ProductosService {
-  private readonly baseUrl    = 'http://localhost/4bito/4bito-api/products';
-  private readonly decadesUrl = 'http://localhost/4bito/4bito-api/decades';
+  private readonly baseUrl    = `${environment.apiUrl}/products`;
+  private readonly decadesUrl = `${environment.apiUrl}/decades`;
   private http    = inject(HttpClient);
   private auth    = inject(AuthService);
 
@@ -57,26 +58,26 @@ export class ProductosService {
   /** Devuelve los productos de una categoría desde la API */
   getByCategory(category: string): Observable<ProductoApi[]> {
     return this.http
-      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?category=${category}`)
-      .pipe(map(res => res.productos));
+      .get<any>(`${this.baseUrl}/list.php?category=${category}`)
+      .pipe(map(res => res.data));
   }
 
   /** Obtiene un producto por su ID */
   getById(id: number): Observable<ProductoApi> {
     return this.http
-      .get<{ producto: ProductoApi }>(`${this.baseUrl}/get.php?id=${id}`)
-      .pipe(map(res => res.producto));
+      .get<any>(`${this.baseUrl}/get.php?id=${id}`)
+      .pipe(map(res => res.data));
   }
 
   /** Crea un producto (requiere rol admin). Recibe FormData con imagen. */
   crear(formData: FormData): Observable<{ mensaje: string; producto: ProductoApi }> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.post<{ mensaje: string; producto: ProductoApi }>(
+    return this.http.post<any>(
       `${this.baseUrl}/create.php`,
       formData,
       { headers }
-    );
+    ).pipe(map(res => res.data));
   }
 
   /** Actualiza un producto (requiere rol admin). Recibe FormData (imagen opcional). */
@@ -84,11 +85,11 @@ export class ProductosService {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     formData.append('id', id);
-    return this.http.post<{ mensaje: string; producto: ProductoApi }>(
+    return this.http.post<any>(
       `${this.baseUrl}/update.php`,
       formData,
       { headers }
-    );
+    ).pipe(map(res => res.data));
   }
 
   /** Elimina un producto (requiere rol admin). */
@@ -98,33 +99,33 @@ export class ProductosService {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
-    return this.http.post<{ mensaje: string; id: number }>(
+    return this.http.post<any>(
       `${this.baseUrl}/delete.php`,
       { id },
       { headers }
-    );
+    ).pipe(map(res => res.data));
   }
 
   /** Devuelve las décadas activas desde la BD */
   getDecades(): Observable<string[]> {
     return this.http
-      .get<{ decades: string[] }>(`${this.decadesUrl}/list.php`)
-      .pipe(map(res => res.decades));
+      .get<any>(`${this.decadesUrl}/list.php`)
+      .pipe(map(res => res.data));
   }
 
   /** Devuelve productos filtrados por década (ej: '90s') */
   getByDecade(decade: string, sort: SortOption = 'newest'): Observable<ProductoApi[]> {
     return this.http
-      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?decade=${decade}&sort=${sort}`)
-      .pipe(map(res => res.productos));
+      .get<any>(`${this.baseUrl}/list.php?decade=${decade}&sort=${sort}`)
+      .pipe(map(res => res.data));
   }
 
   /** Devuelve todos los productos sin filtro y actualiza el store */
   getAllProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
     return this.http
-      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?sort=${sort}`)
+      .get<any>(`${this.baseUrl}/list.php?sort=${sort}`)
       .pipe(
-        map(res => res.productos),
+        map(res => res.data),
         tap(list => this._store$.next(list))
       );
   }
@@ -132,8 +133,8 @@ export class ProductosService {
   /** Devuelve novedades (is_new=1 o últimos 30 días) */
   getNewProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
     return this.http
-      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?new=1&sort=${sort}`)
-      .pipe(map(res => res.productos));
+      .get<any>(`${this.baseUrl}/list.php?new=1&sort=${sort}`)
+      .pipe(map(res => res.data));
   }
 
   /** Devuelve productos con múltiples filtros combinables */
@@ -149,8 +150,8 @@ export class ProductosService {
     if (params.isNew)    q.set('new', '1');
     if (params.sort)     q.set('sort',     params.sort);
     return this.http
-      .get<{ productos: ProductoApi[] }>(`${this.baseUrl}/list.php?${q.toString()}`)
-      .pipe(map(res => res.productos));
+      .get<any>(`${this.baseUrl}/list.php?${q.toString()}`)
+      .pipe(map(res => res.data));
   }
 }
 

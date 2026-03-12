@@ -70,13 +70,15 @@ try {
 
     http_response_code(200);
     echo json_encode([
-        "mensaje" => "Login exitoso",
-        "token"   => $token,
-        "usuario" => [
-            "id"     => $usuario['id'],
-            "nombre" => $usuario['nombre'],
-            "email"  => $usuario['email'],
-            "rol"    => $usuario['rol']
+        "success" => true,
+        "data" => [
+            "token"   => $token,
+            "usuario" => [
+                "id"     => $usuario['id'],
+                "nombre" => $usuario['nombre'],
+                "email"  => $usuario['email'],
+                "rol"    => $usuario['rol']
+            ]
         ]
     ]);
 

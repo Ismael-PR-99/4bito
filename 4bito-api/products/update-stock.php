@@ -122,7 +122,7 @@ try {
         }
     }
 
-    echo json_encode(['ok' => true]);
+    echo json_encode(['success' => true, 'data' => null]);
 
 } catch (PDOException $e) {
     http_response_code(500);

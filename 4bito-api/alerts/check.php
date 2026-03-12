@@ -52,7 +52,7 @@ try {
         $upd = $db->prepare("UPDATE stock_alerts SET current_stock=? WHERE product_id=? AND size=? AND ignored=0");
         $upd->execute([$currentStock, $productId, $size]);
     }
-    echo json_encode(['ok' => true]);
+    echo json_encode(['success' => true]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

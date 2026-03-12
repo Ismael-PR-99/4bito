@@ -89,7 +89,7 @@ try {
        ->execute([':dp' => $finalPrice, ':pct' => $discountPercent, ':id' => $productId]);
 
     $db->commit();
-    echo json_encode(['ok' => true, 'piezaId' => (int) $newId]);
+    echo json_encode(['success' => true, 'piezaId' => (int) $newId]);
 
 } catch (PDOException $e) {
     if ($db->inTransaction()) $db->rollBack();

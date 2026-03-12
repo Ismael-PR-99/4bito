@@ -32,10 +32,10 @@ if (!$userId && !$sessionId) {
 
 // Buscar conversación activa existente
 if ($userId) {
-    $stmt = $db->prepare('SELECT * FROM chat_conversations WHERE user_id = ? AND status != "closed" ORDER BY created_at DESC LIMIT 1');
+    $stmt = $db->prepare('SELECT id, user_id, session_id, status, subject, created_at FROM chat_conversations WHERE user_id = ? AND status != "closed" ORDER BY created_at DESC LIMIT 1');
     $stmt->execute([$userId]);
 } else {
-    $stmt = $db->prepare('SELECT * FROM chat_conversations WHERE session_id = ? AND status != "closed" ORDER BY created_at DESC LIMIT 1');
+    $stmt = $db->prepare('SELECT id, user_id, session_id, status, subject, created_at FROM chat_conversations WHERE session_id = ? AND status != "closed" ORDER BY created_at DESC LIMIT 1');
     $stmt->execute([$sessionId]);
 }
 

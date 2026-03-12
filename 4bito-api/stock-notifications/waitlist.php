@@ -32,7 +32,7 @@ try {
         $r['product_id']    = (int)$r['product_id'];
         $r['waiting_count'] = (int)$r['waiting_count'];
     }
-    echo json_encode(['waitlist' => $rows]);
+    echo json_encode(['success' => true, 'data' => $rows]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

@@ -41,7 +41,7 @@ if ($reason === 'Otro' && $description === '') {
 $db = (new Database())->getConnection();
 
 // Verificar que el pedido pertenece al usuario y está entregado
-$stmt = $db->prepare('SELECT * FROM pedidos WHERE id = ? AND user_id = ? AND estado = "entregado"');
+$stmt = $db->prepare('SELECT id, user_id, estado, productos_json, fecha_creacion FROM pedidos WHERE id = ? AND user_id = ? AND estado = "entregado"');
 $stmt->execute([$orderId, $userId]);
 $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$pedido) {
@@ -87,7 +87,9 @@ $returnId = $db->lastInsertId();
 
 echo json_encode([
     'success' => true,
-    'returnId' => intval($returnId),
-    'caseNumber' => $caseNumber,
-    'message' => 'Solicitud enviada. Te contactaremos en 24-48h.',
+    'data' => [
+        'returnId' => intval($returnId),
+        'caseNumber' => $caseNumber,
+        'message' => 'Solicitud enviada. Te contactaremos en 24-48h.',
+    ],
 ]);

@@ -13,10 +13,10 @@
       <div class="producto-nombre-row">
         <h1 class="producto-nombre">{{ producto.nombre }}</h1>
         <div class="quick-actions">
-          <button class="qa-btn" [class.active]="enWishlist" (click)="toggleWishlist()" title="Lista de deseos">
+          <button class="qa-btn" [class.active]="enWishlist" (click)="toggleWishlist()" title="Lista de deseos" aria-label="Añadir a lista de deseos">
             <lucide-icon name="heart" [size]="20" [strokeWidth]="1.5"></lucide-icon>
           </button>
-          <button class="qa-btn" [class.active]="enCompare" (click)="toggleCompare()" title="Comparar">
+          <button class="qa-btn" [class.active]="enCompare" (click)="toggleCompare()" title="Comparar" aria-label="Comparar producto">
             <lucide-icon name="git-compare" [size]="20" [strokeWidth]="1.5"></lucide-icon>
           </button>
         </div>
@@ -85,6 +85,7 @@
                 class="aviso-input"
                 [value]="suscribirEmail()"
                 (input)="suscribirEmail.set($any($event.target).value)"
+                aria-label="Tu email para notificación de stock"
               />
               <button class="btn-avisar" (click)="suscribirStock()" [disabled]="suscribiendo()">
                 {{ suscribiendo() ? '...' : 'AVISAR' }}
@@ -98,9 +99,9 @@
       <div class="seccion-cantidad">
         <p class="seccion-label">CANTIDAD</p>
         <div class="cantidad-control">
-          <button class="cantidad-btn" (click)="cambiarCantidad(-1)" [disabled]="cantidad <= 1">&#8722;</button>
+          <button class="cantidad-btn" (click)="cambiarCantidad(-1)" [disabled]="cantidad <= 1" aria-label="Reducir cantidad">&#8722;</button>
           <span class="cantidad-valor">{{ cantidad }}</span>
-          <button class="cantidad-btn" (click)="cambiarCantidad(1)" [disabled]="cantidad >= 10">&#43;</button>
+          <button class="cantidad-btn" (click)="cambiarCantidad(1)" [disabled]="cantidad >= 10" aria-label="Aumentar cantidad">&#43;</button>
         </div>
       </div>
 

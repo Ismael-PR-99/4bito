@@ -22,7 +22,7 @@ try {
 
     $decades = array_map(fn($r) => $r['name'], $rows);
 
-    echo json_encode(['decades' => $decades]);
+    echo json_encode(['success' => true, 'data' => $decades]);
 
 } catch (PDOException $e) {
     http_response_code(500);

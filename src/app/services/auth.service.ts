@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface LoginResponse {
   token: string;
@@ -18,12 +19,13 @@ export interface RegistroResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost/4bito/4bito-api/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
 
   constructor(private http: HttpClient) {}
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login.php`, { email, password }).pipe(
+    return this.http.post<any>(`${this.apiUrl}/login.php`, { email, password }).pipe(
+      map(res => res.data),
       tap((res) => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('usuario', JSON.stringify(res.usuario));
@@ -32,11 +34,11 @@ export class AuthService {
   }
 
   registro(nombre: string, email: string, password: string): Observable<RegistroResponse> {
-    return this.http.post<RegistroResponse>(`${this.apiUrl}/registro.php`, {
+    return this.http.post<any>(`${this.apiUrl}/registro.php`, {
       nombre,
       email,
       password,
-    });
+    }).pipe(map(res => res.data));
   }
 
   logout(): void {

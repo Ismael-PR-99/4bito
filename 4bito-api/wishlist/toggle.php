@@ -42,10 +42,10 @@ try {
 
     if ($existing) {
         $db->prepare("DELETE FROM wishlist WHERE user_id=? AND product_id=?")->execute([$userId, $productId]);
-        echo json_encode(['action' => 'removed', 'inWishlist' => false]);
+        echo json_encode(['success' => true, 'action' => 'removed', 'inWishlist' => false]);
     } else {
         $db->prepare("INSERT INTO wishlist (user_id, product_id) VALUES (?,?)")->execute([$userId, $productId]);
-        echo json_encode(['action' => 'added', 'inWishlist' => true]);
+        echo json_encode(['success' => true, 'action' => 'added', 'inWishlist' => true]);
     }
 } catch (PDOException $e) {
     http_response_code(500);

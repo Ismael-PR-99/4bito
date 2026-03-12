@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ import { CartItem, AppliedDiscount } from '../../models/cart-item.model';
   imports: [CommonModule, FormsModule],
   templateUrl: './cart-drawer.component.html',
   styleUrl: './cart-drawer.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartDrawerComponent implements OnInit {
   private cartService   = inject(CartService);

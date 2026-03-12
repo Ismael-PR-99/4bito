@@ -1,5 +1,5 @@
 <div class="notif-wrapper">
-  <button class="notif-btn" (click)="toggle()">
+  <button class="notif-btn" (click)="toggle()" aria-label="Notificaciones">
     <lucide-icon [img]="icons.Bell" [size]="20"></lucide-icon>
     @if (notifSvc.unreadCount() > 0) {
       <span class="notif-badge">{{ notifSvc.unreadCount() > 9 ? '9+' : notifSvc.unreadCount() }}</span>

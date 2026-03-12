@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface StockMovement {
   id: number;
@@ -39,7 +40,7 @@ export interface WaitlistItem {
 
 @Injectable({ providedIn: 'root' })
 export class StockManagementService {
-  private readonly baseUrl = 'http://localhost/4bito/4bito-api';
+  private readonly baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
@@ -54,6 +55,7 @@ export class StockManagementService {
   // ── Alertas ─────────────────────────────────────────────
   getAlerts(): Observable<{ alerts: StockAlert[]; total: number }> {
     return this.http.get<any>(`${this.baseUrl}/alerts/list.php`, { headers: this.headers }).pipe(
+      map(res => res.data),
       catchError(() => of({ alerts: [], total: 0 }))
     );
   }
@@ -91,13 +93,14 @@ export class StockManagementService {
     return this.http.get<any>(
       `${this.baseUrl}/stock-movements/list.php?${q.toString()}`,
       { headers: this.headers }
-    ).pipe(catchError(() => of({ movements: [], total: 0 })));
+    ).pipe(map(res => res.data), catchError(() => of({ movements: [], total: 0 })));
   }
 
   // ── Lista de espera ──────────────────────────────────────
-  getWaitlist(): Observable<{ waitlist: WaitlistItem[] }> {
+  getWaitlist(): Observable<WaitlistItem[]> {
     return this.http.get<any>(`${this.baseUrl}/stock-notifications/waitlist.php`, { headers: this.headers }).pipe(
-      catchError(() => of({ waitlist: [] }))
+      map(res => res.data),
+      catchError(() => of([]))
     );
   }
 }

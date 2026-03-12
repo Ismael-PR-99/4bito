@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface ChatMessage {
   id: number;
@@ -28,7 +29,7 @@ export interface ChatConversation {
 export class ChatService implements OnDestroy {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
-  private api = 'http://localhost/4bito/4bito-api/chat';
+  private api = `${environment.apiUrl}/chat`;
 
   messages = signal<ChatMessage[]>([]);
   conversationId = signal<number | null>(null);
@@ -67,9 +68,10 @@ export class ChatService implements OnDestroy {
       subject: subject || 'Consulta general',
     }, { headers: this.headers() }).subscribe({
       next: res => {
-        this.conversationId.set(res.conversationId);
-        this.sessionId.set(res.sessionId);
-        localStorage.setItem('chat_session', res.sessionId);
+        const data = res.data;
+        this.conversationId.set(data.conversationId);
+        this.sessionId.set(data.sessionId);
+        localStorage.setItem('chat_session', data.sessionId);
         this.lastRealId = 0;
         this.messages.set([]);
         this.loadMessages();
@@ -82,9 +84,10 @@ export class ChatService implements OnDestroy {
   loadMessages() {
     const cid = this.conversationId();
     if (!cid) return;
-    this.http.get<ChatMessage[]>(`${this.api}/messages.php`, {
+    this.http.get<any>(`${this.api}/messages.php`, {
       params: { conversationId: cid.toString(), after: this.lastRealId.toString() },
-    }).subscribe(msgs => {
+    }).subscribe(res => {
+      const msgs: ChatMessage[] = res.data ?? [];
       if (msgs.length > 0) {
         this.lastRealId = Math.max(...msgs.map(m => m.id));
         this.messages.update(prev => {
@@ -137,8 +140,8 @@ export class ChatService implements OnDestroy {
   loadRooms(status?: string) {
     const params: any = {};
     if (status) params.status = status;
-    this.http.get<ChatConversation[]>(`${this.api}/rooms.php`, { headers: this.headers(), params })
-      .subscribe(data => this.rooms.set(data));
+    this.http.get<any>(`${this.api}/rooms.php`, { headers: this.headers(), params })
+      .subscribe(res => this.rooms.set(res.data));
   }
 
   selectRoom(convId: number) {
@@ -152,9 +155,10 @@ export class ChatService implements OnDestroy {
   loadAdminMessages() {
     const rid = this.activeRoom();
     if (!rid) return;
-    this.http.get<ChatMessage[]>(`${this.api}/messages.php`, {
+    this.http.get<any>(`${this.api}/messages.php`, {
       params: { conversationId: rid.toString(), after: this.lastRealAdminId.toString() },
-    }).subscribe(msgs => {
+    }).subscribe(res => {
+      const msgs: ChatMessage[] = res.data ?? [];
       if (this.lastRealAdminId === 0 && msgs.length) {
         this.lastRealAdminId = Math.max(...msgs.map(m => m.id));
         this.activeMessages.set(msgs);

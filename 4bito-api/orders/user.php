@@ -32,7 +32,7 @@ $db = $database->getConnection();
 try {
     $db->query("SELECT 1 FROM pedidos LIMIT 1");
 } catch (PDOException $e) {
-    echo json_encode(['pedidos' => []]); exit;
+    echo json_encode(['success' => true, 'data' => []]); exit;
 }
 
 try {
@@ -42,7 +42,8 @@ try {
                 direccion, ciudad, cp, pais, telefono
          FROM pedidos
          WHERE user_id = ?
-         ORDER BY fecha_creacion DESC"
+         ORDER BY fecha_creacion DESC
+         LIMIT 50"
     );
     $stmt->execute([$userId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -53,7 +54,7 @@ try {
         $r['productos_json'] = json_decode($r['productos_json'] ?? '[]', true);
     }
 
-    echo json_encode(['pedidos' => $rows]);
+    echo json_encode(['success' => true, 'data' => $rows]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

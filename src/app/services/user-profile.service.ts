@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface UserSizes {
   camisetas:  string | null;
@@ -28,8 +29,8 @@ export interface PedidoUsuario {
 
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
-  private readonly sizesUrl = 'http://localhost/4bito/4bito-api/user/sizes.php';
-  private readonly ordersUrl = 'http://localhost/4bito/4bito-api/orders/user.php';
+  private readonly sizesUrl = `${environment.apiUrl}/user/sizes.php`;
+  private readonly ordersUrl = `${environment.apiUrl}/orders/user.php`;
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 
@@ -37,9 +38,10 @@ export class UserProfileService {
     return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken()}` });
   }
 
-  getSizes(): Observable<{ sizes: UserSizes }> {
-    return this.http.get<{ sizes: UserSizes }>(this.sizesUrl, { headers: this.headers }).pipe(
-      catchError(() => of({ sizes: { camisetas: null, chaquetas: null, pantalones: null } }))
+  getSizes(): Observable<UserSizes> {
+    return this.http.get<any>(this.sizesUrl, { headers: this.headers }).pipe(
+      map(res => res.data),
+      catchError(() => of({ camisetas: null, chaquetas: null, pantalones: null }))
     );
   }
 
@@ -49,9 +51,10 @@ export class UserProfileService {
     });
   }
 
-  getOrders(): Observable<{ pedidos: PedidoUsuario[] }> {
-    return this.http.get<{ pedidos: PedidoUsuario[] }>(this.ordersUrl, { headers: this.headers }).pipe(
-      catchError(() => of({ pedidos: [] }))
+  getOrders(): Observable<PedidoUsuario[]> {
+    return this.http.get<any>(this.ordersUrl, { headers: this.headers }).pipe(
+      map(res => res.data),
+      catchError(() => of([]))
     );
   }
 }
