@@ -117,14 +117,13 @@
       type="text"
       [(ngModel)]="inputMessage"
       (keydown.enter)="send()"
-      [placeholder]="mode === 'waiting_human' ? 'Esperando agente...' : 'Escribe un mensaje...'"
-      [disabled]="mode === 'waiting_human'"
+      [placeholder]="mode === 'waiting_human' ? 'Escribe mientras esperas...' : 'Escribe un mensaje...'"
       maxlength="500"
     />
     <button
       class="send-btn"
       (click)="send()"
-      [disabled]="!inputMessage.trim() || mode === 'waiting_human'"
+      [disabled]="!inputMessage.trim()"
       aria-label="Enviar mensaje">
       ➤
     </button>

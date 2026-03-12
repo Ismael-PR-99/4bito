@@ -1,5 +1,5 @@
 ﻿import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductosService, ProductoApi } from '../../services/productos.service';
@@ -278,7 +278,9 @@ export class ProductoComponent implements OnInit {
     this.confirmTimer = setTimeout(() => { this.confirmado = false; }, 2000);
   }
 
+  private location = inject(Location);
+
   volver(): void {
-    this.router.navigate(['/']);
+    this.location.back();
   }
 }

@@ -25,71 +25,59 @@ if (!$conversationId) {
 // ─── Office hours (Madrid / UTC+1, weekdays 9:00–18:00) ─────
 date_default_timezone_set('Europe/Madrid');
 $dayOfWeek    = (int)date('N');  // 1=Mon … 7=Sun
-$hour         = (int)date('G');  // 0–23 (24h, no leading zero)
+$hour         = (int)date('G');  // 0–23
+$dayNames     = ['', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+$today        = $dayNames[$dayOfWeek];
+$nowTime      = date('H:i');
 $inOfficeHours = ($dayOfWeek >= 1 && $dayOfWeek <= 5) && ($hour >= 9 && $hour < 18);
 
 if ($inOfficeHours) {
-    $estimatedWait = 'menos de 5 minutos';
-    $systemMsg     = "🙋 Has solicitado hablar con un agente.\n⏳ Tiempo estimado de espera: **{$estimatedWait}**.\nUn agente se conectará contigo enseguida.";
+    $estimatedWait = '5-10 minutos';
+    $systemMsg     = "⏳ Tu solicitud ha sido registrada. Uno de nuestros agentes te atenderá en breve.\n\n📋 Horario de atención:\nLunes a Viernes · 9:00 - 18:00\n\nEn cuanto un agente esté disponible recibirás respuesta aquí mismo.";
 } else {
-    $nextOpen      = '';
-    if ($dayOfWeek >= 6) {
-        $daysUntilMon = 8 - $dayOfWeek;
-        $nextOpen     = "el lunes a las 9:00";
-    } elseif ($hour < 9) {
-        $nextOpen = "hoy a las 9:00";
+    // Calcular próxima apertura
+    if ($dayOfWeek >= 5) {
+        $proximoDia = 'el lunes';
     } else {
-        // after 18:00 on a weekday
-        $tomorrowDay = $dayOfWeek + 1;
-        if ($tomorrowDay <= 5) {
-            $nextOpen = "mañana a las 9:00";
-        } else {
-            $nextOpen = "el próximo lunes a las 9:00";
-        }
+        $proximoDia = 'mañana ' . $dayNames[$dayOfWeek + 1];
     }
-    $estimatedWait = "apertura: {$nextOpen}";
-    $systemMsg     = "🕐 Fuera de horario de atención.\n\n⌚ Nuestro horario es **lunes a viernes de 9:00 a 18:00**.\nTu solicitud ha quedado registrada. Un agente te responderá **{$nextOpen}**.\n\nMientras tanto puedo seguir ayudándote. 🤖";
+    $estimatedWait = $proximoDia . ' a las 9:00';
+    $systemMsg     = "🕐 Ahora mismo estamos fuera del horario de atención.\n\nHoy es $today y son las $nowTime h.\n\n📋 Horario de atención:\nLunes a Viernes · 9:00 - 18:00\n\nTu consulta ha quedado **registrada** y te responderemos $proximoDia a partir de las 9:00. Mientras tanto, el asistente automático está disponible 24/7. ⚽";
 }
 
 try {
     $db   = new Database();
     $conn = $db->getConnection();
 
-    // Update conversation status to 'waiting'
+    // Marcar conversación como waiting
     $stmt = $conn->prepare(
         "UPDATE chat_conversations SET status='waiting', updated_at=NOW() WHERE id=?"
     );
     $stmt->execute([$conversationId]);
 
-    // Insert system message
+    // Insertar mensaje de sistema como bot (compatible con ENUM actual)
     $ins = $conn->prepare(
-        "INSERT INTO chat_messages (conversation_id, sender, message, created_at)
-         VALUES (?, 'system', ?, NOW())"
+        "INSERT INTO chat_messages (conversation_id, sender, sender_name, message, created_at)
+         VALUES (?, 'bot', 'Sistema', ?, NOW())"
     );
     $ins->execute([$conversationId, $systemMsg]);
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Error interno del servidor']);
     exit;
 }
 
-// Intentar notificar al admin (no bloquea si falla)
+// Notificación para el admin (opcional, no bloquea)
 try {
-    $notifData = json_encode([
-        'conversationId' => $conversationId,
-        'inOfficeHours'  => $inOfficeHours,
-        'requestedAt'    => date('Y-m-d H:i:s'),
-    ]);
-    // Obtener el primer admin disponible
     $adminStmt = $conn->query("SELECT id FROM usuarios WHERE rol='admin' LIMIT 1");
     $admin = $adminStmt ? $adminStmt->fetch(PDO::FETCH_ASSOC) : null;
     if ($admin) {
         $notif = $conn->prepare(
-            "INSERT INTO notifications (user_id, type, title, message, data, created_at)
-             VALUES (?, 'chat_human_request', 'Nuevo chat pendiente', ?, ?, NOW())"
+            "INSERT INTO notifications (user_id, type, title, body, created_at)
+             VALUES (?, 'chat_human_request', 'Nuevo chat pendiente', ?, NOW())"
         );
-        $notif->execute([$admin['id'], "Usuario solicita atención humana en conversación #{$conversationId}", $notifData]);
+        $notif->execute([$admin['id'], "Cliente esperando atención humana en conversación #$conversationId"]);
     }
 } catch (Exception $ignored) { /* notificación opcional */ }
 

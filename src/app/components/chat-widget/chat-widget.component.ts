@@ -103,7 +103,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy {
 
   send(text?: string): void {
     const content = (text ?? this.inputMessage).trim();
-    if (!content || this.mode === 'waiting_human') return;
+    if (!content) return;
     this.inputMessage = '';
 
     this.addMsg({ sender: 'user', content, timestamp: new Date() });

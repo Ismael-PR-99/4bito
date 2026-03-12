@@ -57,15 +57,26 @@ export class WishlistService {
     }
   }
 
-  /** Carga wishlist desde API (al login) */
+  /** Carga wishlist desde API y fusiona con localStorage */
   syncFromApi(): Observable<any> {
     if (!this.auth.isLoggedIn()) return of(null);
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.get<{ productos: ProductoApi[] }>(`${this.apiUrl}/list.php`, { headers }).pipe(
       tap(res => {
-        const ids = new Set<number>((res.productos ?? []).map((p: ProductoApi) => p.id));
-        this._ids.set(ids);
+        const apiIds = new Set<number>((res.productos ?? []).map((p: ProductoApi) => p.id));
+        const localIds = this._ids();
+        // Subir a la API los IDs que están en local pero no en la BD
+        localIds.forEach(id => {
+          if (!apiIds.has(id)) {
+            this.http.post(`${this.apiUrl}/toggle.php`, { productId: id }, { headers })
+              .pipe(catchError(() => of(null)))
+              .subscribe();
+            apiIds.add(id);
+          }
+        });
+        // Unión de ambas fuentes
+        this._ids.set(apiIds);
         this.persist();
       }),
       catchError(() => of(null))

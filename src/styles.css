@@ -93,10 +93,10 @@
   --color-primary:       #29524A;
   --color-primary-light: #3D7A6F;
   --color-primary-glow:  rgba(41, 82, 74, 0.30);
-  --color-secondary:     #94A187;
-  --color-text:          #F0F4F0;
-  --color-text-muted:    #8A9E8A;
-  --color-text-faint:    #4A5E4A;
+  --color-secondary:     #E0E0E0;
+  --color-text:          #FFFFFF;
+  --color-text-muted:    #E0E0E0;
+  --color-text-faint:    #BBBBBB;
   --color-border:        #1E2D28;
   --color-border-light:  #253530;
   --color-success:       #29524A;

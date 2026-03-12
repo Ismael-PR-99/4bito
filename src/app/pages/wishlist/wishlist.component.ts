@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
 import { WishlistService } from '../../services/wishlist.service';
 import { CartService } from '../../services/cart.service';
 import { ToastService } from '../../services/toast.service';
@@ -22,13 +23,15 @@ export class WishlistComponent implements OnInit {
   cargando = signal(true);
 
   ngOnInit(): void {
-    this.wishlistSvc.getWishlistItems().subscribe({
+    // Primero sincronizar localStorage → BD, luego cargar la lista
+    this.wishlistSvc.syncFromApi().pipe(
+      switchMap(() => this.wishlistSvc.getWishlistItems())
+    ).subscribe({
       next: res => {
         this.items.set(res.productos ?? []);
         this.cargando.set(false);
       },
       error: () => {
-        // Fallback local: mostrar IDs guardados si no hay API
         this.cargando.set(false);
       },
     });

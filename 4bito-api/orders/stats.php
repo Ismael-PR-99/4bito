@@ -99,6 +99,18 @@ if ($tipo === 'top') {
                 $conteo[$pid]['ingresos'] += (float)($prod['precio'] ?? 0) * $cant;
             }
         }
+
+        // Enriquecer con imagen actual de la tabla productos (el JSON puede tenerla vacía)
+        if (!empty($conteo)) {
+            $ids = array_keys($conteo);
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $imgStmt = $db->prepare("SELECT id, image_url FROM productos WHERE id IN ({$placeholders})");
+            $imgStmt->execute($ids);
+            foreach ($imgStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $conteo[(int)$row['id']]['imageUrl'] = $row['image_url'] ?? $conteo[(int)$row['id']]['imageUrl'];
+            }
+        }
+
         usort($conteo, fn($a, $b) => $b['unidadesVendidas'] <=> $a['unidadesVendidas']);
         $topProductos = array_slice(array_values($conteo), 0, 10);
         if (!empty($topProductos)) {

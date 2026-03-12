@@ -23,135 +23,140 @@ if (!$conversationId || $message === '') {
     exit;
 }
 
-// ─── Knowledge base ─────────────────────────────────────────
-$kb = [
-    // Saludos
-    'hola'           => ['response' => "¡Hola! 👋 Bienvenido a **4Bito**, tu tienda de camisetas retro.\n¿En qué puedo ayudarte?",     'qr' => ['Ver productos', 'Envíos', 'Devoluciones']],
-    'buenas'         => ['response' => "¡Buenas! 😊 ¿Qué te trae por aquí hoy?",                                                       'qr' => ['Ver productos', 'Envíos', 'Mi pedido']],
-    'buenos días'    => ['response' => "¡Buenos días! ☀️ ¿En qué te puedo ayudar?",                                                    'qr' => ['Ver productos', 'Ofertas', 'Contactar agente']],
-    'buenas tardes'  => ['response' => "¡Buenas tardes! 🌤️ ¿Qué necesitas?",                                                          'qr' => ['Ver productos', 'Envíos', 'Devoluciones']],
-    'buenas noches'  => ['response' => "¡Buenas noches! 🌙 Estoy aquí para ayudarte.",                                                  'qr' => ['Ver productos', 'Mi pedido', 'Contactar agente']],
-    'hey'            => ['response' => "¡Hey! 👋 ¿Qué necesitas?",                                                                     'qr' => ['Ver productos', 'Envíos', 'Devoluciones']],
-    'saludos'        => ['response' => "¡Saludos! 🤖 Soy el asistente de 4Bito. ¿En qué te ayudo?",                                   'qr' => ['Envíos', 'Devoluciones', 'Tallas']],
+// ══════════════════════════════════════
+// BASE DE CONOCIMIENTO COMPLETA 4BITO
+// ══════════════════════════════════════
+$knowledge = [
 
-    // Envío nacional
-    'envío'          => ['response' => "📦 **Envíos nacionales (España):**\n- Estándar (3–5 días): **3,99 €**\n- Express (24h): **7,99 €**\n- Gratis en pedidos superiores a **50 €**",  'qr' => ['Envío internacional', 'Seguimiento', 'Devoluciones']],
-    'envio'          => ['response' => "📦 **Envíos nacionales (España):**\n- Estándar (3–5 días): **3,99 €**\n- Express (24h): **7,99 €**\n- Gratis en pedidos superiores a **50 €**",  'qr' => ['Envío internacional', 'Seguimiento', 'Devoluciones']],
-    'shipping'       => ['response' => "📦 **Shipping (Spain):**\n- Standard (3–5 days): **€3.99**\n- Express (24h): **€7.99**\n- Free over **€50**",                                   'qr' => ['International', 'Tracking', 'Returns']],
-    'gastos de envío'=> ['response' => "📦 El envío estándar cuesta **3,99 €**. Gratis a partir de **50 €** en pedidos nacionales.",                                                    'qr' => ['Envío express', 'Internacional']],
-    'envío gratis'   => ['response' => "🎉 El envío es **gratuito** en pedidos nacionales superiores a **50 €**.",                                                                       'qr' => ['Ver productos', 'Envío express']],
-    'cuánto tarda'   => ['response' => "⏱️ El envío estándar tarda **3–5 días laborables**. El express llega en **24 horas**.",                                                          'qr' => ['Seguimiento', 'Envío express']],
-    'cuando llega'   => ['response' => "⏱️ El envío estándar tarda **3–5 días laborables**. Puedes hacer seguimiento con el localizador que recibes por email.",                        'qr' => ['Seguimiento', 'Envío express']],
+  // SALUDOS
+  [
+    'keys'     => ['hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey', 'ola', 'hi', 'saludos'],
+    'response' => "👋 ¡Hola! Bienvenido a 4BITO Retro Sports. Soy tu asistente y puedo ayudarte con envíos, tallas, devoluciones, pagos y más. ¿En qué puedo ayudarte hoy?",
+    'qr'       => ['¿Cómo es el envío?', '¿Qué tallas hay?', '¿Cómo devuelvo?', '¿Cómo pago?']
+  ],
 
-    // Internacional
-    'internacional'  => ['response' => "🌍 **Envíos internacionales:**\n- Europa: **9,99 €** (5–10 días)\n- Resto del mundo: **14,99 €** (10–20 días)",                                 'qr' => ['Seguimiento', 'Devoluciones', 'Envío nacional']],
-    'europa'         => ['response' => "🇪🇺 Enviamos a toda Europa por **9,99 €** con llegada estimada en 5–10 días laborables.",                                                       'qr' => ['Internacional', 'Seguimiento']],
-    'fuera de españa'=> ['response' => "🌍 Sí, enviamos a todo el mundo. Europa: **9,99 €** | Resto: **14,99 €**.",                                                                     'qr' => ['Internacional', 'Seguimiento']],
+  // ENVÍO
+  [
+    'keys'     => ['envio', 'envío', 'entrega', 'shipping', 'llega', 'cuanto tarda', 'cuando llega', 'plazo', 'dias'],
+    'response' => "🚚 Tenemos dos opciones de envío:\n\n• **Estándar**: 3-5 días laborables\n• **Express**: 24/48h con coste adicional\n\n¡El envío es COMPLETAMENTE GRATIS en pedidos superiores a 50€! 🎉",
+    'qr'       => ['¿Envían internacionalmente?', '¿Cómo hago seguimiento?']
+  ],
 
-    // Seguimiento
-    'seguimiento'    => ['response' => "🔍 **Seguimiento de pedido:**\nUna vez enviado recibirás un email con el número de seguimiento. También puedes consultarlo en tu área de cliente.",  'qr' => ['Mi pedido', 'Contactar agente']],
-    'localizar'      => ['response' => "🔍 Recibirás el número de seguimiento por email al enviar tu pedido.",                                                                              'qr' => ['Mi pedido', 'Contactar agente']],
-    'número de seguimiento' => ['response' => "🔍 El número de seguimiento se envía por email al procesar el envío.",                                                                    'qr' => ['Mi pedido', 'Contactar agente']],
+  // ENVÍO INTERNACIONAL
+  [
+    'keys'     => ['internacional', 'extranjero', 'europa', 'mundo', 'fuera de españa', 'otro pais', 'otro país'],
+    'response' => "🌍 ¡Sí! Enviamos a toda Europa y a muchos países del mundo. El plazo internacional es de 5-10 días laborables. Los gastos de envío varían según el destino y se calculan automáticamente en el checkout.",
+    'qr'       => ['¿Cuánto tarda el envío?', '¿Cómo hago seguimiento?']
+  ],
 
-    // Devoluciones
-    'devolución'     => ['response' => "↩️ **Política de devoluciones:**\n- Plazo: **30 días** desde la recepción\n- El artículo debe estar **sin usar y con etiquetas**\n- Rellena el formulario en tu área de cliente\n- El reembolso se gestiona en 5–7 días",   'qr' => ['Cambio de talla', 'Contactar agente', 'Política completa']],
-    'devolucion'     => ['response' => "↩️ **Política de devoluciones:**\n- Plazo: **30 días** desde la recepción\n- El artículo debe estar sin usar y con etiquetas",                    'qr' => ['Cambio de talla', 'Contactar agente']],
-    'devolver'       => ['response' => "↩️ Tienes **30 días** para devolver tu pedido. Inicia el proceso desde tu área de cliente.",                                                       'qr' => ['Cambio de talla', 'Contactar agente']],
-    'reembolso'      => ['response' => "💳 El reembolso se tramita en **5–7 días laborables** una vez recibida la devolución.",                                                           'qr' => ['Devoluciones', 'Contactar agente']],
+  // SEGUIMIENTO DE PEDIDO
+  [
+    'keys'     => ['seguimiento', 'tracking', 'donde esta', 'dónde está', 'estado pedido', 'mi pedido', 'numero pedido', 'número pedido'],
+    'response' => "📦 Puedes ver el estado de tu pedido en:\n\n1. Ve a tu **Perfil** (icono arriba derecha)\n2. Haz clic en **Mis Pedidos**\n3. Selecciona el pedido para ver el detalle\n\n¿Tienes el número de pedido? Dímelo y te ayudo.",
+    'qr'       => ['¿Cuánto tarda el envío?', 'Quiero hablar con un agente']
+  ],
 
-    // Cambio de talla
-    'cambio de talla'=> ['response' => "🔄 **Cambio de talla:**\nDispones de **30 días** para solicitar un cambio. Contacta con nosotros indicando tu pedido y la talla deseada. Si hay stock, te la enviamos gratis.",   'qr' => ['Tallas disponibles', 'Devoluciones', 'Contactar agente']],
-    'cambiar talla'  => ['response' => "🔄 Puedes cambiar la talla en los primeros **30 días**. Escríbenos con el número de pedido y la talla que necesitas.",                                                              'qr' => ['Tallas disponibles', 'Contactar agente']],
-    'talla incorrecta'=> ['response' => "🔄 Lamentamos el inconveniente. Escríbenos tu número de pedido y la talla correcta y lo gestionamos.",                                                                            'qr' => ['Contactar agente', 'Devoluciones']],
+  // DEVOLUCIÓN
+  [
+    'keys'     => ['devolucion', 'devolución', 'devolver', 'cambio', 'cambiar', 'reembolso', 'quiero devolver', 'no me gusta', 'no me vale'],
+    'response' => "↩️ Las devoluciones son muy sencillas:\n\n• **Plazo**: 30 días desde la recepción\n• **Coste**: GRATIS, sin coste para ti\n• **Proceso**: Perfil → Mis Pedidos → Solicitar devolución\n• **Reembolso**: 3-5 días hábiles tras recibir el artículo",
+    'qr'       => ['¿Puedo cambiar la talla?', '¿Qué pasa si está dañado?']
+  ],
 
-    // Tallas
-    'talla'          => ['response' => "📏 **Guía de tallas:**\n- XS: pecho 82–87 cm\n- S: pecho 88–93 cm\n- M: pecho 94–99 cm\n- L: pecho 100–105 cm\n- XL: pecho 106–113 cm\n- XXL: pecho 114–121 cm\n\n¿Quieres que te ayude a elegir?",   'qr' => ['Cambio de talla', 'Stock', 'Ver productos']],
-    'tallas'         => ['response' => "📏 Disponemos de tallas de la **XS a la XXL**. Cada producto tiene su tabla de medidas en la página de producto.",                                                                                         'qr' => ['Guía de tallas', 'Cambio de talla']],
-    'qué talla'      => ['response' => "📏 Para elegir tu talla mide el contorno de pecho y consulta nuestra guía:\nXS:<88cm | S:88–93 | M:94–99 | L:100–105 | XL:106–113 | XXL:>113",                                                        'qr' => ['Cambio de talla', 'Ver productos']],
+  // CAMBIO DE TALLA
+  [
+    'keys'     => ['cambiar talla', 'cambio talla', 'otra talla', 'talla incorrecta', 'talla mal', 'me queda mal'],
+    'response' => "📏 Para cambiar la talla:\n\n1. Solicita la devolución del artículo actual\n2. Realiza un nuevo pedido con la talla correcta\n\nEl reembolso del primer pedido llega en 3-5 días. Si tienes dudas sobre tu talla antes de comprar, consulta nuestra guía de tallas en cada producto.",
+    'qr'       => ['¿Cómo devuelvo?', '¿Cuál es mi talla?']
+  ],
 
-    // Stock
-    'stock'          => ['response' => "📊 El stock se actualiza en tiempo real en nuestra web. Si un producto está **agotado** puedes activar el **aviso de reposición** en su página.",   'qr' => ['Ver productos', 'Contactar agente']],
-    'agotado'        => ['response' => "😔 Si el artículo está agotado, puedes activar el **aviso de reposición** en la página del producto para ser el primero en enterarte.",             'qr' => ['Ver productos', 'Contactar agente']],
-    'hay stock'      => ['response' => "📊 La disponibilidad se muestra en tiempo real en cada producto. Puedes consultarla directamente en la tienda.",                                     'qr' => ['Ver productos']],
-    'reponer'        => ['response' => "🔔 Activa el **aviso de reposición** en la página del producto y te avisaremos por email.",                                                         'qr' => ['Ver productos', 'Contactar agente']],
+  // GUÍA DE TALLAS
+  [
+    'keys'     => ['talla', 'tallaje', 'medida', 'tamaño', 'size', 'que talla', 'qué talla', 'cual es mi talla', 'cuál es mi talla', 's m l xl'],
+    'response' => "📐 Disponemos de tallas S, M, L y XL. Nuestras camisetas siguen **tallaje europeo estándar**:\n\n• S → pecho 86-91cm\n• M → pecho 91-96cm\n• L → pecho 96-101cm\n• XL → pecho 101-106cm\n\nSi estás entre dos tallas, recomendamos pedir la más grande para un ajuste cómodo.",
+    'qr'       => ['¿Cómo devuelvo si no me vale?', '¿Hay stock de mi talla?']
+  ],
 
-    // Pago
-    'pago'           => ['response' => "💳 **Métodos de pago aceptados:**\n- Tarjeta de crédito/débito (Visa, Mastercard)\n- PayPal\n- Bizum\n- Transferencia bancaria\n\nTodas las transacciones son seguras (SSL).", 'qr' => ['Envíos', 'Devoluciones']],
-    'pagar'          => ['response' => "💳 Aceptamos **tarjeta, PayPal, Bizum y transferencia**. El pago es 100% seguro con cifrado SSL.",                                                                              'qr' => ['Envíos', 'Devoluciones']],
-    'tarjeta'        => ['response' => "💳 Aceptamos **Visa, Mastercard y American Express**.",                                                                                                                         'qr' => ['PayPal', 'Bizum', 'Envíos']],
-    'paypal'         => ['response' => "✅ Sí, aceptamos **PayPal** como método de pago.",                                                                                                                              'qr' => ['Otros métodos de pago', 'Envíos']],
-    'bizum'          => ['response' => "✅ Sí, aceptamos **Bizum** como método de pago rápido.",                                                                                                                       'qr' => ['Otros métodos de pago', 'Envíos']],
-    'seguro'         => ['response' => "🔒 Sí, todas las transacciones están protegidas con **cifrado SSL de 256 bits**.",                                                                                             'qr' => ['Métodos de pago', 'Envíos']],
+  // STOCK
+  [
+    'keys'     => ['stock', 'disponible', 'agotado', 'queda', 'hay existencias', 'tienen', 'queda alguno'],
+    'response' => "🏷️ El stock se actualiza en tiempo real en cada producto. Si una talla está **agotada** puedes activar el aviso \"Notificarme\" y te avisaremos por email cuando vuelva a estar disponible.",
+    'qr'       => ['¿Cuándo llega nuevo stock?', 'Quiero ver los productos']
+  ],
 
-    // Descuentos
-    'descuento'      => ['response' => "🏷️ **Descuentos activos:**\n- Código **BIENVENIDO10**: 10% en tu primer pedido\n- Envío gratis en pedidos +50 €\n- Ofertas especiales en la sección *Vitrina*",  'qr' => ['Ver ofertas', 'Código promocional', 'Ver productos']],
-    'descuentos'     => ['response' => "🏷️ ¡Tenemos descuentos! Usa **BIENVENIDO10** para un 10% en tu primer pedido. Y envío gratis a partir de 50 €.",                                                  'qr' => ['Ver ofertas', 'Ver productos']],
-    'oferta'         => ['response' => "🔥 Consulta nuestra sección de ofertas en la **Vitrina** para ver todos los artículos con descuento.",                                                             'qr' => ['Ver Vitrina', 'Descuentos']],
-    'cupón'          => ['response' => "🏷️ Ingresa tu código de cupón en el paso de pago del carrito.",                                                                                                  'qr' => ['Descuentos activos', 'Ver productos']],
-    'código'         => ['response' => "🏷️ Puedes usar el código **BIENVENIDO10** para obtener un **10% de descuento** en tu primer pedido.",                                                            'qr' => ['Ver productos', 'Cómo usar el código']],
+  // PAGO
+  [
+    'keys'     => ['pago', 'pagar', 'tarjeta', 'paypal', 'como pago', 'cómo pago', 'metodo', 'método', 'cobro', 'seguro pago'],
+    'response' => "💳 Aceptamos los siguientes métodos de pago:\n\n• **Tarjeta**: Visa, Mastercard y Amex\n• **PayPal**: rápido y seguro\n\nTodos los pagos están protegidos con encriptación SSL. Nunca almacenamos datos de tarjeta.",
+    'qr'       => ['¿Hay descuentos?', '¿Puedo pagar a plazos?']
+  ],
 
-    // Productos
-    'camiseta'       => ['response' => "👕 Tenemos camisetas retro de fútbol de las décadas 70s, 80s, 90s y 2000s. ¡Cada una es única!",  'qr' => ['Ver por década', 'Ver por equipo', 'Tallas']],
-    'camisetas'      => ['response' => "👕 Nuestra colección incluye camisetas retro de los mejores equipos del mundo.",                    'qr' => ['Ver colección', 'Por década', 'Tallas']],
-    'producto'       => ['response' => "🛒 Puedes explorar toda nuestra colección en la tienda. ¿Buscas algo en concreto?",               'qr' => ['Ver colección', 'Por equipo', 'Ofertas']],
-    'productos'      => ['response' => "🛒 Tenemos una amplia colección de camisetas retro. ¿Qué temporada o equipo buscas?",             'qr' => ['Ver colección', 'Por década', 'Más vendidos']],
-    'retro'          => ['response' => "⚽ Somos especialistas en camisetas retro de fútbol. Tenemos piezas de los 70s hasta los 2000s.", 'qr' => ['Ver colección', 'Por década', 'Más vendidos']],
-    'precio'         => ['response' => "💰 Los precios varían según el artículo y la exclusividad. Consulta cada producto en la tienda.", 'qr' => ['Ver colección', 'Ofertas']],
-    'colección'      => ['response' => "🏆 Nuestra colección está organizada por décadas y equipos. ¡Hay piezas únicas que no encontrarás en otro sitio!",  'qr' => ['Ver 70s', 'Ver 80s', 'Ver 90s']],
+  // DESCUENTOS Y OFERTAS
+  [
+    'keys'     => ['descuento', 'cupon', 'cupón', 'oferta', 'promocion', 'promoción', 'codigo', 'código', 'barato', 'rebaja', 'sale'],
+    'response' => "🎟️ ¡Tenemos varias formas de ahorrar!\n\n• Descuentos automáticos de hasta **50%** en productos seleccionados\n• Envío gratis en pedidos +50€\n• Códigos de descuento: introdúcelos en el checkout\n\n¿Tienes un código? Aplícalo en el paso 2 del checkout.",
+    'qr'       => ['¿Cómo uso el código?', '¿Hay más ofertas?']
+  ],
 
-    // Cuenta
-    'cuenta'         => ['response' => "👤 Desde tu **área de cliente** puedes:\n- Ver tus pedidos\n- Gestionar devoluciones\n- Cambiar datos personales\n- Activar avisos de stock",  'qr' => ['Mis pedidos', 'Cambiar contraseña', 'Contactar agente']],
-    'registro'       => ['response' => "✅ Registrarse es gratis y te permite hacer seguimiento de pedidos, gestionar devoluciones y recibir ofertas exclusivas.",                        'qr' => ['Crear cuenta', 'Ver productos']],
-    'contraseña'     => ['response' => "🔑 Puedes cambiar tu contraseña desde **Ajustes > Seguridad** en tu área de cliente, o usar *¿Olvidaste tu contraseña?* en el login.",         'qr' => ['Área de cliente', 'Contactar agente']],
-    'olvidé'         => ['response' => "🔑 Usa el enlace **¿Olvidaste tu contraseña?** en la página de login para restablecerla por email.",                                            'qr' => ['Iniciar sesión', 'Contactar agente']],
+  // PRODUCTOS / COLECCIÓN
+  [
+    'keys'     => ['productos', 'coleccion', 'colección', 'camiseta', 'camisetas', 'catalogo', 'catálogo', 'ver', 'busco', 'tienen'],
+    'response' => "⚽ Nuestra colección incluye camisetas retro de las décadas:\n\n• 🕹️ **70s** — Clásicos históricos\n• 📼 **80s** — La era dorada\n• 💽 **90s** — Diseños icónicos\n• 📀 **2000s** — El fútbol moderno\n\nExplora toda la colección en el menú superior o usa los filtros.",
+    'qr'       => ['¿Qué tallas hay?', '¿Hay descuentos?']
+  ],
 
-    // Artículo dañado / incorrecto
-    'dañado'         => ['response' => "😟 ¡Lo sentimos mucho! Si recibiste un artículo dañado, contáctanos con **fotos del producto y del embalaje** y lo solucionamos de inmediato.",  'qr' => ['Contactar agente', 'Devoluciones']],
-    'roto'           => ['response' => "😟 Lamentamos mucho el inconveniente. Escríbenos con el número de pedido y fotos del artículo dañado.",                                           'qr' => ['Contactar agente', 'Devoluciones']],
-    'incorrecto'     => ['response' => "😟 Si recibiste el artículo equivocado, contáctanos con el número de pedido y te enviamos el correcto lo antes posible.",                        'qr' => ['Contactar agente', 'Devoluciones']],
-    'equivocado'     => ['response' => "😟 ¡Disculpa! Escríbenos con tu pedido y lo resolvemos rápidamente.",                                                                            'qr' => ['Contactar agente', 'Devoluciones']],
+  // CUENTA / REGISTRO
+  [
+    'keys'     => ['cuenta', 'registro', 'registrar', 'crear cuenta', 'login', 'contraseña', 'olvidé', 'olvidé mi', 'acceder'],
+    'response' => "👤 Para gestionar tu cuenta:\n\n• **Registrarse**: botón \"Admin/Usuario\" arriba a la derecha\n• **Recuperar contraseña**: en la pantalla de login → \"¿Olvidaste tu contraseña?\"\n• **Ver pedidos**: Perfil → Mis Pedidos\n\n¿Tienes algún problema concreto con tu cuenta?",
+    'qr'       => ['No puedo acceder', 'Quiero hablar con un agente']
+  ],
 
-    // Despedida
-    'gracias'        => ['response' => "😊 ¡A ti! Si necesitas más ayuda, aquí estaré. ¡Que disfrutes tu compra!",  'qr' => ['Ver productos', 'Seguimiento']],
-    'adiós'          => ['response' => "👋 ¡Hasta pronto! Ha sido un placer ayudarte.",                              'qr' => ['Ver productos']],
-    'adios'          => ['response' => "👋 ¡Hasta luego! Cualquier duda, ya sabes dónde encontrarnos.",              'qr' => ['Ver productos']],
-    'hasta luego'    => ['response' => "👋 ¡Hasta pronto! Que tengas un buen día.",                                  'qr' => ['Ver productos']],
-    'bye'            => ['response' => "👋 Bye! Come back anytime.",                                                 'qr' => ['Ver productos']],
-    'perfecto'       => ['response' => "😊 ¡Genial! ¿Necesitas algo más?",                                          'qr' => ['Ver productos', 'Envíos', 'Devoluciones']],
-    'ok'             => ['response' => "😊 ¡Perfecto! ¿Hay algo más en lo que pueda ayudarte?",                     'qr' => ['Ver productos', 'Envíos']],
+  // PRODUCTO DAÑADO O INCORRECTO
+  [
+    'keys'     => ['dañado', 'roto', 'mal estado', 'incorrecto', 'equivocado', 'no es el que pedi', 'no es lo que pedí', 'error en pedido'],
+    'response' => "😟 ¡Lo sentimos mucho! Si has recibido un producto dañado o incorrecto:\n\n1. Ve a Perfil → Mis Pedidos → Solicitar devolución\n2. Selecciona el motivo: \"Producto dañado\" o \"Producto incorrecto\"\n3. Sube una foto del problema\n\nEn estos casos el envío de devolución y el reembolso son inmediatos con prioridad máxima.",
+    'qr'       => ['Quiero hablar con un agente', '¿Cómo hago la devolución?']
+  ],
+
+  // DESPEDIDA
+  [
+    'keys'     => ['gracias', 'adios', 'adiós', 'hasta luego', 'ok gracias', 'perfecto gracias', 'genial', 'vale gracias', 'entendido'],
+    'response' => "😊 ¡De nada! Ha sido un placer ayudarte. Si necesitas cualquier otra cosa estoy aquí 24/7. ¡Que disfrutes tu compra retro! ⚽🏆",
+    'qr'       => []
+  ],
 ];
 
-$fallbackResponses = [
-    "Hmm, no estoy seguro de entenderte bien. 🤔 ¿Puedes reformular tu pregunta?\nSi lo prefieres, puedo conectarte con un **agente humano** que te ayudará mejor.",
-    "No tengo una respuesta exacta a eso. 🤖 Prueba con alguna de estas opciones o pide ayuda a un agente.",
-    "Esa pregunta se me escapa un poco. 😅 ¿Quieres hablar con uno de nuestros agentes?",
-];
-$fallbackQr = ['Envíos', 'Devoluciones', 'Tallas', 'Contactar agente'];
-
-// ─── Keyword scoring ────────────────────────────────────────
-$msgLower = mb_strtolower($message, 'UTF-8');
-$best      = null;
+// ══════════════════════════════════════
+// MOTOR DE BÚSQUEDA DE KEYWORDS
+// ══════════════════════════════════════
+$msgLower  = mb_strtolower($message, 'UTF-8');
+$bestMatch = null;
 $bestScore = 0;
 
-foreach ($kb as $keyword => $data) {
-    $kl = mb_strtolower($keyword, 'UTF-8');
-    if (mb_strpos($msgLower, $kl) !== false) {
-        $score = mb_strlen($kl);
-        if ($score > $bestScore) {
-            $bestScore = $score;
-            $best = $data;
-        }
+foreach ($knowledge as $item) {
+  $score = 0;
+  foreach ($item['keys'] as $key) {
+    if (mb_strpos($msgLower, $key) !== false) {
+      // Keyword más larga = más específica = mayor puntuación
+      $score = max($score, mb_strlen($key));
     }
+  }
+  if ($score > $bestScore) {
+    $bestScore = $score;
+    $bestMatch = $item;
+  }
 }
 
+// Respuesta fallback si no encuentra nada
 $source = 'keyword';
-if ($bestScore < 3 || $best === null) {
-    $source   = 'fallback';
-    $response = $fallbackResponses[array_rand($fallbackResponses)];
-    $qr       = $fallbackQr;
+if (!$bestMatch || $bestScore < 3) {
+  $source    = 'fallback';
+  $response  = "🤔 No he entendido bien tu consulta. Puedo ayudarte con envíos, tallas, devoluciones, pagos, pedidos y productos.\n\n¿Quieres que te conecte con un agente para una respuesta más personalizada?";
+  $qr        = ['¿Cómo es el envío?', '¿Qué tallas hay?', '¿Cómo devuelvo?', 'Hablar con agente'];
 } else {
-    $response = $best['response'];
-    $qr       = $best['qr'];
+  $response  = $bestMatch['response'];
+  $qr        = $bestMatch['qr'];
 }
 
 // ─── Save bot message to DB ──────────────────────────────────
@@ -165,13 +170,12 @@ try {
     $stmt->execute([$conversationId, $response]);
     $messageId = (int)$conn->lastInsertId();
 
-    // Update conversation updated_at
     $up = $conn->prepare("UPDATE chat_conversations SET updated_at=NOW() WHERE id=?");
     $up->execute([$conversationId]);
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Error interno del servidor']);
     exit;
 }
 
