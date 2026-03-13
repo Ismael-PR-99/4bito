@@ -418,6 +418,63 @@ input:-webkit-autofill:active {
 
 .register-link a:hover::after { width: 100%; }
 
+/* ---- Social bar bajo la card ---- */
+.social-bar {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 28px;
+}
+
+.social-orb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.3s, background 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  animation: orbFloat 3s ease-in-out infinite;
+  position: relative;
+}
+
+.social-orb:nth-child(1) { animation-delay: 0s; }
+.social-orb:nth-child(2) { animation-delay: 0.4s; }
+.social-orb:nth-child(3) { animation-delay: 0.8s; }
+
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-7px); }
+}
+
+.social-orb:hover {
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.18);
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.4), 0 0 40px rgba(var(--accent-rgb), 0.15);
+  animation-play-state: paused;
+  transform: translateY(-4px) scale(1.12);
+}
+
+.social-orb::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--accent-rgb), 0);
+  transition: border-color 0.3s, inset 0.3s;
+}
+
+.social-orb:hover::after {
+  inset: -6px;
+  border-color: rgba(var(--accent-rgb), 0.2);
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 480px) {
   .login-card { padding: 2rem 1.2rem; }
