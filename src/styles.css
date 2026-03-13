@@ -29,31 +29,31 @@
 :root,
 [data-theme="light"] {
   /* Fondos */
-  --color-bg:            #F2F5EA;
+  --color-bg:            #F0EDEE;
   --color-surface:       #FFFFFF;
-  --color-surface-2:     #EBF0E4;
-  --color-surface-3:     #E0E8D8;
+  --color-surface-2:     #E8E3E6;
+  --color-surface-3:     #DAD2D8;
   /* Acentos */
-  --color-primary:       #E75A7C;
-  --color-primary-light: #F07090;
-  --color-primary-glow:  rgba(231, 90, 124, 0.25);
-  --color-secondary:     #2C363F;
+  --color-primary:       #0F8B8D;
+  --color-primary-light: #11A3A5;
+  --color-primary-glow:  rgba(15, 139, 141, 0.25);
+  --color-secondary:     #143642;
   /* Texto */
-  --color-text:          #2C363F;
-  --color-text-muted:    #5A6E5A;
-  --color-text-faint:    #9AAA9A;
+  --color-text:          #143642;
+  --color-text-muted:    #3D5A63;
+  --color-text-faint:    #8A9DA5;
   /* Bordes */
-  --color-border:        #D4DBC8;
-  --color-border-light:  #E2EAD8;
+  --color-border:        #C8BFC3;
+  --color-border-light:  #DAD2D8;
   /* Estado */
-  --color-success:       #4A7C59;
-  --color-error:         #C0392B;
-  --color-warning:       #B8860B;
+  --color-success:       #0F8B8D;
+  --color-error:         #A8201A;
+  --color-warning:       #EC9A29;
   /* Sombras */
-  --shadow-sm:  0 1px 3px rgba(44,54,63,0.10);
-  --shadow-md:  0 4px 16px rgba(44,54,63,0.15);
-  --shadow-lg:  0 8px 32px rgba(44,54,63,0.20);
-  --shadow-glow: 0 0 20px rgba(231,90,124,0.30);
+  --shadow-sm:  0 1px 3px rgba(20,54,66,0.10);
+  --shadow-md:  0 4px 16px rgba(20,54,66,0.12);
+  --shadow-lg:  0 8px 32px rgba(20,54,66,0.18);
+  --shadow-glow: 0 0 20px rgba(15,139,141,0.30);
   /* Radios */
   --radius-sm:  4px;
   --radius-md:  8px;
@@ -68,7 +68,7 @@
   --font-display: 'Barlow Condensed', sans-serif;
   --font-body:    'Barlow Condensed', 'Inter', sans-serif;
 
-  /* Alias legado (para que los componentes no migrados no se rompan) */
+  /* Alias legado */
   --bg-primary:    var(--color-bg);
   --bg-secondary:  var(--color-surface);
   --bg-card:       var(--color-surface);
@@ -80,34 +80,34 @@
   --text-muted:    var(--color-text-faint);
   --accent:        var(--color-primary);
   --accent-hover:  var(--color-primary-light);
-  --accent-rgb:    231, 90, 124;
+  --accent-rgb:    15, 139, 141;
   --shadow:        var(--shadow-md);
 }
 
 /* ── Variables de tema — Oscuro ─────────────────────────── */
 [data-theme="dark"] {
-  --color-bg:            #06070E;
-  --color-surface:       #0D1117;
-  --color-surface-2:     #131920;
-  --color-surface-3:     #1A2332;
-  --color-primary:       #29524A;
-  --color-primary-light: #3D7A6F;
-  --color-primary-glow:  rgba(41, 82, 74, 0.30);
-  --color-secondary:     #E0E0E0;
-  --color-text:          #FFFFFF;
-  --color-text-muted:    #E0E0E0;
-  --color-text-faint:    #BBBBBB;
-  --color-border:        #1E2D28;
-  --color-border-light:  #253530;
-  --color-success:       #29524A;
-  --color-error:         #C0392B;
-  --color-warning:       #B8860B;
+  --color-bg:            #0C1E27;
+  --color-surface:       #143642;
+  --color-surface-2:     #1A4350;
+  --color-surface-3:     #1F4F5E;
+  --color-primary:       #14AAAD;
+  --color-primary-light: #1CC4C7;
+  --color-primary-glow:  rgba(20, 170, 173, 0.30);
+  --color-secondary:     #DAD2D8;
+  --color-text:          #F0EDEE;
+  --color-text-muted:    #DAD2D8;
+  --color-text-faint:    #8AA0A8;
+  --color-border:        #1E4F5E;
+  --color-border-light:  #24596A;
+  --color-success:       #14AAAD;
+  --color-error:         #C9342D;
+  --color-warning:       #EC9A29;
   --shadow-sm:  0 1px 3px rgba(0,0,0,0.40);
   --shadow-md:  0 4px 16px rgba(0,0,0,0.50);
   --shadow-lg:  0 8px 32px rgba(0,0,0,0.60);
-  --shadow-glow: 0 0 20px rgba(41,82,74,0.40);
+  --shadow-glow: 0 0 20px rgba(20,170,173,0.40);
   --overlay: rgba(0, 0, 0, 0.75);
-  --accent-rgb: 41, 82, 74;
+  --accent-rgb: 20, 170, 173;
 }
 
 /* ── Reset & Base ───────────────────────────────────────── */
@@ -238,7 +238,7 @@ p, span, a, li {
   background: var(--color-error);
   color: #fff;
 }
-.btn-danger:hover { background: #A93226; }
+.btn-danger:hover { background: #8A1A15; }
 
 .btn-sm { padding: 8px 16px; font-size: 11px; }
 .btn-lg { padding: 16px 32px; font-size: 15px; }

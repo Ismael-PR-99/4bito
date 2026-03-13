@@ -33,7 +33,7 @@
   94% {
     clip-path: inset(50% 0 20% 0);
     transform: translateX(6px);
-    color: #ffd600;
+    color: #EC9A29;
   }
   96% {
     clip-path: inset(30% 0 40% 0);
@@ -686,14 +686,14 @@
 }
 
 .h1-line--2::before {
-  color: #0ff;
+  color: #EC9A29;
   animation: rgbSplitLeft 4s ease-in-out infinite;
   opacity: 0.5;
   mix-blend-mode: screen;
 }
 
 .h1-line--2::after {
-  color: #f0f;
+  color: #A8201A;
   animation: rgbSplitRight 4s ease-in-out infinite;
   opacity: 0.5;
   mix-blend-mode: screen;

@@ -168,7 +168,7 @@
 }
 .cf-input:not(:focus) { transform: scale(1); }
 .cf-group--valid .cf-input { border-color: rgba(var(--accent-rgb),0.2); }
-.cf-group--invalid .cf-input { border-color: rgba(255,68,68,0.2); }
+.cf-group--invalid .cf-input { border-color: rgba(168,32,26,0.2); }
 
 .cf-icon {
   position: absolute; right: 14px;

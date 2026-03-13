@@ -120,8 +120,8 @@
 .btn-logout {
   padding: 8px 12px;
   background: transparent;
-  border: 1px solid rgba(255, 68, 68, 0.3);
-  color: #ff6666;
+  border: 1px solid rgba(168, 32, 26, 0.3);
+  color: #C9342D;
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 700;
@@ -131,7 +131,7 @@
 }
 
 .btn-logout:hover {
-  background: rgba(255, 68, 68, 0.1);
+  background: rgba(168, 32, 26, 0.1);
   color: var(--color-error);
 }
 
@@ -329,7 +329,7 @@
 .tab-badge.procesando { background: rgba(240, 192, 64, 0.2); color: #f0c040; }
 .tab-badge.enviado    { background: rgba(74, 158, 255, 0.2); color: #4a9eff; }
 .tab-badge.entregado  { background: rgba(var(--accent-rgb), 0.2); color: var(--accent); }
-.tab-badge.cancelado  { background: rgba(255, 68, 68, 0.2); color: var(--color-error); }
+.tab-badge.cancelado  { background: rgba(168, 32, 26, 0.2); color: var(--color-error); }
 
 /* ── Tabla ────────────────────────────────────────────── */
 .table-wrap { overflow-x: auto; }
@@ -438,8 +438,8 @@
 
 .estado-badge[data-estado="cancelado"] {
   color: var(--color-error);
-  background: rgba(255, 68, 68, 0.1);
-  border: 1px solid rgba(255, 68, 68, 0.3);
+  background: rgba(168, 32, 26, 0.1);
+  border: 1px solid rgba(168, 32, 26, 0.3);
 }
 
 /* ── Dropdown acciones ────────────────────────────────── */
@@ -836,7 +836,7 @@
   letter-spacing: 0.08em;
 }
 
-.talla-badge.agotado { background: rgba(255, 68, 68, 0.15); color: var(--color-error); }
+.talla-badge.agotado { background: rgba(168, 32, 26, 0.15); color: var(--color-error); }
 .talla-badge.bajo    { background: rgba(240, 192, 64, 0.15); color: #f0c040; }
 
 .stock-global {
@@ -849,7 +849,7 @@
   border-radius: 2px;
 }
 
-.stock-global.agotado { background: rgba(255, 68, 68, 0.15); color: var(--color-error); border: 1px solid rgba(255, 68, 68, 0.3); }
+.stock-global.agotado { background: rgba(168, 32, 26, 0.15); color: var(--color-error); border: 1px solid rgba(168, 32, 26, 0.3); }
 .stock-global.bajo    { background: rgba(240, 192, 64, 0.15); color: #f0c040; border: 1px solid rgba(240, 192, 64, 0.3); }
 
 .prod-actions {
@@ -880,7 +880,7 @@
 .btn-edit-stock:hover { background: rgba(var(--accent-rgb), 0.08); color: var(--accent); }
 
 .btn-delete { color: var(--text-muted); }
-.btn-delete:hover { background: rgba(255, 68, 68, 0.1); color: var(--color-error); }
+.btn-delete:hover { background: rgba(168, 32, 26, 0.1); color: var(--color-error); }
 
 /* ══════════════════════════════════════════════════════════
    SECCIÓN 4 · VENTAS
@@ -1250,8 +1250,8 @@
 
 .btn-danger {
   padding: 10px 20px;
-  background: rgba(255, 68, 68, 0.1);
-  border: 1px solid rgba(255, 68, 68, 0.4);
+  background: rgba(168, 32, 26, 0.1);
+  border: 1px solid rgba(168, 32, 26, 0.4);
   color: var(--color-error);
   font-family: var(--font-body);
   font-size: 0.8rem;
@@ -1261,7 +1261,7 @@
   transition: background 0.2s;
 }
 
-.btn-danger:hover { background: rgba(255, 68, 68, 0.2); }
+.btn-danger:hover { background: rgba(168, 32, 26, 0.2); }
 
 /* ── Inputs comunes ───────────────────────────────────── */
 .input-search,

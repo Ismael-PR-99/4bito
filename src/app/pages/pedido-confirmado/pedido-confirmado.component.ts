@@ -44,7 +44,7 @@ export class PedidoConfirmadoComponent implements OnInit {
   launchConfetti(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const colors  = ['#29524A', '#94A187', '#E75A7C', '#F2F5EA', '#2C363F', '#FFFFFF'];
+    const colors  = ['#0F8B8D', '#EC9A29', '#A8201A', '#DAD2D8', '#143642', '#FFFFFF'];
     const shapes  = ['square', 'circle', 'ribbon'];
     const count   = window.innerWidth < 768 ? 40 : 70;
 

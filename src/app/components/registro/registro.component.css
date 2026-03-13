@@ -137,7 +137,7 @@
 .logo-img {
   height: 52px;
   width: auto;
-  filter: drop-shadow(0 0 12px rgba(0,255,135,.5));
+  filter: drop-shadow(0 0 12px rgba(15,139,141,.5));
   animation: logoPulse 3s ease-in-out infinite alternate;
 }
 
@@ -168,14 +168,14 @@
 }
 
 .login-title::before {
-  color: #0ff;
+  color: #EC9A29;
   clip-path: polygon(0 0, 100% 0, 100% 40%, 0 40%);
   animation: glitchTop 6s infinite;
   opacity: 0;
 }
 
 .login-title::after {
-  color: #f0f;
+  color: #A8201A;
   clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
   animation: glitchBot 6s infinite;
   opacity: 0;
@@ -183,8 +183,8 @@
 
 @keyframes glitch {
   0%, 90%, 100% { text-shadow: 0 0 20px rgba(var(--accent-rgb),.6); }
-  92% { text-shadow: -3px 0 #0ff, 3px 0 #f0f; }
-  94% { text-shadow: 3px 0 #0ff, -3px 0 #f0f; }
+  92% { text-shadow: -3px 0 #EC9A29, 3px 0 #A8201A; }
+  94% { text-shadow: 3px 0 #EC9A29, -3px 0 #A8201A; }
   96% { text-shadow: 0 0 20px rgba(var(--accent-rgb),.6); }
 }
 
