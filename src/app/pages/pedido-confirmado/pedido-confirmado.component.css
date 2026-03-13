@@ -24,7 +24,14 @@
 }
 
 @media (max-width: 768px) {
+  .confirmado-page { padding: 40px 16px; }
   .ball-container { font-size: 60px; }
+  .conf-order-num { min-width: auto; width: 100%; max-width: 300px; padding: 14px 20px; }
+}
+
+@media (max-width: 480px) {
+  .ball-container { font-size: 48px; }
+  .conf-title { letter-spacing: 0.08em; }
 }
 
 /* ── Contenido principal ── */

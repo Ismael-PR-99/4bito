@@ -478,9 +478,17 @@ input:-webkit-autofill:active {
 }
 
 /* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .login-bg { padding: 24px 16px; }
+  .auth-card { padding: 2rem 1.5rem; max-width: 100%; }
+}
+
 @media (max-width: 480px) {
   .login-card { padding: 2rem 1.2rem; }
   .login-title { font-size: 1.1rem; letter-spacing: 2px; }
+  .auth-card { padding: 1.5rem 1rem; }
+  .auth-input { min-height: 44px; font-size: 14px; }
+  .auth-btn { min-height: 48px; }
 }
 
 

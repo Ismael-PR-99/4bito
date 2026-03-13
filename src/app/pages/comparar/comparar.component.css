@@ -110,7 +110,15 @@
 }
 .btn-cart-compare:hover { opacity: 0.85; }
 
+@media (max-width: 768px) {
+  .comparar-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+}
+
 @media (max-width: 640px) {
-  .comparar-header { flex-direction: column; align-items: flex-start; }
-  .product-thumb { width: 100px; height: 120px; }
+  .product-thumb { width: 90px; height: 110px; }
+}
+
+@media (max-width: 480px) {
+  .product-thumb { width: 70px; height: 90px; }
+  .btn-cart-compare { max-width: 100%; font-size: 11px; }
 }

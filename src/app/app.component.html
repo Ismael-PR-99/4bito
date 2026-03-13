@@ -4,18 +4,23 @@
 <!-- Header -->
 <header class="header" role="banner">
   <div class="container">
-    <div class="logo">
+    <a class="logo" [routerLink]="['/']">
       <img src="logo.svg" alt="4bito logo" class="logo-img" width="28" height="28">
-      <h1>{{ title }}</h1>
-    </div>
-    <nav class="nav" role="navigation" aria-label="Navegación principal">
+        <h1 class="hide-mobile">{{ title }}</h1>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="nav nav--desktop" role="navigation" aria-label="Navegación principal">
       <a [routerLink]="['/categoria', 'retro-selecciones']" routerLinkActive="active">FÚTBOL</a>
       <a [routerLink]="['/categoria', 'retro-chaquetas']" routerLinkActive="active">CASUAL</a>
       <a [routerLink]="['/categoria', 'retro-objetos']" routerLinkActive="active">OBJETOS</a>
       <a [routerLink]="['/']" [routerLinkActiveOptions]="{exact:true}" routerLinkActive="active">NOVEDADES</a>
+    </nav>
 
-      <!-- Toggle tema oscuro/claro -->
-      <label class="theme-toggle" [title]="(themeService.isDark$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+    <!-- Iconos siempre visibles -->
+    <div class="header-actions">
+      <!-- Toggle tema -->
+      <label class="theme-toggle hide-mobile" [title]="(themeService.isDark$ | async) ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
         <input type="checkbox"
                [checked]="themeService.isDark$ | async"
                (change)="themeService.toggle()"
@@ -30,21 +35,18 @@
         <span class="cart-badge" *ngIf="(carritoCount$ | async)! > 0">{{ carritoCount$ | async }}</span>
       </button>
 
-      <!-- Wishlist icon -->
-      <a *ngIf="loggedIn" [routerLink]="['/wishlist']" class="cart-btn wishlist-btn" title="Lista de deseos" aria-label="Lista de deseos">
+      <a [routerLink]="['/wishlist']" class="cart-btn wishlist-btn" title="Lista de deseos" aria-label="Lista de deseos">
         <lucide-icon name="heart" [size]="22" [strokeWidth]="1.5"></lucide-icon>
         <span class="cart-badge cart-badge--wishlist" *ngIf="wishlistSvc.count() > 0">{{ wishlistSvc.count() }}</span>
       </a>
 
-      <!-- Notifications -->
-      <app-notification-dropdown *ngIf="loggedIn"></app-notification-dropdown>
+      <app-notification-dropdown class="hide-mobile"></app-notification-dropdown>
 
-      <!-- Zona de autenticación -->
-      <div class="nav-auth">
+      <!-- Zona auth desktop -->
+      <div class="nav-auth nav-auth--desktop">
         <ng-container *ngIf="!loggedIn">
           <a [routerLink]="['/login']" class="btn-login">LOGIN</a>
         </ng-container>
-
         <ng-container *ngIf="loggedIn">
           <a *ngIf="esAdmin" [routerLink]="['/admin']" class="btn-admin">ADMIN</a>
           <div class="cuenta-menu">
@@ -60,9 +62,86 @@
           </div>
         </ng-container>
       </div>
-    </nav>
+
+      <!-- Hamburger button (mobile/tablet) -->
+      <button class="hamburger" (click)="toggleMobileMenu()" aria-label="Menú de navegación">
+        <lucide-icon name="menu" [size]="22" [strokeWidth]="2"></lucide-icon>
+      </button>
+    </div>
   </div>
 </header>
+
+<!-- Mobile menu overlay -->
+<div class="mobile-menu-overlay" [class.open]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
+<nav class="mobile-menu" [class.open]="mobileMenuOpen" role="navigation" aria-label="Menú móvil">
+  <!-- Header -->
+  <div class="mobile-menu-header">
+    <span class="mobile-menu-brand">4BITO</span>
+    <button class="mobile-menu-close" (click)="closeMobileMenu()" aria-label="Cerrar menú">
+      <lucide-icon name="x" [size]="18" [strokeWidth]="2"></lucide-icon>
+    </button>
+  </div>
+  <!-- Nav links -->
+  <div class="mobile-menu-nav">
+    <a [routerLink]="['/categoria', 'retro-selecciones']" routerLinkActive="active" (click)="closeMobileMenu()">
+      <lucide-icon name="shirt" [size]="18" [strokeWidth]="1.5" class="mm-icon"></lucide-icon>
+      <span>FÚTBOL</span>
+    </a>
+    <a [routerLink]="['/categoria', 'retro-chaquetas']" routerLinkActive="active" (click)="closeMobileMenu()">
+      <lucide-icon name="award" [size]="18" [strokeWidth]="1.5" class="mm-icon"></lucide-icon>
+      <span>CASUAL</span>
+    </a>
+    <a [routerLink]="['/categoria', 'retro-objetos']" routerLinkActive="active" (click)="closeMobileMenu()">
+      <lucide-icon name="trophy" [size]="18" [strokeWidth]="1.5" class="mm-icon"></lucide-icon>
+      <span>OBJETOS</span>
+    </a>
+    <a [routerLink]="['/']" [routerLinkActiveOptions]="{exact:true}" routerLinkActive="active" (click)="closeMobileMenu()">
+      <lucide-icon name="sparkles" [size]="18" [strokeWidth]="1.5" class="mm-icon"></lucide-icon>
+      <span>NOVEDADES</span>
+    </a>
+  </div>
+  <!-- Acciones movidas del header -->
+  <div class="mobile-menu-extras">
+    <div class="mobile-menu-extra-item">
+      <lucide-icon name="sun" [size]="16" [strokeWidth]="1.5"></lucide-icon>
+      <span>Tema</span>
+      <label class="theme-toggle theme-toggle--menu">
+        <input type="checkbox"
+               [checked]="themeService.isDark$ | async"
+               (change)="themeService.toggle()"
+               hidden>
+        <div class="toggle-track">
+          <div class="toggle-thumb"></div>
+        </div>
+      </label>
+    </div>
+  </div>
+  <!-- Divider -->
+  <div class="mobile-menu-divider"></div>
+  <!-- Auth -->
+  <div class="mobile-menu-auth">
+    <ng-container *ngIf="!loggedIn">
+      <a [routerLink]="['/login']" class="mobile-menu-link" (click)="closeMobileMenu()">
+        <lucide-icon name="log-in" [size]="16" [strokeWidth]="1.5"></lucide-icon>
+        <span>INICIAR SESIÓN</span>
+      </a>
+    </ng-container>
+    <ng-container *ngIf="loggedIn">
+      <a *ngIf="esAdmin" [routerLink]="['/admin']" class="mobile-menu-link" (click)="closeMobileMenu()">
+        <lucide-icon name="shield" [size]="16" [strokeWidth]="1.5"></lucide-icon>
+        <span>PANEL ADMIN</span>
+      </a>
+      <a [routerLink]="['/perfil']" class="mobile-menu-link" (click)="closeMobileMenu()">
+        <lucide-icon name="user-circle" [size]="16" [strokeWidth]="1.5"></lucide-icon>
+        <span>MI PERFIL</span>
+      </a>
+      <button class="mobile-menu-link mobile-menu-link--danger" (click)="logout(); closeMobileMenu()">
+        <lucide-icon name="log-out" [size]="16" [strokeWidth]="1.5"></lucide-icon>
+        <span>CERRAR SESIÓN</span>
+      </button>
+    </ng-container>
+  </div>
+</nav>
 
 <!-- Banner principal -->
 <section class="banner">

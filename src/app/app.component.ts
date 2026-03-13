@@ -1,7 +1,7 @@
-import { Component, ViewEncapsulation, inject, HostListener, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewEncapsulation, inject, HostListener, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
-import { LucideAngularModule, ShoppingCart, User, Heart, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
+import { LucideAngularModule, ShoppingCart, User, Heart, Menu, X, Shirt, Award, Trophy, Sparkles, LogIn, Shield, UserCircle, LogOut, Sun, LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import { AuthService } from './services/auth.service';
 import { DiscountService } from './services/discount.service';
 import { CartService } from './services/cart.service';
@@ -20,16 +20,17 @@ import { Observable } from 'rxjs';
   selector: 'app-root',
   imports: [CommonModule, AsyncPipe, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, CartDrawerComponent, ToastComponent, CompareBarComponent, ChatWidgetComponent, NotificationDropdownComponent],
   providers: [
-    { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User, Heart }) }
+    { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ ShoppingCart, User, Heart, Menu, X, Shirt, Award, Trophy, Sparkles, LogIn, Shield, UserCircle, LogOut, Sun }) }
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = '4BITO RETRO SPORTS';
   menuAbierto = false;
+  mobileMenuOpen = false;
 
   carritoCount$!: Observable<number>;
 
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    document.body.classList.remove('no-scroll');
     this.carritoCount$ = this.cartService.getItemCount();
     // 1. Verificar y desactivar piezas expiradas automáticamente
     this.discount.desactivarExpiradas().subscribe();
@@ -77,6 +79,20 @@ export class AppComponent implements OnInit {
     if (!target.closest('.cuenta-menu')) {
       this.menuAbierto = false;
     }
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    document.body.classList.toggle('no-scroll', this.mobileMenuOpen);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    document.body.classList.remove('no-scroll');
+  }
+
+  ngOnDestroy(): void {
+    document.body.classList.remove('no-scroll');
   }
 
   logout(): void {

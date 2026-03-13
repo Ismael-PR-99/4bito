@@ -85,15 +85,19 @@
 
 @media (max-width: 1024px) {
   .categorias-grid { grid-template-columns: repeat(3, 1fr); }
-  .categoria-titulo { font-size: 1.5rem; }
+  .categoria-titulo { font-size: 1.4rem; }
 }
 
 @media (max-width: 768px) {
+  .main-content { padding: 1.5rem 0 3rem; }
   .categorias-grid { grid-template-columns: repeat(2, 1fr); gap: 3px; }
-  .categoria-titulo { font-size: 1.2rem; letter-spacing: 1px; }
+  .categoria-titulo { font-size: 1.1rem; letter-spacing: 1px; }
+  .categoria-overlay { bottom: 14px; }
 }
 
 @media (max-width: 480px) {
-  .categorias-grid { grid-template-columns: 1fr; }
-  .categoria-titulo { font-size: 1.5rem; }
+  .main-content { padding: 1rem 0 2rem; }
+  .categorias-grid { grid-template-columns: 1fr; gap: 2px; }
+  .categoria-card { aspect-ratio: 16 / 9; }
+  .categoria-titulo { font-size: 1.3rem; }
 }

@@ -377,7 +377,7 @@
 
 /* â”€â”€â”€ Responsive â”€â”€â”€ */
 @media (max-width: 1200px) {
-  .col-grid { grid-template-columns: repeat(3, 1fr); }
+  .col-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
 }
 
 @media (max-width: 900px) {
@@ -389,14 +389,23 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0 1.5rem;
+    max-width: 100%;
+    padding: 1rem;
   }
-  .col-grid { grid-template-columns: repeat(2, 1fr); }
+  .col-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .col-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .prod-overlay-actions { opacity: 1; }
 }
 
 @media (max-width: 480px) {
-  .col-grid { grid-template-columns: 1fr; }
-  .col-sidebar { grid-template-columns: 1fr; }
-  .col-page { padding: 1.5rem 1rem 4rem; }
+  .col-page { padding: 1rem 12px 3rem; }
+  .col-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .col-sidebar { grid-template-columns: 1fr; padding: 0.75rem; }
+  .prod-info { padding: 8px; }
+  .prod-name { font-size: 11px; }
+  .prod-price { font-size: 13px; }
+  .col-title { font-size: 1.4rem; padding-left: 12px; }
+  .prod-oa-btn { width: 28px; height: 28px; font-size: 0.85rem; }
 }
 
 /* ── Product card overlay actions ────────────────────── */

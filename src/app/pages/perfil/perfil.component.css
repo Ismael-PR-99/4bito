@@ -600,10 +600,18 @@
 }
 .btn-submit:disabled { opacity: .5; cursor: default; }
 
+@media (max-width: 768px) {
+  .perfil-page { padding: 1.5rem 1rem 3rem; }
+}
+
 @media (max-width: 600px) {
   .perfil-hero { flex-direction: column; text-align: center; }
-  .pf-tab { padding: 0.6rem 1rem; font-size: 0.72rem; }
+  .perfil-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .perfil-tabs::-webkit-scrollbar { display: none; }
+  .pf-tab { padding: 0.6rem 1rem; font-size: 0.72rem; white-space: nowrap; flex-shrink: 0; }
   .talla-row { flex-direction: column; align-items: flex-start; }
   .talla-label { width: auto; }
   .pedido-right { flex-wrap: wrap; }
+  .perfil-nombre { font-size: 1.2rem; }
+  .perfil-avatar { width: 60px; height: 60px; font-size: 1.6rem; }
 }

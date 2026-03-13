@@ -317,4 +317,11 @@
 
 @media (max-width: 460px) {
   .drawer-panel { width: 100vw; }
+  .drawer-header { padding: 16px; }
+  .drawer-body { padding: 12px 16px; }
+  .drawer-footer { padding: 12px 16px 20px; }
+  .item-img { width: 52px; height: 68px; }
+  .qty-btn { width: 32px; height: 32px; }
+  .btn-checkout { min-height: 48px; font-size: 12px; }
+  .btn-seguir { min-height: 44px; }
 }

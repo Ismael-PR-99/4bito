@@ -454,6 +454,16 @@
   .ps-skeleton { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 480px) {
+  .ps-col--info { padding: 20px 16px; }
+  .ps-price { font-size: 38px; }
+  .ps-price .ps-euro { font-size: 20px; }
+  .ps-cd-box { padding: 6px 10px; min-width: 44px; }
+  .ps-cd-num { font-size: 16px; }
+  .ps-btn { padding: 12px; font-size: 0.85rem; min-height: 48px; }
+  .sk-img { min-height: 280px; }
+}
+
 .sk-img {
   aspect-ratio: 3 / 4;
   min-height: 400px;

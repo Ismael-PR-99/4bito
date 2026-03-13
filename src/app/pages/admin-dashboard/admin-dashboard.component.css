@@ -1372,10 +1372,13 @@
 
 @media (max-width: 600px) {
   .metrics-grid { grid-template-columns: 1fr; }
-  .filtros-tabs { gap: 4px; }
-  .tab { font-size: 0.7rem; padding: 6px 10px; }
+  .filtros-tabs { gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab { font-size: 0.7rem; padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }
   .inv-filtros { flex-direction: column; }
   .modal-lateral { width: 100%; }
+  .dash-header { padding: 12px 12px 12px 52px; }
+  .dash-content { padding: 12px; }
+  .section-head { flex-direction: column; align-items: flex-start; }
 }
 
 /* ── New sections shared ─────────────────────────────── */

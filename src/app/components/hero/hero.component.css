@@ -469,23 +469,36 @@
 /* ── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 1024px) {
-  .hero-content { padding: 0 130px; }
-  .hero-stats   { right: 24px; }
-  .hero-decades { left: 24px; }
+  .hero { min-height: 560px; }
+  .hero-content { padding: 0 100px; }
+  .hero-stats   { right: 20px; gap: 1.5rem; }
+  .hero-decades { left: 20px; }
+  .stat__value  { font-size: 2rem; }
+  .deco-lines   { inset: 40px; }
 }
 
 @media (max-width: 768px) {
+  .hero { min-height: 100svh; height: auto; padding: 100px 0 80px; }
   .hero-stats,
   .hero-decades { display: none; }
-  .hero-content { padding: 0 1.5rem; }
-  .year-bg      { font-size: clamp(10rem, 60vw, 18rem); }
+  .hero-content { padding: 0 24px; max-width: 100%; }
+  .year-bg      { font-size: clamp(8rem, 50vw, 14rem); }
   .orb          { display: none; }
   .deco-lines   { display: none; }
   .eyebrow-line { display: none; }
+  .hero-eyebrow { font-size: 0.75rem; letter-spacing: 0.2em; }
+  .hero-sub     { font-size: 0.9rem; padding: 0 12px; }
+  .hero-cta     { flex-direction: column; width: 100%; gap: 10px; }
+  .hero-cta .btn { width: 100%; min-height: 48px; }
+  .ticker-item  { font-size: 0.7rem; }
 }
 
 @media (max-width: 480px) {
-  .hero-h1 { font-size: clamp(3.5rem, 18vw, 5rem); }
+  .hero { padding: 80px 0 60px; }
+  .hero-content { padding: 0 16px; }
+  .hero-h1 { font-size: clamp(3rem, 16vw, 4.5rem); }
+  .hero-eyebrow { font-size: 0.65rem; }
+  .hero-sub { font-size: 0.82rem; }
 }
 
 /* ═══════════════════════════════════════════════════════

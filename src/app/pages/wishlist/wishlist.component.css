@@ -125,7 +125,19 @@
 }
 .btn-remove:hover { border-color: #ef4444; color: #ef4444; }
 
+@media (max-width: 768px) {
+  .wishlist-page { padding: 24px 16px 48px; }
+}
+
 @media (max-width: 640px) {
-  .wish-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .wish-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .wish-header { flex-direction: column; align-items: flex-start; }
+  .wish-title { font-size: 1.3rem; }
+}
+
+@media (max-width: 480px) {
+  .wishlist-page { padding: 16px 12px 40px; }
+  .wish-card__info { padding: 12px 12px 6px; }
+  .wish-card__actions { padding: 8px 12px 12px; }
+  .btn-cart, .btn-remove { min-height: 44px; }
 }

@@ -16,6 +16,7 @@
 @media (max-width: 860px) {
   .checkout-container {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 
@@ -37,7 +38,9 @@
   margin-bottom: 16px;
 }
 @media (max-width: 520px) {
+  .checkout-page { padding: 24px 12px 40px; }
   .form-row { grid-template-columns: 1fr; }
+  .checkout-title { font-size: 1.3rem; margin-bottom: 20px; }
 }
 
 .form-group {
