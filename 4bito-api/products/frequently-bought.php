@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 require_once '../config/database.php';
 
-$productId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$productId = isset($_GET['product_id']) ? (int)$_GET['product_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
 if ($productId <= 0) {
     http_response_code(400); echo json_encode(['error' => 'id requerido']); exit;
 }

@@ -19,7 +19,7 @@ $db = $database->getConnection();
 
 try {
     $stmt = $db->query(
-        "SELECT sn.product_id, p.name as product_name, p.imageUrl, sn.size,
+        "SELECT sn.product_id, p.name as product_name, p.image_url as imageUrl, sn.size,
                 COUNT(*) as waiting_count
          FROM stock_notifications sn
          JOIN productos p ON p.id = sn.product_id
