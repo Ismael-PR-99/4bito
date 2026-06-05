@@ -82,7 +82,7 @@
     <!-- ── Imagen ──────────────────────────────────────────────────── -->
     <div class="form-field">
       <label>Imagen <span class="label-optional">(déjala en blanco para mantener la actual)</span></label>
-      <div class="upload-area" [class.has-preview]="imagenPreview">
+      <div class="upload-area" [class.has-preview]="imagenPreview" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
         <input
           type="file"
           id="e-image-upload"

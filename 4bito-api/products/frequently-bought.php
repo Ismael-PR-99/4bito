@@ -1,15 +1,11 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405); echo json_encode(['error' => 'Método no permitido']); exit;
 }
 
-require_once '../config/database.php';
 
 $productId = isset($_GET['product_id']) ? (int)$_GET['product_id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
 if ($productId <= 0) {
@@ -33,7 +29,10 @@ try {
     // Buscar órdenes que contienen este producto
     $stmt = $db->prepare(
         "SELECT productos_json FROM pedidos
-         WHERE JSON_SEARCH(productos_json, 'one', ?, NULL, '$[*].id') IS NOT NULL
+         WHERE EXISTS (
+             SELECT 1 FROM jsonb_array_elements(productos_json) AS elem
+             WHERE (elem->>'id') = ?
+         )
          AND estado != 'cancelado'"
     );
     $stmt->execute([(string)$productId]);
@@ -78,10 +77,15 @@ try {
     $productos = $pStmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($productos as &$p) {
-        $p['id']    = (int)$p['id'];
-        $p['price'] = (float)$p['price'];
-        $p['year']  = (int)$p['year'];
-        $p['sizes'] = json_decode($p['sizes'] ?? '[]', true);
+        $p['id']             = (int)$p['id'];
+        $p['price']          = (float)$p['price'];
+        $p['year']           = (int)$p['year'];
+        $p['sizes']          = json_decode($p['sizes'] ?? '[]', true);
+        $p['imageUrl']       = $p['image_url'];
+        $p['discountPercent']= (float)($p['discount_percent'] ?? 0);
+        $p['discountedPrice']= isset($p['discounted_price']) ? (float)$p['discounted_price'] : null;
+        $p['isNew']          = (bool)($p['is_new'] ?? false);
+        unset($p['image_url'], $p['discount_percent'], $p['discounted_price'], $p['is_new']);
     }
 
     echo json_encode(['success' => true, 'data' => $productos]);
@@ -92,14 +96,20 @@ try {
 
 function fallbackByCategory($db, int $productId, string $category): void {
     $stmt = $db->prepare(
-        "SELECT id, name, price, team, year, league, image_url, category, sizes, discount_percent, discounted_price, is_new FROM productos WHERE category=? AND id!=? ORDER BY RAND() LIMIT 4"
+        "SELECT id, name, price, team, year, league, image_url, category, sizes, discount_percent, discounted_price, is_new FROM productos WHERE category=? AND id!=? ORDER BY RANDOM() LIMIT 4"
     );
     $stmt->execute([$category, $productId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as &$p) {
-        $p['id'] = (int)$p['id']; $p['price'] = (float)$p['price'];
-        $p['year'] = (int)$p['year'];
-        $p['sizes'] = json_decode($p['sizes'] ?? '[]', true);
+        $p['id']             = (int)$p['id'];
+        $p['price']          = (float)$p['price'];
+        $p['year']           = (int)$p['year'];
+        $p['sizes']          = json_decode($p['sizes'] ?? '[]', true);
+        $p['imageUrl']       = $p['image_url'];
+        $p['discountPercent']= (float)($p['discount_percent'] ?? 0);
+        $p['discountedPrice']= isset($p['discounted_price']) ? (float)$p['discounted_price'] : null;
+        $p['isNew']          = (bool)($p['is_new'] ?? false);
+        unset($p['image_url'], $p['discount_percent'], $p['discounted_price'], $p['is_new']);
     }
     echo json_encode(['success' => true, 'data' => $rows]);
 }

@@ -121,7 +121,7 @@
     <!-- ── Imagen ──────────────────────────────────────────────────── -->
     <div class="form-field">
       <label>Imagen de la camiseta *</label>
-      <div class="upload-area" [class.has-preview]="imagenPreview">
+      <div class="upload-area" [class.has-preview]="imagenPreview" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
         <input
           type="file"
           id="image-upload"

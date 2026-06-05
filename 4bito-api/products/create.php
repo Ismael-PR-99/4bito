@@ -1,15 +1,11 @@
-﻿<?php
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json; charset=UTF-8");
+<?php
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-require_once '../config/database.php';
 require_once '../middleware/admin.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -103,7 +99,7 @@ if (!move_uploaded_file($_FILES['image']['tmp_name'], $destPath)) {
     exit();
 }
 
-$imageUrl = 'http://localhost/4bito/uploads/' . $filename;
+$imageUrl = 'http://localhost:8000/uploads/' . $filename;
 
 // -- Insertar en base de datos --
 try {
@@ -111,7 +107,8 @@ try {
 
     $stmt = $db->prepare(
         "INSERT INTO productos (name, price, team, year, league, image_url, category, sizes)
-         VALUES (:name, :price, :team, :year, :league, :image_url, :category, :sizes)"
+         VALUES (:name, :price, :team, :year, :league, :image_url, :category, :sizes)
+         RETURNING id"
     );
 
     $stmt->execute([
@@ -125,7 +122,7 @@ try {
         ':sizes'     => json_encode($sizesDecoded),
     ]);
 
-    $newId = (int)$db->lastInsertId();
+    $newId = (int)$stmt->fetchColumn();
 
     // Generar SKU: 4BT-[CAT]-[YEAR]-[ZERO_ID]
     $catAbbrev = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $category), 0, 3));

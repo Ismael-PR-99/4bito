@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -33,6 +34,7 @@ export class AnadirProductoComponent implements OnInit {
 
   private fb              = inject(FormBuilder);
   private productosService = inject(ProductosService);
+  private cdr             = inject(ChangeDetectorRef);
 
   form!: FormGroup;
   imagenPreview: string | null = null;
@@ -96,11 +98,7 @@ export class AnadirProductoComponent implements OnInit {
   }
 
   // ── Imagen ─────────────────────────────────────────────────────────────
-  onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file  = input.files?.[0];
-    if (!file) return;
-
+  private processFile(file: File): void {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowed.includes(file.type)) {
       this.errorMsg = 'Solo se permiten imágenes JPG, PNG o WEBP';
@@ -110,12 +108,28 @@ export class AnadirProductoComponent implements OnInit {
       this.errorMsg = 'La imagen no puede superar 5 MB';
       return;
     }
-
-    this.imagenFile   = file;
-    this.errorMsg     = '';
-    const reader      = new FileReader();
-    reader.onload     = e => (this.imagenPreview = e.target?.result as string);
+    this.imagenFile = file;
+    this.errorMsg   = '';
+    const reader    = new FileReader();
+    reader.onload   = e => { this.imagenPreview = e.target?.result as string; this.cdr.markForCheck(); };
     reader.readAsDataURL(file);
+  }
+
+  onFileChange(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) this.processFile(file);
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this.processFile(file);
   }
 
   // ── Envío ───────────────────────────────────────────────────────────────
