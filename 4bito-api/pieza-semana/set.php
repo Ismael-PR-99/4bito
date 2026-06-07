@@ -1,54 +1,9 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json; charset=UTF-8");
+require_once '../config/bootstrap.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit(); }
+requireAdminAuth();
 
-require_once '../config/database.php';
-require_once '../helpers/jwt.php';
-
-// -- Leer token: primero del header Authorization, luego del body (fallback WAMP/CGI)
-$rawBody = file_get_contents('php://input');
-$body    = json_decode($rawBody, true) ?? [];
-
-$authHeader = '';
-if (function_exists('getallheaders')) {
-    $allHeaders = getallheaders();
-    $authHeader = $allHeaders['Authorization'] ?? $allHeaders['authorization'] ?? '';
-}
-// Fallback para Apache CGI donde getallheaders() no devuelve Authorization
-if (empty($authHeader) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
-    $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-}
-if (empty($authHeader) && !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-    $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
-}
-// Último fallback: token en el body JSON
-if (empty($authHeader) && !empty($body['_token'])) {
-    $authHeader = 'Bearer ' . $body['_token'];
-}
-
-if (empty($authHeader) || !str_starts_with($authHeader, 'Bearer ')) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Token no proporcionado']);
-    exit();
-}
-
-$token   = substr($authHeader, 7);
-$payload = verificarJWT($token);
-
-if ($payload === false) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Token inválido o expirado']);
-    exit();
-}
-if (($payload['rol'] ?? '') !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Acceso denegado: se requiere rol admin']);
-    exit();
-}
+$body = json_decode(file_get_contents('php://input'), true) ?? [];
 
 $productId       = isset($body['productId'])       ? (int)   $body['productId']       : 0;
 $discountPercent = isset($body['discountPercent']) ? (float) $body['discountPercent'] : 0;
@@ -75,6 +30,7 @@ try {
     $stmt = $db->prepare("
         INSERT INTO pieza_semana (product_id, discount_percent, final_price, valid_until, is_active)
         VALUES (:pid, :dp, :fp, :vu, 1)
+        RETURNING id
     ");
     $stmt->execute([
         ':pid' => $productId,
@@ -82,7 +38,7 @@ try {
         ':fp'  => $finalPrice,
         ':vu'  => $validUntil,
     ]);
-    $newId = $db->lastInsertId();
+    $newId = (int)$stmt->fetchColumn();
 
     // 4. Aplicar el descuento al nuevo producto
     $db->prepare("UPDATE productos SET discounted_price = :dp, discount_percent = :pct WHERE id = :id")

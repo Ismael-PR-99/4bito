@@ -1,12 +1,7 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../helpers/jwt.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -86,7 +81,7 @@ try {
 
     // Marcar conversación como waiting
     $stmt = $conn->prepare(
-        "UPDATE chat_conversations SET status='waiting', updated_at=NOW() WHERE id=?"
+        "UPDATE chat_conversations SET status='waiting', fecha_actualizacion=CURRENT_TIMESTAMP WHERE id=?"
     );
     $stmt->execute([$conversationId]);
 

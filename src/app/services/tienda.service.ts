@@ -14,7 +14,7 @@ export class TiendaService {
     { id: '7',  slug: 'retro-objetos',      nombre: 'Retro Objetos',            imageUrl: 'images/retro_objetos.jpg' },
     { id: '8',  slug: 'san-valentin',       nombre: 'San Valentín Retro',       imageUrl: 'images/retro_San_Valentin.jpg' },
     { id: '9',  slug: 'retro-premier',      nombre: 'Retro Premier League',     imageUrl: 'images/retro_premier.jpg' },
-    { id: '10', slug: 'retro-liga',         nombre: 'Retro Liga Española',      imageUrl: 'images/retro_liga.webp' },
+    { id: '10', slug: 'retro-liga',         nombre: 'Retro Liga Española',      imageUrl: 'images/retro_liga.jpg' },
     { id: '11', slug: 'retro-brasileirao',  nombre: 'Retro Brasileirao',        imageUrl: 'images/retro_brasileirao.jpg' },
     { id: '12', slug: 'retro-primeira-liga',nombre: 'Retro Primeira Liga',      imageUrl: 'images/retro_primeira_liga.jpg' },
   ];

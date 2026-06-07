@@ -5,10 +5,10 @@
  */
 
 function sendAdminLowStockEmail(string $to, array $data): bool {
-    $productName  = $data['productName']  ?? '';
-    $size         = $data['size']         ?? '';
-    $currentStock = $data['currentStock'] ?? 0;
-    $threshold    = $data['threshold']    ?? 3;
+    $productName  = htmlspecialchars($data['productName']  ?? '', ENT_QUOTES, 'UTF-8');
+    $size         = htmlspecialchars($data['size']         ?? '', ENT_QUOTES, 'UTF-8');
+    $currentStock = (int)($data['currentStock'] ?? 0);
+    $threshold    = (int)($data['threshold']    ?? 3);
     $dashboardUrl = 'http://localhost:4200/#/admin/dashboard';
 
     $subject = "⚠️ STOCK BAJO — {$productName} Talla {$size}";
@@ -58,9 +58,9 @@ HTML;
 }
 
 function sendStockAvailableEmail(string $to, array $data): bool {
-    $productName = $data['productName'] ?? '';
-    $size        = $data['size']        ?? '';
-    $productId   = $data['productId']   ?? '';
+    $productName = htmlspecialchars($data['productName'] ?? '', ENT_QUOTES, 'UTF-8');
+    $size        = htmlspecialchars($data['size']        ?? '', ENT_QUOTES, 'UTF-8');
+    $productId   = (int)($data['productId'] ?? 0);
     $productUrl  = "http://localhost:4200/#/producto/{$productId}";
 
     $subject = "✅ ¡YA DISPONIBLE! {$productName} — Talla {$size}";

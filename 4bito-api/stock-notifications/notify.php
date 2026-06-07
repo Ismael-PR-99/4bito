@@ -1,19 +1,15 @@
 <?php
+require_once '../config/bootstrap.php';
 /**
  * Llamado internamente cuando se repone stock de un producto+talla.
  * Envía emails a todos los suscriptores y marca como sent.
  */
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); echo json_encode(['error' => 'Método no permitido']); exit;
 }
 
-require_once '../config/database.php';
 require_once '../middleware/admin.php';
 require_once '../emails/templates.php';
 

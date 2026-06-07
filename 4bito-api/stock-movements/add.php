@@ -1,15 +1,11 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); echo json_encode(['error' => 'Método no permitido']); exit;
 }
 
-require_once '../config/database.php';
 require_once '../middleware/admin.php';
 
 requireAdmin();
@@ -39,10 +35,11 @@ try {
     $stmt = $db->prepare(
         "INSERT INTO stock_movements
          (product_id, product_name, size, type, quantity, previous_stock, new_stock, reason, order_id, admin_id)
-         VALUES (?,?,?,?,?,?,?,?,?,?)"
+         VALUES (?,?,?,?,?,?,?,?,?,?)
+         RETURNING id"
     );
     $stmt->execute([$productId, $productName, $size, $type, $quantity, $previousStock, $newStock, $reason, $orderId, $adminId]);
-    echo json_encode(['success' => true, 'id' => (int)$db->lastInsertId()]);
+    echo json_encode(['success' => true, 'id' => (int)$stmt->fetchColumn()]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Error interno del servidor']);

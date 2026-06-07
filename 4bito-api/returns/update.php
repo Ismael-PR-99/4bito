@@ -1,12 +1,7 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../helpers/jwt.php';
 require_once __DIR__ . '/../middleware/admin.php';
 
 $payload = requireAdmin();
@@ -38,7 +33,7 @@ if ($adminNotes) {
     $params[] = $adminNotes;
 }
 if ($status === 'completed') {
-    $fields[] = 'completed_at = NOW()';
+    $fields[] = 'fecha_actualizacion = CURRENT_TIMESTAMP';
 }
 
 $params[] = $id;
@@ -60,7 +55,7 @@ $bodies = [
 ];
 
 if (isset($titles[$status])) {
-    $stmt2 = $db->prepare('INSERT INTO notifications (user_id, type, title, body, url) VALUES (?, "return", ?, ?, ?)');
+    $stmt2 = $db->prepare("INSERT INTO notifications (user_id, type, title, body, url) VALUES (?, 'return', ?, ?, ?)");
     $stmt2->execute([
         $ret['user_id'],
         $titles[$status],

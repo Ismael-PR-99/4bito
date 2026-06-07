@@ -1,8 +1,5 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -11,10 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once '../config/database.php';
-require_once '../config/security.php';
-require_once '../helpers/jwt.php';
-require_once '../helpers/rate-limiter.php';
 
 // Rate limiting: máx 10 pedidos por IP cada 10 minutos
 if (!rateLimitCheck('order_create', 10, 600)) {
@@ -147,6 +140,7 @@ try {
     $stmt = $db->prepare("
         INSERT INTO pedidos (user_id, nombre_cliente, email, telefono, direccion, ciudad, cp, pais, total, estado, paypal_transaction_id, productos_json, fecha_creacion)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'procesando', ?, ?, NOW())
+        RETURNING id
     ");
     $stmt->execute([
         $userId,
@@ -161,7 +155,7 @@ try {
         $paypalTxn ?: null,
         json_encode($productosValidados),
     ]);
-    $pedidoId = (int)$db->lastInsertId();
+    $pedidoId = (int)$stmt->fetchColumn();
 
     // 2. Insertar en historial de estados
     $stmt2 = $db->prepare("INSERT INTO pedido_historial (pedido_id, estado, fecha) VALUES (?, 'procesando', NOW())");

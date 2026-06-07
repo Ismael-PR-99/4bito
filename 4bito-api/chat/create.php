@@ -1,12 +1,7 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../helpers/jwt.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -32,10 +27,10 @@ if (!$userId && !$sessionId) {
 
 // Buscar conversación activa existente
 if ($userId) {
-    $stmt = $db->prepare('SELECT id, user_id, session_id, status, subject, created_at FROM chat_conversations WHERE user_id = ? AND status != "closed" ORDER BY created_at DESC LIMIT 1');
+    $stmt = $db->prepare("SELECT id, user_id, session_id, status, subject, created_at FROM chat_conversations WHERE user_id = ? AND status != 'closed' ORDER BY created_at DESC LIMIT 1");
     $stmt->execute([$userId]);
 } else {
-    $stmt = $db->prepare('SELECT id, user_id, session_id, status, subject, created_at FROM chat_conversations WHERE session_id = ? AND status != "closed" ORDER BY created_at DESC LIMIT 1');
+    $stmt = $db->prepare("SELECT id, user_id, session_id, status, subject, created_at FROM chat_conversations WHERE session_id = ? AND status != 'closed' ORDER BY created_at DESC LIMIT 1");
     $stmt->execute([$sessionId]);
 }
 
@@ -55,11 +50,11 @@ if ($conv) {
 $subject = trim($data['subject'] ?? 'Consulta general');
 $newSessionId = $sessionId ?: bin2hex(random_bytes(16));
 
-$stmt = $db->prepare('INSERT INTO chat_conversations (user_id, session_id, user_name, subject, status) VALUES (?, ?, ?, ?, "active")');
+$stmt = $db->prepare("INSERT INTO chat_conversations (user_id, session_id, user_name, subject, status) VALUES (?, ?, ?, ?, 'active') RETURNING id");
 $stmt->execute([$userId, $newSessionId, $userName, $subject]);
 
 echo json_encode([
-    'conversationId' => intval($db->lastInsertId()),
+    'conversationId' => intval($stmt->fetchColumn()),
     'sessionId' => $newSessionId,
     'status' => 'active',
     'isNew' => true,

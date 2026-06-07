@@ -1,1 +1,104 @@
-﻿
+﻿---
+Ejemplo de gestión de formularios en el frontend (Angular)
+- Archivo sugerido: src/app/components/login/login.component.ts y login.component.html
+- En Angular, los formularios se gestionan con FormGroup y ngSubmit para validar y enviar datos:
+
+login.component.ts
+```typescript
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+loginForm = new FormGroup({
+	username: new FormControl('', [Validators.required]),
+	password: new FormControl('', [Validators.required])
+});
+
+onSubmit() {
+	if (this.loginForm.valid) {
+		// Lógica de login, llamada a servicio
+	}
+}
+```
+
+login.component.html
+```html
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+	<input formControlName="username" placeholder="Usuario">
+	<input formControlName="password" type="password" placeholder="Contraseña">
+	<button type="submit">Entrar</button>
+</form>
+```
+- Así se valida y gestiona el envío de datos de usuario de forma reactiva y segura.
+---
+Ejemplo de tratamiento de JSON en el backend
+- Archivo: 4bito-api/wishlist/toggle.php (líneas 1-55)
+- Este endpoint recibe datos JSON, los decodifica y responde siempre en formato JSON:
+
+```php
+header('Content-Type: application/json; charset=utf-8');
+$body = json_decode(file_get_contents('php://input'), true) ?? [];
+if ($productId <= 0) {
+	http_response_code(400);
+	echo json_encode(['error' => 'productId requerido']);
+	exit;
+}
+// ...
+echo json_encode(['success' => true, 'action' => 'added', 'inWishlist' => true]);
+```
+- El frontend envía y recibe datos en JSON, permitiendo una comunicación clara y estructurada entre capas.
+---
+Error de login: Credenciales incorrectas
+- Archivo: 4bito-api/auth/login.php
+- Cuando el usuario introduce un email o contraseña incorrectos, el backend responde:
+	- Si el email no existe: 
+		```php
+		if ($stmt->rowCount() === 0) {
+				http_response_code(401);
+				echo json_encode(["error" => "Credenciales incorrectas"]);
+				exit();
+		}
+		```
+	- Si la contraseña no coincide:
+		```php
+		if (!password_verify($password, $usuario['password'])) {
+				http_response_code(401);
+				echo json_encode(["error" => "Credenciales incorrectas"]);
+				exit();
+		}
+		```
+- El frontend detecta este mensaje y muestra el aviso de error en pantalla.
+---
+## Ejemplos prácticos en el código
+
+Eventos (Angular)
+- app.component.ts, toast.component.ts: Manejo de eventos del usuario y del DOM, como clicks, cambios y suscripciones a observables. Permiten reaccionar a acciones del usuario y actualizar la interfaz en tiempo real.
+
+Consultas a la base de datos (PHP)
+- admin/metrics.php: Realiza consultas SQL usando prepared statements para obtener métricas, totales y estadísticas de productos y pedidos. Garantiza seguridad y eficiencia en el acceso a datos.
+
+Peticiones API (Angular)
+- auth.service.ts, producto.component.ts, chat-widget.component.ts: Realizan llamadas HTTP (GET/POST) a los endpoints del backend para autenticar usuarios, obtener productos, enviar mensajes, etc. Facilitan la comunicación entre frontend y backend.
+
+Consumo de servicios (Angular)
+- cart-drawer.service.ts, auth.service.ts: Servicios inyectables que encapsulan lógica de negocio y acceso a datos. Permiten reutilizar código y centralizar la gestión de datos y autenticación en la aplicación.
+---
+Modelos, Interfaces y Objetos (Frontend)
+
+En la arquitectura frontend de 4BITO Retro Sports, destacamos el uso de modelos e interfaces TypeScript para garantizar robustez, claridad y escalabilidad en la gestión de datos. Estos modelos definen la estructura de los objetos clave de la aplicación, facilitando el desarrollo y el mantenimiento.
+
+Principales modelos:
+
+- Producto
+	- id, nombre, categoría, precio, imagen, tallas, descripción, año, equipo, etc.
+- CartItem (ítem del carrito)
+	- id, nombre, imagen, precio, talla, cantidad, etc.
+- DiscountCode y AppliedDiscount
+	- Gestión de cupones y descuentos aplicados.
+- Categoria
+	- id, slug, nombre, imagen.
+
+Ventajas de esta estructura:
+- Tipado estricto y autocompletado en todo el frontend.
+- Facilita la integración con APIs y la validación de datos.
+- Permite escalar y mantener el código de forma eficiente.
+
+Esta organización de modelos e interfaces es clave para la calidad y la experiencia de desarrollo en el proyecto.

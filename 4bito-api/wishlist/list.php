@@ -1,31 +1,14 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405); echo json_encode(['error' => 'Método no permitido']); exit;
 }
 
-require_once '../config/database.php';
-require_once '../helpers/jwt.php';
 
-// Verificar token (usuario o admin)
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null;
-if (!$authHeader && function_exists('apache_request_headers')) {
-    $h = apache_request_headers();
-    $authHeader = $h['Authorization'] ?? $h['authorization'] ?? null;
-}
-if (!$authHeader || !preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
-    http_response_code(401); echo json_encode(['error' => 'Token requerido']); exit;
-}
-$payload = verificarJWT(trim($m[1]));
-if (!$payload) {
-    http_response_code(401); echo json_encode(['error' => 'Token inválido']); exit;
-}
-$userId = (int)$payload['id'];
+$payload = requireUserAuth();
+$userId  = (int)$payload['id'];
 
 $database = new Database();
 $db = $database->getConnection();

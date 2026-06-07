@@ -1,17 +1,11 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json; charset=UTF-8");
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-require_once '../config/database.php';
-require_once '../config/security.php';
-require_once '../helpers/rate-limiter.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -73,7 +67,7 @@ try {
     $rol = 'cliente';
 
     $insert = $db->prepare(
-        "INSERT INTO usuarios (nombre, email, password, rol) VALUES (:nombre, :email, :password, :rol)"
+        "INSERT INTO usuarios (nombre, email, password, rol) VALUES (:nombre, :email, :password, :rol) RETURNING id"
     );
     $insert->bindParam(':nombre',   $nombre);
     $insert->bindParam(':email',    $email);
@@ -81,7 +75,7 @@ try {
     $insert->bindParam(':rol',      $rol);
     $insert->execute();
 
-    $nuevoId = $db->lastInsertId();
+    $nuevoId = $insert->fetchColumn();
 
     http_response_code(201);
     echo json_encode([

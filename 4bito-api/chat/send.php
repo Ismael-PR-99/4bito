@@ -1,14 +1,7 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/security.php';
-require_once __DIR__ . '/../helpers/rate-limiter.php';
-require_once __DIR__ . '/../helpers/jwt.php';
 
 // Rate limiting: máx 30 mensajes por IP cada 5 minutos
 if (!rateLimitCheck('chat_send', 30, 300)) {
@@ -76,13 +69,13 @@ if ($sender === 'user' && $conv['user_id'] && (int)$conv['user_id'] !== (int)$jw
     exit;
 }
 
-$stmt = $db->prepare('INSERT INTO chat_messages (conversation_id, sender, message) VALUES (?, ?, ?)');
+$stmt = $db->prepare('INSERT INTO chat_messages (conversation_id, sender, message) VALUES (?, ?, ?) RETURNING id');
 $stmt->execute([$convId, $sender, $message]);
+$messageId = (int)$stmt->fetchColumn();
 
-// Actualizar timestamp de la conversación
-$db->prepare('UPDATE chat_conversations SET updated_at = NOW() WHERE id = ?')->execute([$convId]);
+$db->prepare('UPDATE chat_conversations SET fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?')->execute([$convId]);
 
 echo json_encode([
     'success' => true,
-    'messageId' => intval($db->lastInsertId()),
+    'messageId' => $messageId,
 ]);

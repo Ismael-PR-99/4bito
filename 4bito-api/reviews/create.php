@@ -1,30 +1,13 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); echo json_encode(['error' => 'Método no permitido']); exit;
 }
 
-require_once '../config/database.php';
-require_once '../helpers/jwt.php';
 
-// Requiere usuario logado
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null;
-if (!$authHeader && function_exists('apache_request_headers')) {
-    $h = apache_request_headers();
-    $authHeader = $h['Authorization'] ?? $h['authorization'] ?? null;
-}
-if (!$authHeader || !preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
-    http_response_code(401); echo json_encode(['error' => 'Token requerido']); exit;
-}
-$payload = verificarJWT(trim($m[1]));
-if (!$payload) {
-    http_response_code(401); echo json_encode(['error' => 'Token inválido']); exit;
-}
+$payload  = requireUserAuth();
 $userId   = (int)$payload['id'];
 $userName = $payload['nombre'] ?? 'Usuario';
 
@@ -46,7 +29,7 @@ try {
     $stmt = $db->prepare(
         "SELECT id FROM pedidos
          WHERE user_id = ? AND estado != 'cancelado'
-         AND JSON_SEARCH(productos_json, 'one', ?, NULL, '$[*].id') IS NOT NULL
+         AND EXISTS (SELECT 1 FROM jsonb_array_elements(productos_json) AS elem WHERE (elem->>'id') = ?)
          LIMIT 1"
     );
     $stmt->execute([$userId, (string)$productId]);
@@ -58,8 +41,8 @@ try {
     $stmt = $db->prepare(
         "INSERT INTO reviews (product_id, user_id, user_name, rating, comment, verified, approved)
          VALUES (?,?,?,?,?,?,0)
-         ON DUPLICATE KEY UPDATE
-         rating=VALUES(rating), comment=VALUES(comment), verified=VALUES(verified), approved=0"
+         ON CONFLICT (user_id, product_id) DO UPDATE SET
+         rating=EXCLUDED.rating, comment=EXCLUDED.comment, verified=EXCLUDED.verified, approved=0"
     );
     $stmt->execute([$productId, $userId, $userName, $rating, $comment, $purchased ? 1 : 0]);
 

@@ -1,15 +1,11 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+require_once '../config/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405); echo json_encode(['error' => 'Método no permitido']); exit;
 }
 
-require_once '../config/database.php';
 require_once '../middleware/admin.php';
 
 requireAdmin();
@@ -39,7 +35,7 @@ if ($tipo === 'chart') {
                    COUNT(*) as pedidos
             FROM pedidos
             WHERE estado != 'cancelado'
-              AND fecha_creacion >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+              AND fecha_creacion >= CURRENT_DATE - INTERVAL '29 days'
             GROUP BY dia
         ");
         $stmt->execute();
@@ -66,8 +62,7 @@ if ($tipo === 'top') {
             SELECT COALESCE(SUM(total),0) as ingresos, COUNT(*) as pedidos
             FROM pedidos
             WHERE estado != 'cancelado'
-              AND MONTH(fecha_creacion) = MONTH(CURDATE())
-              AND YEAR(fecha_creacion)  = YEAR(CURDATE())
+              AND DATE_TRUNC('month', fecha_creacion) = DATE_TRUNC('month', CURRENT_DATE)
         ");
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $resumen['ingresos']           = round((float)$row['ingresos'], 2);
