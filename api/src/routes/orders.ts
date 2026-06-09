@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { pool } from '../db';
 import { requireAuth, requireAdmin, optionalAuth } from '../middleware/auth';
+import { sendOrderConfirmation, sendNewOrderAlert } from '../email';
 
 const router = Router();
 const orderLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 10 });
@@ -91,6 +92,20 @@ router.post('/', orderLimiter, optionalAuth, async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ success: true, data: { pedidoId, mensaje: 'Pedido creado correctamente' } });
+
+    // Fire-and-forget: do not await so order response is not delayed
+    sendOrderConfirmation({
+      pedidoId,
+      email:     body.email,
+      nombre:    body.nombre,
+      productos: productosValidados,
+      total,
+      direccion: body.direccion,
+      ciudad:    body.ciudad,
+      cp:        body.cp,
+      pais:      body.pais,
+    });
+    sendNewOrderAlert({ pedidoId, nombre: body.nombre, email: body.email, total });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error(e);

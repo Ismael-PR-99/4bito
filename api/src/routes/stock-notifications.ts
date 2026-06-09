@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../db';
 import { requireAdmin } from '../middleware/auth';
+import { sendStockNotifications } from '../email';
 
 const router = Router();
 
@@ -40,15 +41,26 @@ router.post('/notify', requireAdmin, async (req, res) => {
   try {
     const { productId, size } = req.body ?? {};
     if (!productId || !size) { res.status(400).json({ error: 'productId y size requeridos' }); return; }
-    const { rows } = await pool.query(
-      'SELECT email FROM stock_notifications WHERE product_id = $1 AND size = $2 AND sent = 0',
+
+    const { rows: subscribers } = await pool.query(
+      `SELECT sn.email, p.name as product_name, p.id as product_id
+       FROM stock_notifications sn JOIN productos p ON p.id = sn.product_id
+       WHERE sn.product_id = $1 AND sn.size = $2 AND sn.sent = 0`,
       [parseInt(productId), size]
     );
+
     await pool.query(
       'UPDATE stock_notifications SET sent = 1, sent_at = NOW() WHERE product_id = $1 AND size = $2 AND sent = 0',
       [parseInt(productId), size]
     );
-    res.json({ success: true, data: { notified: rows.length } });
+
+    res.json({ success: true, data: { notified: subscribers.length } });
+
+    if (subscribers.length > 0) {
+      const { product_name, product_id } = subscribers[0];
+      const emails = subscribers.map((r: any) => r.email);
+      sendStockNotifications(emails, product_name, size, product_id);
+    }
   } catch (e) {
     console.error('[stock-notifications] POST /notify error:', e);
     res.status(500).json({ error: 'Error interno del servidor' });
