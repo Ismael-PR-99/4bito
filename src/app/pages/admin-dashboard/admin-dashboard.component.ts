@@ -502,15 +502,33 @@ export class AdminDashboardComponent implements OnInit {
   // ───────────────────────────────────────────────────────────
   // SECCIÓN 9: LISTA DE ESPERA
   // ───────────────────────────────────────────────────────────
-  waitlist         = signal<WaitlistItem[]>([]);
-  cargandoWaitlist = signal(false);
-  busquedaWaitlist = signal('');
+  waitlist          = signal<WaitlistItem[]>([]);
+  cargandoWaitlist  = signal(false);
+  busquedaWaitlist  = signal('');
+  notifyingRows     = signal<Set<string>>(new Set());
 
   cargarWaitlist(): void {
     this.cargandoWaitlist.set(true);
     this.stockMgmtSvc.getWaitlist().subscribe({
       next: items  => { this.waitlist.set(items ?? []); this.cargandoWaitlist.set(false); },
       error: () => this.cargandoWaitlist.set(false),
+    });
+  }
+
+  notificarSuscriptores(productId: number, size: string): void {
+    const key = `${productId}-${size}`;
+    this.notifyingRows.update(s => new Set([...s, key]));
+
+    this.stockMgmtSvc.notifyWaitlist(productId, size).subscribe({
+      next: res => {
+        this.notifyingRows.update(s => { const n = new Set(s); n.delete(key); return n; });
+        this.waitlist.update(list => list.filter(w => !(w.product_id === productId && w.size === size)));
+        this.toastSvc.show(`${res.notified} suscriptores notificados`, 'success');
+      },
+      error: () => {
+        this.notifyingRows.update(s => { const n = new Set(s); n.delete(key); return n; });
+        this.toastSvc.show('Error al notificar suscriptores', 'error');
+      },
     });
   }
 

@@ -90,4 +90,10 @@ export class StockManagementService {
       catchError(() => of([]))
     );
   }
+
+  notifyWaitlist(productId: number, size: string): Observable<{ notified: number }> {
+    return this.http.post<any>(`${this.baseUrl}/stock-notifications/notify`, { productId, size }).pipe(
+      map(res => res.data)
+    );
+  }
 }

@@ -791,7 +791,15 @@
                     <td>{{ w.product_name }}</td>
                     <td>{{ w.size }}</td>
                     <td><strong>{{ w.waiting_count }}</strong> personas esperando</td>
-                    <td><button class="btn-reponer" (click)="setSeccion('inventario')">REPONER</button></td>
+                    <td class="waitlist-actions">
+                      <button
+                        class="btn-notificar"
+                        [disabled]="notifyingRows().has(w.product_id + '-' + w.size)"
+                        (click)="notificarSuscriptores(w.product_id, w.size)">
+                        {{ notifyingRows().has(w.product_id + '-' + w.size) ? 'ENVIANDO...' : 'NOTIFICAR' }}
+                      </button>
+                      <button class="btn-reponer" (click)="setSeccion('inventario')">REPONER</button>
+                    </td>
                   </tr>
                 }
               </tbody>

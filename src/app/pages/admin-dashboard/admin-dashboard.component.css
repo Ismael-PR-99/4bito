@@ -1472,6 +1472,29 @@
   gap: 0.5rem;
 }
 
+.waitlist-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-notificar {
+  padding: 0.35rem 0.8rem;
+  background: #1a7f4b;
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-notificar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-reponer {
   padding: 0.35rem 0.8rem;
   background: var(--accent);
