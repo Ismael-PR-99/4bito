@@ -130,7 +130,12 @@
 
         <!-- Empty state -->
         <div class="col-empty" *ngIf="products().length === 0">
-          <p>NO HAY PRODUCTOS PARA ESTA SELECCIÓN</p>
+          @if (searchQuery()) {
+            <p>SIN RESULTADOS PARA "{{ searchQuery().toUpperCase() }}"</p>
+            <p class="col-empty-sub">Prueba con otro término o revisa la ortografía</p>
+          } @else {
+            <p>NO HAY PRODUCTOS PARA ESTA SELECCIÓN</p>
+          }
           <button class="btn-clear-lg" (click)="clearFilters()">VER TODA LA COLECCIÓN</button>
         </div>
 

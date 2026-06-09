@@ -356,6 +356,14 @@
   color: var(--text-muted);
   margin: 0;
 }
+.col-empty-sub {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--text-secondary) !important;
+  margin-top: -0.75rem !important;
+}
 .btn-clear-lg {
   font-size: 0.7rem;
   font-weight: 700;
