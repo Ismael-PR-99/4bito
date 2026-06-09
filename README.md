@@ -11,6 +11,23 @@ Full-stack e-commerce for vintage and retro sports apparel. Portfolio project de
 
 ---
 
+> **WIP — next session:** Complete Railway deploy
+>
+> State: Railway CLI v5.7.0 installed globally. All deploy config committed (`Dockerfile`, `railway.toml`, `DATABASE_URL` support, auto-migration runner, Angular served from Express in prod).
+>
+> Resume with:
+> ```
+> railway login          # browser auth
+> cd apps/4bito
+> railway init           # create project + link repo
+> railway add --plugin postgresql   # adds DATABASE_URL automatically
+> railway up             # build + deploy
+> ```
+> Then set in Railway dashboard → Variables:
+> `JWT_SECRET` · `CORS_ORIGIN` · `FRONTEND_URL` · `ADMIN_EMAIL` · SMTP vars
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
