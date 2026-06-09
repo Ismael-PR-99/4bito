@@ -53,6 +53,12 @@
       <p>Próximamente — estamos añadiendo piezas a esta colección.</p>
     </div>
   </div>
+
+  <div class="cat-load-more" *ngIf="!cargando && hasMore">
+    <button class="btn-load-more" (click)="cargarMas()" [disabled]="loadingMore">
+      {{ loadingMore ? 'CARGANDO...' : 'CARGAR MÁS' }}
+    </button>
+  </div>
 </div>
 
 <!-- Modal: solo se monta cuando está abierto -->

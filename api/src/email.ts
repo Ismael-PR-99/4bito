@@ -95,6 +95,25 @@ export async function sendNewOrderAlert(order: Pick<OrderEmailData, 'pedidoId' |
 
 // ── Stock notification ────────────────────────────────────────────────────────
 
+// ── Password reset ────────────────────────────────────────────────────────────
+
+export async function sendPasswordReset(email: string, token: string): Promise<void> {
+  const link = `${BASE_URL}/#/reset-password?token=${encodeURIComponent(token)}`;
+  const html = `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#222">
+      <h2 style="background:#111;color:#fff;padding:16px 24px;margin:0">4BITO — Recuperar contraseña</h2>
+      <div style="padding:24px">
+        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+        <p>Haz clic en el botón para crear una nueva contraseña. El enlace expira en <strong>1 hora</strong>.</p>
+        <p style="margin-top:24px">
+          <a href="${link}" style="background:#111;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px">RESTABLECER CONTRASEÑA</a>
+        </p>
+        <p style="color:#888;font-size:12px;margin-top:32px">Si no solicitaste este cambio, ignora este mensaje.</p>
+      </div>
+    </div>`;
+  await send(email, 'Restablece tu contraseña — 4BITO', html);
+}
+
 export async function sendStockNotifications(
   emails: string[],
   productName: string,

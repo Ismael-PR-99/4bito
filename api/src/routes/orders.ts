@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { pool } from '../db';
 import { requireAuth, requireAdmin, optionalAuth } from '../middleware/auth';
 import { sendOrderConfirmation, sendNewOrderAlert } from '../email';
+import { validate, createOrderSchema } from '../validate';
 
 const router = Router();
 const orderLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 10 });
@@ -27,12 +28,8 @@ function mapPedido(row: any) {
 }
 
 // POST /api/orders
-router.post('/', orderLimiter, optionalAuth, async (req, res) => {
-  const body = req.body ?? {};
-  const required = ['nombre', 'email', 'telefono', 'direccion', 'ciudad', 'cp', 'pais', 'productos'];
-  for (const f of required) {
-    if (!body[f] && body[f] !== 0) { res.status(400).json({ error: `Campo obligatorio: ${f}` }); return; }
-  }
+router.post('/', orderLimiter, optionalAuth, validate(createOrderSchema), async (req, res) => {
+  const body = req.body;
 
   const client = await pool.connect();
   try {
@@ -42,10 +39,7 @@ router.post('/', orderLimiter, optionalAuth, async (req, res) => {
     const productosValidados: any[] = [];
 
     for (const prod of body.productos) {
-      const prodId   = parseInt(prod.id ?? 0);
-      const talla    = prod.talla ?? '';
-      const cantidad = parseInt(prod.cantidad ?? 1);
-      if (!prodId || !talla || cantidad <= 0) { await client.query('ROLLBACK'); res.status(400).json({ error: 'Producto con datos inválidos' }); return; }
+      const { id: prodId, talla, cantidad } = prod;
 
       const { rows } = await client.query(
         'SELECT id, name, price, discounted_price, sizes, image_url FROM productos WHERE id = $1 FOR UPDATE',
@@ -91,7 +85,7 @@ router.post('/', orderLimiter, optionalAuth, async (req, res) => {
     }
 
     await client.query('COMMIT');
-    res.json({ success: true, data: { pedidoId, mensaje: 'Pedido creado correctamente' } });
+    res.status(201).json({ success: true, data: { pedidoId, mensaje: 'Pedido creado correctamente' } });
 
     // Fire-and-forget: do not await so order response is not delayed
     sendOrderConfirmation({

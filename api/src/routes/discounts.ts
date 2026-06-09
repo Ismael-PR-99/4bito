@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { validate, validateCodeSchema } from '../validate';
 
 const router = Router();
 
@@ -8,8 +9,8 @@ const VALID_CODES: Record<string, number> = {
 };
 
 // POST /api/discounts/validate
-router.post('/validate', (req, res) => {
-  const code = String(req.body?.code ?? '').toUpperCase().trim();
+router.post('/validate', validate(validateCodeSchema), (req, res) => {
+  const code = req.body.code.toUpperCase();
   const discount = VALID_CODES[code];
   if (!discount) {
     res.status(400).json({ success: false, error: 'Código inválido' }); return;

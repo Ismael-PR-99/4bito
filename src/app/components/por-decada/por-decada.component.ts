@@ -66,8 +66,8 @@ export class PorDecadaComponent implements OnInit, OnChanges {
     this.activeDecade.set(decade);
     this.cargandoProductos.set(true);
     this.productosService.getByDecade(decade).subscribe({
-      next: list => {
-        this.products.set(list);
+      next: result => {
+        this.products.set(result.products);
         this.cargandoProductos.set(false);
       },
       error: () => {

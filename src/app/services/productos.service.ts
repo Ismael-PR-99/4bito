@@ -20,6 +20,13 @@ export interface ProductoApi {
 
 export type SortOption = 'newest' | 'price-asc' | 'price-desc';
 
+export interface PagedResult {
+  products: ProductoApi[];
+  total:    number;
+  page:     number;
+  limit:    number;
+}
+
 export interface TallaForm {
   size: string;
   stock: number;
@@ -46,8 +53,8 @@ export class ProductosService {
     this.applyLocalDiscount(productId, 0, null);
   }
 
-  getByCategory(category: string): Observable<ProductoApi[]> {
-    return this.http.get<any>(`${this.baseUrl}?category=${category}`).pipe(map(res => res.data));
+  getByCategory(category: string, page = 1): Observable<PagedResult> {
+    return this.http.get<any>(`${this.baseUrl}?category=${category}&page=${page}`).pipe(map(res => res.data));
   }
 
   getById(id: number): Observable<ProductoApi> {
@@ -70,19 +77,19 @@ export class ProductosService {
     return this.http.get<any>(this.decadesUrl).pipe(map(res => res.data));
   }
 
-  getByDecade(decade: string, sort: SortOption = 'newest'): Observable<ProductoApi[]> {
-    return this.http.get<any>(`${this.baseUrl}?decade=${decade}&sort=${sort}`).pipe(map(res => res.data));
+  getByDecade(decade: string, sort: SortOption = 'newest', page = 1): Observable<PagedResult> {
+    return this.http.get<any>(`${this.baseUrl}?decade=${decade}&sort=${sort}&page=${page}`).pipe(map(res => res.data));
   }
 
-  getAllProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
-    return this.http.get<any>(`${this.baseUrl}?sort=${sort}`).pipe(
+  getAllProducts(sort: SortOption = 'newest', page = 1): Observable<PagedResult> {
+    return this.http.get<any>(`${this.baseUrl}?sort=${sort}&page=${page}`).pipe(
       map(res => res.data),
-      tap(list => this._store$.next(list))
+      tap(result => this._store$.next(result.products))
     );
   }
 
-  getNewProducts(sort: SortOption = 'newest'): Observable<ProductoApi[]> {
-    return this.http.get<any>(`${this.baseUrl}?new=1&sort=${sort}`).pipe(map(res => res.data));
+  getNewProducts(sort: SortOption = 'newest', page = 1): Observable<PagedResult> {
+    return this.http.get<any>(`${this.baseUrl}?new=1&sort=${sort}&page=${page}`).pipe(map(res => res.data));
   }
 
   getFiltered(params: {
@@ -90,12 +97,16 @@ export class ProductosService {
     category?: string;
     isNew?: boolean;
     sort?: SortOption;
-  }): Observable<ProductoApi[]> {
+    page?: number;
+    search?: string;
+  }): Observable<PagedResult> {
     const q = new URLSearchParams();
     if (params.decade)   q.set('decade',   params.decade);
     if (params.category) q.set('category', params.category);
     if (params.isNew)    q.set('new', '1');
     if (params.sort)     q.set('sort',     params.sort);
+    if (params.page)     q.set('page',     String(params.page));
+    if (params.search?.trim()) q.set('search', params.search.trim());
     return this.http.get<any>(`${this.baseUrl}?${q.toString()}`).pipe(map(res => res.data));
   }
 }

@@ -1,7 +1,9 @@
 import { Component, inject, signal, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ProductosService, ProductoApi, SortOption } from '../../services/productos.service';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { ProductosService, ProductoApi, SortOption, PagedResult } from '../../services/productos.service';
 import { TiendaService } from '../../services/tienda.service';
 import { WishlistService } from '../../services/wishlist.service';
 import { CompareService } from '../../services/compare.service';
@@ -10,7 +12,7 @@ import { AnimateOnScrollDirective } from '../../shared/directives/animate-on-scr
 @Component({
   selector: 'app-coleccion',
   standalone: true,
-  imports: [CommonModule, RouterLink, CurrencyPipe, DecimalPipe, AnimateOnScrollDirective],
+  imports: [CommonModule, RouterLink, CurrencyPipe, DecimalPipe, FormsModule, AnimateOnScrollDirective],
   templateUrl: './coleccion.component.html',
   styleUrls: ['./coleccion.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,11 +44,19 @@ export class ColeccionComponent implements OnInit {
   activeCategory = signal<string>('');
   isNew          = signal<boolean>(false);
   sort           = signal<SortOption>('newest');
+  searchQuery    = signal<string>('');
+
+  private search$ = new Subject<string>();
 
   // Estado UI
-  products  = signal<ProductoApi[]>([]);
-  cargando  = signal<boolean>(true);
-  error     = signal<string>('');
+  products     = signal<ProductoApi[]>([]);
+  cargando     = signal<boolean>(true);
+  loadingMore  = signal<boolean>(false);
+  error        = signal<string>('');
+  total        = signal<number>(0);
+  currentPage  = signal<number>(1);
+
+  readonly hasMore = computed(() => this.products().length < this.total());
 
   // Datos estáticos para el sidebar
   readonly decades    = ['70s', '80s', '90s', '00s'];
@@ -70,6 +80,14 @@ export class ColeccionComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.search$.pipe(debounceTime(350), distinctUntilChanged()).subscribe(q => {
+      this.searchQuery.set(q);
+      this.loadProducts({
+        decade: this.activeDecade(), category: this.activeCategory(),
+        isNew: this.isNew(), sort: this.sort(), search: q,
+      });
+    });
+
     this.route.queryParamMap.subscribe(params => {
       const decade   = params.get('decade')   ?? '';
       const category = params.get('category') ?? '';
@@ -81,8 +99,12 @@ export class ColeccionComponent implements OnInit {
       this.isNew.set(isNew);
       this.sort.set(sort);
 
-      this.loadProducts({ decade, category, isNew, sort });
+      this.loadProducts({ decade, category, isNew, sort, search: this.searchQuery() });
     });
+  }
+
+  onSearch(value: string): void {
+    this.search$.next(value);
   }
 
   private loadProducts(filters: {
@@ -90,25 +112,42 @@ export class ColeccionComponent implements OnInit {
     category: string;
     isNew: boolean;
     sort: SortOption;
-  }): void {
-    this.cargando.set(true);
-    this.error.set('');
+    search?: string;
+  }, append = false): void {
+    if (append) { this.loadingMore.set(true); }
+    else        { this.cargando.set(true); this.error.set(''); this.products.set([]); this.currentPage.set(1); }
 
     this.svc.getFiltered({
       decade:   filters.decade   || undefined,
       category: filters.category || undefined,
       isNew:    filters.isNew    || undefined,
       sort:     filters.sort,
+      search:   filters.search   || undefined,
+      page:     append ? this.currentPage() : 1,
     }).subscribe({
-      next: list => {
-        this.products.set(list);
+      next: (result: PagedResult) => {
+        this.products.update(prev => append ? [...prev, ...result.products] : result.products);
+        this.total.set(result.total);
         this.cargando.set(false);
+        this.loadingMore.set(false);
       },
       error: () => {
         this.error.set('No se pudieron cargar los productos.');
         this.cargando.set(false);
+        this.loadingMore.set(false);
       },
     });
+  }
+
+  cargarMas(): void {
+    this.currentPage.update(p => p + 1);
+    this.loadProducts({
+      decade:   this.activeDecade(),
+      category: this.activeCategory(),
+      isNew:    this.isNew(),
+      sort:     this.sort(),
+      search:   this.searchQuery(),
+    }, true);
   }
 
   // ── Acciones de filtro ─────────────────────────────────────────────────
@@ -143,6 +182,8 @@ export class ColeccionComponent implements OnInit {
   }
 
   clearFilters(): void {
+    this.searchQuery.set('');
+    this.search$.next('');
     this.navigate({});
   }
 

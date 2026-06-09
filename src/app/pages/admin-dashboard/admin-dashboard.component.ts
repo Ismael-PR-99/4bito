@@ -189,8 +189,8 @@ export class AdminDashboardComponent implements OnInit {
   private cargarInventario(): void {
     this.cargandoInv.set(true);
     this.productosSvc.getAllProducts().subscribe({
-      next: lista => { this.productos.set(lista); this.cargandoInv.set(false); },
-      error: ()   => this.cargandoInv.set(false),
+      next: result => { this.productos.set(result.products); this.cargandoInv.set(false); },
+      error: ()    => this.cargandoInv.set(false),
     });
   }
 
@@ -216,7 +216,7 @@ export class AdminDashboardComponent implements OnInit {
 
   private iniciarPieza(): void {
     this.discountSvc.pieza$.subscribe(p => this.piezaActual.set(p));
-    this.productosSvc.getAllProducts().subscribe(p => this.allProductos.set(p));
+    this.productosSvc.getAllProducts().subscribe(result => this.allProductos.set(result.products));
   }
 
   // ── Navegación ────────────────────────────────────────────

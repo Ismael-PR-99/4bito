@@ -39,4 +39,10 @@
 
   </div>
 
+  <div class="dec-load-more" *ngIf="!cargando() && !error() && hasMore()">
+    <button class="btn-load-more" (click)="cargarMas()" [disabled]="loadingMore()">
+      {{ loadingMore() ? 'CARGANDO...' : 'CARGAR MÁS' }}
+    </button>
+  </div>
+
 </div>

@@ -144,3 +144,12 @@
   .producto-info { padding: 0.5rem 0.75rem; }
   .producto-nombre { font-size: 0.85rem; }
 }
+
+.dec-load-more { display: flex; justify-content: center; padding: 32px 0; }
+.btn-load-more {
+  background: #111; color: #fff; border: none;
+  padding: 12px 40px; font-family: inherit; font-size: .85rem;
+  letter-spacing: .1em; cursor: pointer; transition: opacity .2s;
+}
+.btn-load-more:hover:not(:disabled) { opacity: .75; }
+.btn-load-more:disabled { opacity: .4; cursor: not-allowed; }

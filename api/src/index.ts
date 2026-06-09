@@ -3,6 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { validateEnv } from './startup';
+
+validateEnv();
 
 import authRoutes           from './routes/auth';
 import productsRoutes       from './routes/products';
@@ -20,10 +25,41 @@ import stockMovementsRoutes from './routes/stock-movements';
 import stockNotifsRoutes    from './routes/stock-notifications';
 import userRoutes           from './routes/user';
 import discountsRoutes      from './routes/discounts';
+import healthRoutes         from './routes/health';
 
 const app  = express();
 const PORT = parseInt(process.env.PORT ?? '3000');
 
+// Security headers
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Rate limiters
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas peticiones. Espera 15 minutos.' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos. Espera 15 minutos.' },
+  skipSuccessfulRequests: true,
+});
+
+const discountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas peticiones.' },
+});
+
+app.use(globalLimiter);
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:4200', credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
@@ -34,7 +70,7 @@ const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? '../uploads');
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 // Routes
-app.use('/api/auth',                authRoutes);
+app.use('/api/auth',                authLimiter, authRoutes);
 app.use('/api/products',            productsRoutes);
 app.use('/api/orders',              ordersRoutes);
 app.use('/api/decades',             decadesRoutes);
@@ -49,6 +85,7 @@ app.use('/api/returns',             returnsRoutes);
 app.use('/api/stock-movements',     stockMovementsRoutes);
 app.use('/api/stock-notifications', stockNotifsRoutes);
 app.use('/api/user',                userRoutes);
-app.use('/api/discounts',           discountsRoutes);
+app.use('/api/discounts',           discountLimiter, discountsRoutes);
+app.use('/api/health',              healthRoutes);
 
 app.listen(PORT, () => console.log(`4BITO API running on http://localhost:${PORT}`));

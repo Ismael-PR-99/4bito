@@ -5,6 +5,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { pool } from '../db';
 import { requireAdmin } from '../middleware/auth';
+import { validate, createProductSchema, updateProductSchema } from '../validate';
 
 const router = Router();
 
@@ -58,12 +59,24 @@ function mapRow(row: any) {
 // GET /api/products
 router.get('/', async (req, res) => {
   try {
-    const { category, decade, new: isNew, sort = 'newest' } = req.query as Record<string, string>;
+    const { category, decade, new: isNew, sort = 'newest', search } = req.query as Record<string, string>;
+    const page  = Math.max(1, parseInt(String(req.query.page  ?? '1')));
+    const limit = Math.min(48, Math.max(1, parseInt(String(req.query.limit ?? '24'))));
+    const offset = (page - 1) * limit;
 
     const where: string[] = [];
     const params: any[] = [];
     let i = 1;
 
+    if (search?.trim()) {
+      const q = search.trim();
+      where.push(`(
+        to_tsvector('spanish', name || ' ' || team || ' ' || league) @@ plainto_tsquery('spanish', $${i})
+        OR name ILIKE $${i + 1}
+      )`);
+      params.push(q, `%${q}%`);
+      i += 2;
+    }
     if (category) { where.push(`category = $${i++}`); params.push(category); }
     if (decade) {
       const range = decadeToRange(decade);
@@ -74,15 +87,25 @@ router.get('/', async (req, res) => {
     if (isNew === '1') where.push(`(is_new = 1 OR created_at >= NOW() - INTERVAL '30 days')`);
 
     const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : '';
-    const orderSQL = sort === 'price-asc' ? 'ORDER BY price ASC' : sort === 'price-desc' ? 'ORDER BY price DESC' : 'ORDER BY created_at DESC';
+    const orderSQL = search?.trim()
+      ? `ORDER BY ts_rank(to_tsvector('spanish', name || ' ' || team || ' ' || league), plainto_tsquery('spanish', $1)) DESC`
+      : sort === 'price-asc' ? 'ORDER BY price ASC'
+      : sort === 'price-desc' ? 'ORDER BY price DESC'
+      : 'ORDER BY created_at DESC';
 
-    const { rows } = await pool.query(
-      `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, sku, rating_avg, rating_count, created_at
-       FROM productos ${whereSQL} ${orderSQL} LIMIT 100`,
-      params
-    );
+    const [{ rows }, { rows: countRows }] = await Promise.all([
+      pool.query(
+        `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, sku, rating_avg, rating_count, created_at
+         FROM productos ${whereSQL} ${orderSQL} LIMIT $${i} OFFSET $${i + 1}`,
+        [...params, limit, offset]
+      ),
+      pool.query(`SELECT COUNT(*) FROM productos ${whereSQL}`, params),
+    ]);
 
-    res.json({ success: true, data: rows.map(mapRow) });
+    res.json({
+      success: true,
+      data: { products: rows.map(mapRow), total: parseInt(countRows[0].count), page, limit },
+    });
   } catch (e) {
     console.error('[products] GET / error:', e);
     res.status(500).json({ error: 'Error interno del servidor' });
@@ -125,7 +148,7 @@ router.get('/:id/frequently-bought', async (req, res) => {
 });
 
 // POST /api/products (admin)
-router.post('/', requireAdmin, upload.single('image'), async (req: Request, res) => {
+router.post('/', requireAdmin, upload.single('image'), validate(createProductSchema), async (req: Request, res) => {
   const cleanupFile = () => {
     if (req.file) {
       try { fs.unlinkSync(path.join(UPLOAD_DIR, req.file!.filename)); } catch {}
@@ -133,21 +156,9 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res)
   };
 
   try {
-    const { name, team, league, price, year, category, sizes } = req.body ?? {};
-
-    if (!name || !team || !league || price === undefined || year === undefined || !category) {
-      cleanupFile();
-      res.status(400).json({ error: 'name, team, league, price, year y category son obligatorios' }); return;
-    }
     if (!req.file) { res.status(400).json({ error: 'La imagen es obligatoria' }); return; }
 
-    let sizesDecoded: any[];
-    try {
-      sizesDecoded = sizes ? JSON.parse(sizes) : [];
-    } catch {
-      cleanupFile();
-      res.status(400).json({ error: 'sizes debe ser JSON válido' }); return;
-    }
+    const { name, team, league, price, year, category, sizes: sizesDecoded } = req.body;
 
     const imageUrl = `${process.env.UPLOAD_URL}/${req.file.filename}`;
 
@@ -177,7 +188,7 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res)
 });
 
 // PUT /api/products/:id (admin)
-router.put('/:id', requireAdmin, upload.single('image'), async (req: Request, res) => {
+router.put('/:id', requireAdmin, upload.single('image'), validate(updateProductSchema), async (req: Request, res) => {
   const cleanupFile = () => {
     if (req.file) {
       try { fs.unlinkSync(path.join(UPLOAD_DIR, req.file!.filename)); } catch {}
@@ -186,30 +197,23 @@ router.put('/:id', requireAdmin, upload.single('image'), async (req: Request, re
 
   try {
     const id = parseInt(req.params.id);
-    const { name, team, league, price, year, category, sizes } = req.body ?? {};
+    const { name, team, league, price, year, category, sizes } = req.body;
 
     const { rows: existing } = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
     if (!existing.length) { cleanupFile(); res.status(404).json({ error: 'Producto no encontrado' }); return; }
 
     const prev = existing[0];
     const imageUrl = req.file ? `${process.env.UPLOAD_URL}/${req.file.filename}` : prev.image_url;
-
-    let sizesDecoded: any[];
-    try {
-      sizesDecoded = sizes ? JSON.parse(sizes) : (typeof prev.sizes === 'string' ? JSON.parse(prev.sizes) : prev.sizes);
-    } catch {
-      cleanupFile();
-      res.status(400).json({ error: 'sizes debe ser JSON válido' }); return;
-    }
+    const sizesDecoded = sizes ?? (typeof prev.sizes === 'string' ? JSON.parse(prev.sizes) : prev.sizes);
 
     await pool.query(
       `UPDATE productos SET name=$1, price=$2, team=$3, year=$4, league=$5, image_url=$6, category=$7, sizes=$8 WHERE id=$9`,
       [
-        name ?? prev.name,
-        price !== undefined ? parseFloat(price) : parseFloat(prev.price),
-        team ?? prev.team,
-        year !== undefined ? parseInt(year) : parseInt(prev.year),
-        league ?? prev.league,
+        name     ?? prev.name,
+        price    ?? parseFloat(prev.price),
+        team     ?? prev.team,
+        year     ?? parseInt(prev.year),
+        league   ?? prev.league,
         imageUrl,
         category ?? prev.category,
         JSON.stringify(sizesDecoded),

@@ -2,16 +2,16 @@ import { Router } from 'express';
 import { pool } from '../db';
 import { requireAdmin } from '../middleware/auth';
 import { sendStockNotifications } from '../email';
+import { validate, subscribeNotifSchema, notifyWaitlistSchema } from '../validate';
 
 const router = Router();
 
-router.post('/subscribe', async (req, res) => {
+router.post('/subscribe', validate(subscribeNotifSchema), async (req, res) => {
   try {
-    const { email, productId, size } = req.body ?? {};
-    if (!email || !productId || !size) { res.status(400).json({ error: 'email, productId y size requeridos' }); return; }
+    const { email, productId, size } = req.body;
     await pool.query(
       'INSERT INTO stock_notifications (email, product_id, size) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
-      [String(email).trim(), parseInt(productId), size]
+      [email, productId, size]
     );
     res.json({ success: true, data: { mensaje: 'Te notificaremos cuando haya stock' } });
   } catch (e) {
@@ -37,21 +37,20 @@ router.get('/waitlist', requireAdmin, async (_req, res) => {
   }
 });
 
-router.post('/notify', requireAdmin, async (req, res) => {
+router.post('/notify', requireAdmin, validate(notifyWaitlistSchema), async (req, res) => {
   try {
-    const { productId, size } = req.body ?? {};
-    if (!productId || !size) { res.status(400).json({ error: 'productId y size requeridos' }); return; }
+    const { productId, size } = req.body;
 
     const { rows: subscribers } = await pool.query(
       `SELECT sn.email, p.name as product_name, p.id as product_id
        FROM stock_notifications sn JOIN productos p ON p.id = sn.product_id
        WHERE sn.product_id = $1 AND sn.size = $2 AND sn.sent = 0`,
-      [parseInt(productId), size]
+      [productId, size]
     );
 
     await pool.query(
       'UPDATE stock_notifications SET sent = 1, sent_at = NOW() WHERE product_id = $1 AND size = $2 AND sent = 0',
-      [parseInt(productId), size]
+      [productId, size]
     );
 
     res.json({ success: true, data: { notified: subscribers.length } });

@@ -7,8 +7,18 @@
       <h1 class="col-title">{{ titulo() }}<span class="col-badge new-badge" *ngIf="isNew()">&nbsp;NEW IN</span></h1>
     </div>
     <div class="col-header__right">
-      <span class="col-count" *ngIf="!cargando()">{{ products().length }} PRODUCTOS</span>
-      <button class="btn-clear" *ngIf="hasFilters() && !cargando()" (click)="clearFilters()">
+      <div class="col-search">
+        <input
+          class="col-search__input"
+          type="search"
+          placeholder="BUSCAR PRODUCTO..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearch($event)"
+          autocomplete="off"
+        />
+      </div>
+      <span class="col-count" *ngIf="!cargando()">{{ products().length }} / {{ total() }} PRODUCTOS</span>
+      <button class="btn-clear" *ngIf="(hasFilters() || searchQuery()) && !cargando()" (click)="clearFilters()">
         ✕ LIMPIAR FILTROS
       </button>
     </div>
@@ -125,6 +135,14 @@
         </div>
 
       </div>
+
+      <!-- Load more -->
+      <div class="col-load-more" *ngIf="!cargando() && !error() && hasMore()">
+        <button class="btn-load-more" (click)="cargarMas()" [disabled]="loadingMore()">
+          {{ loadingMore() ? 'CARGANDO...' : 'CARGAR MÁS' }}
+        </button>
+      </div>
+
     </main>
 
   </div>

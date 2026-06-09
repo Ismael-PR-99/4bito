@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TiendaService } from '../../services/tienda.service';
 import { AuthService } from '../../services/auth.service';
-import { ProductosService, ProductoApi } from '../../services/productos.service';
+import { ProductosService, ProductoApi, PagedResult } from '../../services/productos.service';
 import { AnadirProductoComponent } from '../../components/anadir-producto/anadir-producto.component';
 import { EditarProductoComponent } from '../../components/editar-producto/editar-producto.component';
 import { Categoria } from '../../models/categoria.model';
@@ -43,10 +43,15 @@ export class CategoriaComponent implements OnInit {
   categoria:       Categoria | undefined;
   productos:       Producto[] = [];
   cargando:        boolean = false;
+  loadingMore:     boolean = false;
   mostrarModal:    boolean = false;
   productoEditando: Producto | null = null;
   slugActual:      string  = '';
   esAdmin:         boolean = false;
+  total:           number  = 0;
+  currentPage:     number  = 1;
+
+  get hasMore(): boolean { return this.productos.length < this.total; }
 
   ngOnInit(): void {
     this.esAdmin = this.authService.isAdmin();
@@ -60,9 +65,11 @@ export class CategoriaComponent implements OnInit {
 
   cargarProductos(): void {
     this.cargando = true;
-    this.productosService.getByCategory(this.slugActual).subscribe({
-      next: lista => {
-        this.productos = lista.map(apiToProducto);
+    this.currentPage = 1;
+    this.productosService.getByCategory(this.slugActual, 1).subscribe({
+      next: (result: PagedResult) => {
+        this.productos = result.products.map(apiToProducto);
+        this.total     = result.total;
         this.cargando  = false;
         this.cdr.markForCheck();
       },
@@ -71,6 +78,20 @@ export class CategoriaComponent implements OnInit {
         this.cargando  = false;
         this.cdr.markForCheck();
       },
+    });
+  }
+
+  cargarMas(): void {
+    this.loadingMore = true;
+    this.currentPage++;
+    this.productosService.getByCategory(this.slugActual, this.currentPage).subscribe({
+      next: (result: PagedResult) => {
+        this.productos = [...this.productos, ...result.products.map(apiToProducto)];
+        this.total     = result.total;
+        this.loadingMore = false;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.loadingMore = false; this.cdr.markForCheck(); },
     });
   }
 
