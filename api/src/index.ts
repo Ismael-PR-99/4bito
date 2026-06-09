@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { validateEnv } from './startup';
+import { validateEnv, runMigrations } from './startup';
 import { logger } from './logger';
 import { pool } from './db';
 
@@ -90,9 +90,17 @@ app.use('/api/user',                userRoutes);
 app.use('/api/discounts',           discountLimiter, discountsRoutes);
 app.use('/api/health',              healthRoutes);
 
-const server = app.listen(PORT, () =>
-  logger.info('4BITO API started', { port: PORT, env: process.env.NODE_ENV ?? 'development' })
-);
+// Serve Angular SPA in production (same-origin deployment)
+if (process.env.NODE_ENV === 'production') {
+  const publicDir = path.resolve(__dirname, '../public');
+  app.use(express.static(publicDir));
+  app.get('*', (_req, res) => res.sendFile(path.join(publicDir, 'index.html')));
+}
+
+const server = app.listen(PORT, async () => {
+  await runMigrations().catch(e => logger.error('Migration failed', { error: String(e) }));
+  logger.info('4BITO API started', { port: PORT, env: process.env.NODE_ENV ?? 'development' });
+});
 
 async function shutdown(signal: string): Promise<void> {
   logger.info(`${signal} received — shutting down`);

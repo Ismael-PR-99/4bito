@@ -159,6 +159,38 @@ Services start at the same ports. PostgreSQL is auto-initialized with schema + i
 
 ---
 
+## Deploy on Railway
+
+The project deploys as a single service: Express serves both the REST API (`/api/*`) and the Angular SPA from the same origin.
+
+### One-click deploy
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template)
+
+### Manual steps
+
+1. Create a new Railway project
+2. Add a **PostgreSQL** plugin — Railway auto-sets `DATABASE_URL`
+3. Add a **Web Service** pointing to this repository
+4. Railway picks up `railway.toml` automatically (uses root `Dockerfile`)
+5. Set environment variables in the Railway dashboard:
+
+```
+JWT_SECRET=<strong-random-secret>
+CORS_ORIGIN=https://your-app.up.railway.app
+FRONTEND_URL=https://your-app.up.railway.app
+ADMIN_EMAIL=your@email.com
+SMTP_HOST=smtp.example.com
+SMTP_USER=...
+SMTP_PASS=...
+```
+
+> **`DATABASE_URL`** is injected automatically by the Railway PostgreSQL plugin — no manual DB config needed.
+
+> **Migrations** run automatically on every boot (idempotent `IF NOT EXISTS` SQL).
+
+---
+
 ## API Reference
 
 ```
