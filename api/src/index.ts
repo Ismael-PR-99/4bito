@@ -18,11 +18,12 @@ import returnsRoutes        from './routes/returns';
 import stockMovementsRoutes from './routes/stock-movements';
 import stockNotifsRoutes    from './routes/stock-notifications';
 import userRoutes           from './routes/user';
+import discountsRoutes      from './routes/discounts';
 
 const app  = express();
 const PORT = parseInt(process.env.PORT ?? '3000');
 
-app.use(cors({ origin: 'http://localhost:4200', credentials: true }));
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:4200', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,5 +47,6 @@ app.use('/api/returns',             returnsRoutes);
 app.use('/api/stock-movements',     stockMovementsRoutes);
 app.use('/api/stock-notifications', stockNotifsRoutes);
 app.use('/api/user',                userRoutes);
+app.use('/api/discounts',           discountsRoutes);
 
 app.listen(PORT, () => console.log(`4BITO API running on http://localhost:${PORT}`));

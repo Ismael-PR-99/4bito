@@ -1,19 +1,18 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, combineLatest } from 'rxjs';
-import { CartItem, DiscountCode, AppliedDiscount } from '../models/cart-item.model';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, map, combineLatest, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { CartItem, AppliedDiscount } from '../models/cart-item.model';
 import { Producto } from '../models/producto.model';
+import { environment } from '../../environments/environment';
 
 const CART_KEY     = '4bito_cart';
 const DISCOUNT_KEY = '4bito_discount';
 
-const VALID_CODES: DiscountCode[] = [
-  { code: 'RETRO10', discount: 10 },
-  { code: 'VIP20',   discount: 20 },
-];
-
 @Injectable({ providedIn: 'root' })
 export class CartService {
 
+  private http      = inject(HttpClient);
   private items$    = new BehaviorSubject<CartItem[]>(this.loadCart());
   private discount$ = new BehaviorSubject<AppliedDiscount | null>(this.loadDiscount());
 
@@ -97,13 +96,19 @@ export class CartService {
 
   // ── Códigos de descuento ─────────────────────────────────────────────────
 
-  applyCode(code: string): 'valid' | 'invalid' {
-    const found = VALID_CODES.find(c => c.code === code.toUpperCase().trim());
-    if (found) {
-      this.setDiscount({ code: found.code, discount: found.discount });
-      return 'valid';
-    }
-    return 'invalid';
+  applyCode(code: string): Observable<'valid' | 'invalid'> {
+    return this.http
+      .post<{ success: boolean; data: { code: string; discount: number } }>(
+        `${environment.apiUrl}/discounts/validate`,
+        { code }
+      )
+      .pipe(
+        map(res => {
+          this.setDiscount({ code: res.data.code, discount: res.data.discount });
+          return 'valid' as const;
+        }),
+        catchError(() => of('invalid' as const))
+      );
   }
 
   removeDiscount(): void {

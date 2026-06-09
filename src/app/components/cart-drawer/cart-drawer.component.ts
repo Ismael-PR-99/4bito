@@ -65,8 +65,10 @@ export class CartDrawerComponent implements OnInit {
 
   applyCode(): void {
     if (!this.discountInput.trim()) return;
-    const result = this.cartService.applyCode(this.discountInput);
-    this.discountStatus = result;
+    this.discountStatus = 'idle';
+    this.cartService.applyCode(this.discountInput).subscribe(result => {
+      this.discountStatus = result;
+    });
   }
 
   removeDiscount(): void {

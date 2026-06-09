@@ -57,145 +57,209 @@ function mapRow(row: any) {
 
 // GET /api/products
 router.get('/', async (req, res) => {
-  const { category, decade, new: isNew, sort = 'newest' } = req.query as Record<string, string>;
+  try {
+    const { category, decade, new: isNew, sort = 'newest' } = req.query as Record<string, string>;
 
-  const where: string[] = [];
-  const params: any[] = [];
-  let i = 1;
+    const where: string[] = [];
+    const params: any[] = [];
+    let i = 1;
 
-  if (category) { where.push(`category = $${i++}`); params.push(category); }
-  if (decade) {
-    const range = decadeToRange(decade);
-    if (!range) { res.status(400).json({ error: 'Formato de década inválido (ej: 90s)' }); return; }
-    where.push(`year BETWEEN $${i++} AND $${i++}`);
-    params.push(range[0], range[1]);
+    if (category) { where.push(`category = $${i++}`); params.push(category); }
+    if (decade) {
+      const range = decadeToRange(decade);
+      if (!range) { res.status(400).json({ error: 'Formato de década inválido (ej: 90s)' }); return; }
+      where.push(`year BETWEEN $${i++} AND $${i++}`);
+      params.push(range[0], range[1]);
+    }
+    if (isNew === '1') where.push(`(is_new = 1 OR created_at >= NOW() - INTERVAL '30 days')`);
+
+    const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : '';
+    const orderSQL = sort === 'price-asc' ? 'ORDER BY price ASC' : sort === 'price-desc' ? 'ORDER BY price DESC' : 'ORDER BY created_at DESC';
+
+    const { rows } = await pool.query(
+      `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, sku, rating_avg, rating_count, created_at
+       FROM productos ${whereSQL} ${orderSQL} LIMIT 100`,
+      params
+    );
+
+    res.json({ success: true, data: rows.map(mapRow) });
+  } catch (e) {
+    console.error('[products] GET / error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
-  if (isNew === '1') where.push(`(is_new = 1 OR created_at >= NOW() - INTERVAL '30 days')`);
-
-  const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : '';
-  const orderSQL = sort === 'price-asc' ? 'ORDER BY price ASC' : sort === 'price-desc' ? 'ORDER BY price DESC' : 'ORDER BY created_at DESC';
-
-  const { rows } = await pool.query(
-    `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, sku, rating_avg, rating_count, created_at
-     FROM productos ${whereSQL} ${orderSQL} LIMIT 100`,
-    params
-  );
-
-  res.json({ success: true, data: rows.map(mapRow) });
 });
 
 // GET /api/products/:id
 router.get('/:id', async (req, res) => {
-  const { rows } = await pool.query(
-    `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, sku, rating_avg, rating_count, created_at
-     FROM productos WHERE id = $1`,
-    [parseInt(req.params.id)]
-  );
-  if (!rows.length) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
-  res.json({ success: true, data: mapRow(rows[0]) });
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new, sku, rating_avg, rating_count, created_at
+       FROM productos WHERE id = $1`,
+      [parseInt(req.params.id)]
+    );
+    if (!rows.length) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
+    res.json({ success: true, data: mapRow(rows[0]) });
+  } catch (e) {
+    console.error('[products] GET /:id error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 // GET /api/products/:id/frequently-bought
 router.get('/:id/frequently-bought', async (req, res) => {
-  const productId = parseInt(req.params.id);
-  const { rows: productRows } = await pool.query('SELECT category FROM productos WHERE id = $1', [productId]);
-  if (!productRows.length) { res.json({ success: true, data: [] }); return; }
+  try {
+    const productId = parseInt(req.params.id);
+    const { rows: productRows } = await pool.query('SELECT category FROM productos WHERE id = $1', [productId]);
+    if (!productRows.length) { res.json({ success: true, data: [] }); return; }
 
-  const { rows } = await pool.query(
-    `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new
-     FROM productos WHERE category = $1 AND id != $2 ORDER BY RANDOM() LIMIT 4`,
-    [productRows[0].category, productId]
-  );
-  res.json({ success: true, data: rows.map(mapRow) });
+    const { rows } = await pool.query(
+      `SELECT id, name, price, discount_percent, discounted_price, team, year, league, image_url, category, sizes, is_new
+       FROM productos WHERE category = $1 AND id != $2 ORDER BY RANDOM() LIMIT 4`,
+      [productRows[0].category, productId]
+    );
+    res.json({ success: true, data: rows.map(mapRow) });
+  } catch (e) {
+    console.error('[products] GET /:id/frequently-bought error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 // POST /api/products (admin)
 router.post('/', requireAdmin, upload.single('image'), async (req: Request, res) => {
-  const { name, team, league, price, year, category, sizes } = req.body ?? {};
+  const cleanupFile = () => {
+    if (req.file) {
+      try { fs.unlinkSync(path.join(UPLOAD_DIR, req.file!.filename)); } catch {}
+    }
+  };
 
-  if (!name || !team || !league || price === undefined || year === undefined || !category) {
-    res.status(400).json({ error: 'name, team, league, price, year y category son obligatorios' }); return;
+  try {
+    const { name, team, league, price, year, category, sizes } = req.body ?? {};
+
+    if (!name || !team || !league || price === undefined || year === undefined || !category) {
+      cleanupFile();
+      res.status(400).json({ error: 'name, team, league, price, year y category son obligatorios' }); return;
+    }
+    if (!req.file) { res.status(400).json({ error: 'La imagen es obligatoria' }); return; }
+
+    let sizesDecoded: any[];
+    try {
+      sizesDecoded = sizes ? JSON.parse(sizes) : [];
+    } catch {
+      cleanupFile();
+      res.status(400).json({ error: 'sizes debe ser JSON válido' }); return;
+    }
+
+    const imageUrl = `${process.env.UPLOAD_URL}/${req.file.filename}`;
+
+    const { rows } = await pool.query(
+      `INSERT INTO productos (name, price, team, year, league, image_url, category, sizes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+      [name, parseFloat(price), team, parseInt(year), league, imageUrl, category, JSON.stringify(sizesDecoded)]
+    );
+
+    const newId = rows[0].id;
+    const catAbbrev = category.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
+    const sku = `4BT-${catAbbrev}-${year}-${String(newId).padStart(4, '0')}`;
+    await pool.query('UPDATE productos SET sku = $1 WHERE id = $2', [sku, newId]);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        mensaje: 'Producto creado correctamente',
+        producto: { id: newId, name, price: parseFloat(price), team, year: parseInt(year), league, imageUrl, category, sizes: sizesDecoded, sku },
+      },
+    });
+  } catch (e) {
+    cleanupFile();
+    console.error('[products] POST / error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
-  if (!req.file) { res.status(400).json({ error: 'La imagen es obligatoria' }); return; }
-
-  const sizesDecoded = sizes ? JSON.parse(sizes) : [];
-  const imageUrl = `${process.env.UPLOAD_URL}/${req.file.filename}`;
-
-  const { rows } = await pool.query(
-    `INSERT INTO productos (name, price, team, year, league, image_url, category, sizes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
-    [name, parseFloat(price), team, parseInt(year), league, imageUrl, category, JSON.stringify(sizesDecoded)]
-  );
-
-  const newId = rows[0].id;
-  const catAbbrev = category.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
-  const sku = `4BT-${catAbbrev}-${year}-${String(newId).padStart(4, '0')}`;
-  await pool.query('UPDATE productos SET sku = $1 WHERE id = $2', [sku, newId]);
-
-  res.status(201).json({
-    success: true,
-    data: {
-      mensaje: 'Producto creado correctamente',
-      producto: { id: newId, name, price: parseFloat(price), team, year: parseInt(year), league, imageUrl, category, sizes: sizesDecoded, sku },
-    },
-  });
 });
 
 // PUT /api/products/:id (admin)
 router.put('/:id', requireAdmin, upload.single('image'), async (req: Request, res) => {
-  const id = parseInt(req.params.id);
-  const { name, team, league, price, year, category, sizes } = req.body ?? {};
+  const cleanupFile = () => {
+    if (req.file) {
+      try { fs.unlinkSync(path.join(UPLOAD_DIR, req.file!.filename)); } catch {}
+    }
+  };
 
-  const { rows: existing } = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
-  if (!existing.length) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
+  try {
+    const id = parseInt(req.params.id);
+    const { name, team, league, price, year, category, sizes } = req.body ?? {};
 
-  const prev = existing[0];
-  const imageUrl = req.file ? `${process.env.UPLOAD_URL}/${req.file.filename}` : prev.image_url;
-  const sizesDecoded = sizes ? JSON.parse(sizes) : (typeof prev.sizes === 'string' ? JSON.parse(prev.sizes) : prev.sizes);
+    const { rows: existing } = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
+    if (!existing.length) { cleanupFile(); res.status(404).json({ error: 'Producto no encontrado' }); return; }
 
-  await pool.query(
-    `UPDATE productos SET name=$1, price=$2, team=$3, year=$4, league=$5, image_url=$6, category=$7, sizes=$8 WHERE id=$9`,
-    [
-      name ?? prev.name,
-      price !== undefined ? parseFloat(price) : parseFloat(prev.price),
-      team ?? prev.team,
-      year !== undefined ? parseInt(year) : parseInt(prev.year),
-      league ?? prev.league,
-      imageUrl,
-      category ?? prev.category,
-      JSON.stringify(sizesDecoded),
-      id,
-    ]
-  );
+    const prev = existing[0];
+    const imageUrl = req.file ? `${process.env.UPLOAD_URL}/${req.file.filename}` : prev.image_url;
 
-  const { rows } = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
-  res.json({ success: true, data: { mensaje: 'Producto actualizado', producto: mapRow(rows[0]) } });
+    let sizesDecoded: any[];
+    try {
+      sizesDecoded = sizes ? JSON.parse(sizes) : (typeof prev.sizes === 'string' ? JSON.parse(prev.sizes) : prev.sizes);
+    } catch {
+      cleanupFile();
+      res.status(400).json({ error: 'sizes debe ser JSON válido' }); return;
+    }
+
+    await pool.query(
+      `UPDATE productos SET name=$1, price=$2, team=$3, year=$4, league=$5, image_url=$6, category=$7, sizes=$8 WHERE id=$9`,
+      [
+        name ?? prev.name,
+        price !== undefined ? parseFloat(price) : parseFloat(prev.price),
+        team ?? prev.team,
+        year !== undefined ? parseInt(year) : parseInt(prev.year),
+        league ?? prev.league,
+        imageUrl,
+        category ?? prev.category,
+        JSON.stringify(sizesDecoded),
+        id,
+      ]
+    );
+
+    const { rows } = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
+    res.json({ success: true, data: { mensaje: 'Producto actualizado', producto: mapRow(rows[0]) } });
+  } catch (e) {
+    cleanupFile();
+    console.error('[products] PUT /:id error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 // DELETE /api/products/:id (admin)
 router.delete('/:id', requireAdmin, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { rowCount } = await pool.query('DELETE FROM productos WHERE id = $1', [id]);
-  if (!rowCount) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
-  res.json({ success: true, data: { mensaje: 'Producto eliminado', id } });
+  try {
+    const id = parseInt(req.params.id);
+    const { rowCount } = await pool.query('DELETE FROM productos WHERE id = $1', [id]);
+    if (!rowCount) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
+    res.json({ success: true, data: { mensaje: 'Producto eliminado', id } });
+  } catch (e) {
+    console.error('[products] DELETE /:id error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 // PUT /api/products/:id/stock (admin)
 router.put('/:id/stock', requireAdmin, async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { stock } = req.body ?? {};
-  if (!stock || typeof stock !== 'object') { res.status(400).json({ error: 'stock es obligatorio' }); return; }
+  try {
+    const id = parseInt(req.params.id);
+    const { stock } = req.body ?? {};
+    if (!stock || typeof stock !== 'object') { res.status(400).json({ error: 'stock es obligatorio' }); return; }
 
-  const { rows } = await pool.query('SELECT sizes FROM productos WHERE id = $1', [id]);
-  if (!rows.length) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
+    const { rows } = await pool.query('SELECT sizes FROM productos WHERE id = $1', [id]);
+    if (!rows.length) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
 
-  const sizes: { size: string; stock: number }[] = typeof rows[0].sizes === 'string' ? JSON.parse(rows[0].sizes) : rows[0].sizes;
-  for (const s of sizes) {
-    if (stock[s.size] !== undefined) s.stock = parseInt(stock[s.size]);
+    const sizes: { size: string; stock: number }[] = typeof rows[0].sizes === 'string' ? JSON.parse(rows[0].sizes) : rows[0].sizes;
+    for (const s of sizes) {
+      if (stock[s.size] !== undefined) s.stock = parseInt(stock[s.size]);
+    }
+
+    await pool.query('UPDATE productos SET sizes = $1 WHERE id = $2', [JSON.stringify(sizes), id]);
+    res.json({ success: true, data: { mensaje: 'Stock actualizado' } });
+  } catch (e) {
+    console.error('[products] PUT /:id/stock error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
-
-  await pool.query('UPDATE productos SET sizes = $1 WHERE id = $2', [JSON.stringify(sizes), id]);
-  res.json({ success: true, data: { mensaje: 'Stock actualizado' } });
 });
 
 export default router;

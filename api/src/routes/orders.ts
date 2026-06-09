@@ -62,7 +62,7 @@ router.post('/', orderLimiter, optionalAuth, async (req, res) => {
       }
 
       total += precio * cantidad;
-      productosValidados.push({ id: prodId, nombre: dbProd.name, imageUrl: dbProd.image_url, talla, cantidad, precio });
+      productosValidados.push({ id: prodId, nombre: dbProd.name, imageUrl: dbProd.image_url, talla, cantidad, precio, sizes });
     }
 
     total = Math.round(total * 100) / 100;
@@ -83,12 +83,10 @@ router.post('/', orderLimiter, optionalAuth, async (req, res) => {
     await client.query('INSERT INTO pedido_historial (pedido_id, estado, fecha) VALUES ($1,$2,NOW())', [pedidoId, 'procesando']);
 
     for (const prod of productosValidados) {
-      const { rows: sRows } = await client.query('SELECT sizes FROM productos WHERE id = $1', [prod.id]);
-      const sizes: { size: string; stock: number }[] = typeof sRows[0].sizes === 'string' ? JSON.parse(sRows[0].sizes) : sRows[0].sizes;
-      for (const s of sizes) {
+      for (const s of prod.sizes) {
         if (s.size === prod.talla) s.stock = Math.max(0, s.stock - prod.cantidad);
       }
-      await client.query('UPDATE productos SET sizes = $1 WHERE id = $2', [JSON.stringify(sizes), prod.id]);
+      await client.query('UPDATE productos SET sizes = $1 WHERE id = $2', [JSON.stringify(prod.sizes), prod.id]);
     }
 
     await client.query('COMMIT');
