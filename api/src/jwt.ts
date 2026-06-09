@@ -16,10 +16,14 @@ export function signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   return jwt.sign(payload, SECRET, { expiresIn: EXPIRES });
 }
 
-export function verifyToken(token: string): JwtPayload | null {
+export type TokenResult =
+  | { ok: true;  payload: JwtPayload }
+  | { ok: false; reason: 'expired' | 'invalid' };
+
+export function verifyToken(token: string): TokenResult {
   try {
-    return jwt.verify(token, SECRET) as JwtPayload;
-  } catch {
-    return null;
+    return { ok: true, payload: jwt.verify(token, SECRET) as JwtPayload };
+  } catch (e) {
+    return { ok: false, reason: e instanceof jwt.TokenExpiredError ? 'expired' : 'invalid' };
   }
 }
