@@ -39,7 +39,7 @@ export class ReturnsService {
 
   create(data: { orderId: number; products: any[]; reason: string; description: string; photos: string[]; resolution: string }) {
     return this.http.post<any>(
-      `${this.api}/create.php`, data, { headers: this.headers() }
+      `${this.api}`, data, { headers: this.headers() }
     ).pipe(map(res => res.data));
   }
 
@@ -47,7 +47,7 @@ export class ReturnsService {
     this.loading.set(true);
     const params: any = {};
     if (status) params.status = status;
-    this.http.get<any>(`${this.api}/list.php`, { headers: this.headers(), params })
+    this.http.get<any>(`${this.api}`, { headers: this.headers(), params })
       .subscribe({
         next: res => { this.returns.set(res.data); this.loading.set(false); },
         error: () => this.loading.set(false),
@@ -55,15 +55,15 @@ export class ReturnsService {
   }
 
   get(id: number) {
-    return this.http.get<any>(`${this.api}/get.php`, { headers: this.headers(), params: { id: id.toString() } }).pipe(
+    return this.http.get<any>(`${this.api}/${id}`, { headers: this.headers() }).pipe(
       map(res => res.data)
     );
   }
 
   updateStatus(id: number, status: string, adminNotes?: string) {
-    return this.http.post<any>(
-      `${this.api}/update.php`,
-      { id, status, admin_notes: adminNotes || '' },
+    return this.http.put<any>(
+      `${this.api}/${id}`,
+      { status, admin_notes: adminNotes || '' },
       { headers: this.headers() }
     ).pipe(map(res => res.data));
   }

@@ -29,8 +29,8 @@ export interface PedidoUsuario {
 
 @Injectable({ providedIn: 'root' })
 export class UserProfileService {
-  private readonly sizesUrl = `${environment.apiUrl}/user/sizes.php`;
-  private readonly ordersUrl = `${environment.apiUrl}/orders/user.php`;
+  private readonly sizesUrl = `${environment.apiUrl}/user/sizes`;
+  private readonly ordersUrl = `${environment.apiUrl}/orders/user`;
   private http = inject(HttpClient);
   private auth = inject(AuthService);
 

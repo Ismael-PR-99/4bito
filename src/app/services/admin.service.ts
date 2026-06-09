@@ -92,44 +92,44 @@ export class AdminService {
 
   getMetricas(): Observable<Metricas> {
     return this.http
-      .get<any>(`${this.apiBase}/admin/metrics.php`, { headers: this.headers() })
+      .get<any>(`${this.apiBase}/admin/metrics`, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<Metricas>;
   }
 
   getPedidos(estado?: string): Observable<Pedido[]> {
     const q = estado && estado !== 'todos' ? `?estado=${estado}` : '';
     return this.http
-      .get<any>(`${this.apiBase}/orders/list.php${q}`, { headers: this.headers() })
+      .get<any>(`${this.apiBase}/orders${q}`, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<Pedido[]>;
   }
 
   getPedidoDetalle(id: number): Observable<Pedido> {
     return this.http
-      .get<any>(`${this.apiBase}/orders/get.php?id=${id}`, { headers: this.headers() })
+      .get<any>(`${this.apiBase}/orders/${id}`, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<Pedido>;
   }
 
   updateEstadoPedido(id: number, estado: string): Observable<any> {
     return this.http
-      .post<any>(`${this.apiBase}/orders/update-status.php`, { id, estado }, { headers: this.headers() })
+      .put<any>(`${this.apiBase}/orders/${id}/status`, { estado }, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e)));
   }
 
   getVentasChart(): Observable<VentaDia[]> {
     return this.http
-      .get<any>(`${this.apiBase}/orders/stats.php?tipo=chart`, { headers: this.headers() })
+      .get<any>(`${this.apiBase}/orders/stats?tipo=chart`, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<VentaDia[]>;
   }
 
   getTopProductos(): Observable<{ productos: TopProducto[]; resumen: ResumenMes }> {
     return this.http
-      .get<any>(`${this.apiBase}/orders/stats.php?tipo=top`, { headers: this.headers() })
+      .get<any>(`${this.apiBase}/orders/stats?tipo=top`, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<{ productos: TopProducto[]; resumen: ResumenMes }>;
   }
 
   updateStock(productoId: number, stock: Record<string, number>): Observable<any> {
     return this.http
-      .post<any>(`${this.apiBase}/products/update-stock.php`, { id: productoId, stock }, { headers: this.headers() })
+      .put<any>(`${this.apiBase}/products/${productoId}/stock`, { stock }, { headers: this.headers() })
       .pipe(map(res => res.data), catchError(e => this.handleAuthError(e)));
   }
 }

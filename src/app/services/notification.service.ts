@@ -42,7 +42,7 @@ export class NotificationService implements OnDestroy {
 
   loadNotifications() {
     if (!this.auth.isLoggedIn()) return;
-    this.http.get<any>(`${this.api}/list.php`, { headers: this.headers() })
+    this.http.get<any>(`${this.api}`, { headers: this.headers() })
       .subscribe(res => {
         const data = res.data;
         this.notifications.set(data);
@@ -51,7 +51,7 @@ export class NotificationService implements OnDestroy {
   }
 
   markAsRead(id: number) {
-    this.http.post(`${this.api}/mark-read.php`, { id }, { headers: this.headers() })
+    this.http.post(`${this.api}/mark-read`, { id }, { headers: this.headers() })
       .subscribe(() => {
         this.notifications.update(list =>
           list.map(n => n.id === id ? { ...n, is_read: 1 } : n)
@@ -61,7 +61,7 @@ export class NotificationService implements OnDestroy {
   }
 
   markAllAsRead() {
-    this.http.post(`${this.api}/mark-read.php`, {}, { headers: this.headers() })
+    this.http.post(`${this.api}/mark-read`, {}, { headers: this.headers() })
       .subscribe(() => {
         this.notifications.update(list => list.map(n => ({ ...n, is_read: 1 })));
         this.unreadCount.set(0);

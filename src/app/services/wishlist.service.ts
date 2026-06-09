@@ -52,7 +52,7 @@ export class WishlistService {
     if (this.auth.isLoggedIn()) {
       const token = this.auth.getToken();
       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-      this.http.post(`${this.apiUrl}/toggle.php`, { productId: product.id }, { headers })
+      this.http.post(`${this.apiUrl}/toggle`, { productId: product.id }, { headers })
         .pipe(catchError(() => of(null)))
         .subscribe();
     }
@@ -63,7 +63,7 @@ export class WishlistService {
     if (!this.auth.isLoggedIn()) return of(null);
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get<any>(`${this.apiUrl}/list.php`, { headers }).pipe(
+    return this.http.get<any>(`${this.apiUrl}`, { headers }).pipe(
       map(res => res.data),
       tap(products => {
         const apiIds = new Set<number>((products ?? []).map((p: ProductoApi) => p.id));
@@ -71,7 +71,7 @@ export class WishlistService {
         // Subir a la API los IDs que están en local pero no en la BD
         localIds.forEach(id => {
           if (!apiIds.has(id)) {
-            this.http.post(`${this.apiUrl}/toggle.php`, { productId: id }, { headers })
+            this.http.post(`${this.apiUrl}/toggle`, { productId: id }, { headers })
               .pipe(catchError(() => of(null)))
               .subscribe();
             apiIds.add(id);
@@ -89,7 +89,7 @@ export class WishlistService {
     if (!this.auth.isLoggedIn()) return of([]);
     const token = this.auth.getToken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get<any>(`${this.apiUrl}/list.php`, { headers }).pipe(
+    return this.http.get<any>(`${this.apiUrl}`, { headers }).pipe(
       map(res => res.data)
     );
   }

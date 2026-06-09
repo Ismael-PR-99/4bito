@@ -57,7 +57,7 @@ export class CheckoutService {
       ? new HttpHeaders({ Authorization: `Bearer ${token}` })
       : new HttpHeaders();
     return this.http.post<any>(
-      `${this.apiUrl}/create.php`, data, { headers }
+      `${this.apiUrl}`, data, { headers }
     ).pipe(map(res => res.data));
   }
 }

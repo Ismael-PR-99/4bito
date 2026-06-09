@@ -54,7 +54,7 @@ export class StockManagementService {
 
   // ── Alertas ─────────────────────────────────────────────
   getAlerts(): Observable<{ alerts: StockAlert[]; total: number }> {
-    return this.http.get<any>(`${this.baseUrl}/alerts/list.php`, { headers: this.headers }).pipe(
+    return this.http.get<any>(`${this.baseUrl}/alerts`, { headers: this.headers }).pipe(
       map(res => res.data),
       catchError(() => of({ alerts: [], total: 0 }))
     );
@@ -64,13 +64,13 @@ export class StockManagementService {
     productId: number; productName: string; size: string;
     currentStock: number; threshold: number;
   }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/alerts/check.php`, data, { headers: this.jsonHeaders }).pipe(
+    return this.http.post(`${this.baseUrl}/alerts/check`, data, { headers: this.jsonHeaders }).pipe(
       catchError(() => of(null))
     );
   }
 
   ignoreAlert(id: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/alerts/ignore.php`, { id }, { headers: this.jsonHeaders });
+    return this.http.post(`${this.baseUrl}/alerts/ignore`, { id }, { headers: this.jsonHeaders });
   }
 
   // ── Movimientos ──────────────────────────────────────────
@@ -91,14 +91,14 @@ export class StockManagementService {
     if (params.offset)     q.set('offset',       String(params.offset));
 
     return this.http.get<any>(
-      `${this.baseUrl}/stock-movements/list.php?${q.toString()}`,
+      `${this.baseUrl}/stock-movements?${q.toString()}`,
       { headers: this.headers }
     ).pipe(map(res => res.data), catchError(() => of({ movements: [], total: 0 })));
   }
 
   // ── Lista de espera ──────────────────────────────────────
   getWaitlist(): Observable<WaitlistItem[]> {
-    return this.http.get<any>(`${this.baseUrl}/stock-notifications/waitlist.php`, { headers: this.headers }).pipe(
+    return this.http.get<any>(`${this.baseUrl}/stock-notifications/waitlist`, { headers: this.headers }).pipe(
       map(res => res.data),
       catchError(() => of([]))
     );

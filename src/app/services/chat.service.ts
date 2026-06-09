@@ -63,12 +63,12 @@ export class ChatService implements OnDestroy {
 
   createConversation(subject?: string) {
     this.loading.set(true);
-    this.http.post<any>(`${this.api}/create.php`, {
+    this.http.post<any>(`${this.api}/conversations`, {
       sessionId: this.sessionId(),
       subject: subject || 'Consulta general',
     }, { headers: this.headers() }).subscribe({
       next: res => {
-        const data = res.data;
+        const data = res;
         this.conversationId.set(data.conversationId);
         this.sessionId.set(data.sessionId);
         localStorage.setItem('chat_session', data.sessionId);
@@ -84,7 +84,7 @@ export class ChatService implements OnDestroy {
   loadMessages() {
     const cid = this.conversationId();
     if (!cid) return;
-    this.http.get<any>(`${this.api}/messages.php`, {
+    this.http.get<any>(`${this.api}/messages`, {
       params: { conversationId: cid.toString(), after: this.lastRealId.toString() },
     }).subscribe(res => {
       const msgs: ChatMessage[] = res.data ?? [];
@@ -103,7 +103,7 @@ export class ChatService implements OnDestroy {
   sendMessage(text: string, sender: 'user' | 'admin' | 'bot' = 'user') {
     const cid = sender === 'admin' ? this.activeRoom() : this.conversationId();
     if (!cid || !text.trim()) return;
-    this.http.post<any>(`${this.api}/send.php`, {
+    this.http.post<any>(`${this.api}/messages`, {
       conversationId: cid,
       message: text.trim(),
       sender,
@@ -140,7 +140,7 @@ export class ChatService implements OnDestroy {
   loadRooms(status?: string) {
     const params: any = {};
     if (status) params.status = status;
-    this.http.get<any>(`${this.api}/rooms.php`, { headers: this.headers(), params })
+    this.http.get<any>(`${this.api}/rooms`, { headers: this.headers(), params })
       .subscribe(res => this.rooms.set(res.data));
   }
 
@@ -155,7 +155,7 @@ export class ChatService implements OnDestroy {
   loadAdminMessages() {
     const rid = this.activeRoom();
     if (!rid) return;
-    this.http.get<any>(`${this.api}/messages.php`, {
+    this.http.get<any>(`${this.api}/messages`, {
       params: { conversationId: rid.toString(), after: this.lastRealAdminId.toString() },
     }).subscribe(res => {
       const msgs: ChatMessage[] = res.data ?? [];
@@ -170,7 +170,7 @@ export class ChatService implements OnDestroy {
   }
 
   resolveConversation(convId: number) {
-    this.http.post<any>(`${this.api}/resolve.php`, { conversationId: convId }, { headers: this.headers() })
+    this.http.post<any>(`${this.api}/resolve`, { conversationId: convId }, { headers: this.headers() })
       .subscribe(() => this.loadRooms());
   }
 

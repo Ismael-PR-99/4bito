@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000/4bito-api',
+  apiUrl: 'http://localhost:3000/api',
   paypalClientId: 'ASn8vJ5I1AK2J4ZRWU5HDIWZg34VLHjQPvSgzgS6ebXqOLlq5970coNZ1sLBRWkwgD9UGpu4ABMT4j3N'
 };

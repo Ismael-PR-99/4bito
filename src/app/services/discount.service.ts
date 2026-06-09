@@ -35,7 +35,7 @@ export class DiscountService {
   /** Carga la pieza de la semana activa desde la API */
   cargarPieza(): Observable<PiezaSemana | null> {
     return this.http
-      .get<any>(`${this.apiUrl}/get.php`)
+      .get<any>(`${this.apiUrl}`)
       .pipe(
         map(res => res.data),
         tap(pieza => {
@@ -73,7 +73,7 @@ export class DiscountService {
     const prevPieza = this._pieza$.getValue();
 
     return this.http
-      .post<any>(`${this.apiUrl}/set.php`, body, { headers })
+      .post<any>(`${this.apiUrl}`, payload, { headers })
       .pipe(
         // Encadenar: tras el POST exitoso, recargar la pieza desde la BD
         switchMap(() => {
@@ -90,7 +90,7 @@ export class DiscountService {
   /** Desactiva piezas expiradas (sin autenticación — expiración automática) */
   desactivarExpiradas(): Observable<{ deactivated: number }> {
     return this.http
-      .post<any>(`${this.apiUrl}/deactivate.php`, {})
+      .post<any>(`${this.apiUrl}/deactivate`, {})
       .pipe(
         map(res => res.data),
         tap(res => {
