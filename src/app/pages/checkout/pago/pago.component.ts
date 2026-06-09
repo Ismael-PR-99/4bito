@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, AsyncPipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, combineLatest, map, Subscription } from 'rxjs';
 import { CartService } from '../../../services/cart.service';
@@ -10,6 +10,27 @@ import { CartItem, AppliedDiscount } from '../../../models/cart-item.model';
 import { environment } from '../../../../environments/environment';
 
 declare var paypal: any;
+
+function luhnValidator(control: AbstractControl): ValidationErrors | null {
+  const digits = (control.value ?? '').replace(/\s/g, '');
+  if (!/^\d{16}$/.test(digits)) return null;
+  let sum = 0;
+  let alt = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let n = parseInt(digits[i], 10);
+    if (alt) { n *= 2; if (n > 9) n -= 9; }
+    sum += n;
+    alt = !alt;
+  }
+  return sum % 10 === 0 ? null : { luhn: true };
+}
+
+function expiryFutureValidator(control: AbstractControl): ValidationErrors | null {
+  const m = (control.value ?? '').match(/^(\d{2})\/(\d{2})$/);
+  if (!m) return null;
+  const expiry = new Date(2000 + parseInt(m[2], 10), parseInt(m[1], 10) - 1 + 1, 0);
+  return expiry < new Date() ? { expired: true } : null;
+}
 
 @Component({
   selector: 'app-pago',
@@ -46,9 +67,9 @@ export class PagoComponent implements OnInit, OnDestroy {
   get shipping() { return this.checkoutService.shippingData; }
 
   cardForm = this.fb.group({
-    numero:   ['', [Validators.required, Validators.pattern(/^[\d\s]{19}$/)]],
+    numero:   ['', [Validators.required, Validators.pattern(/^(\d{4} ){3}\d{4}$/), luhnValidator]],
     titular:  ['', [Validators.required, Validators.minLength(3)]],
-    expiry:   ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
+    expiry:   ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/), expiryFutureValidator]],
     cvv:      ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
   });
 

@@ -149,6 +149,7 @@
             </div>
             <span class="cf-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['required']">Campo obligatorio</span>
             <span class="cf-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['pattern']">Número de tarjeta inválido</span>
+            <span class="cf-error" *ngIf="cf['numero'].touched && cf['numero'].errors?.['luhn']">Número de tarjeta incorrecto</span>
           </div>
 
           <!-- Nombre en la tarjeta -->
@@ -185,6 +186,7 @@
               </div>
               <span class="cf-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['required']">Obligatorio</span>
               <span class="cf-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['pattern']">Formato MM/AA</span>
+              <span class="cf-error" *ngIf="cf['expiry'].touched && cf['expiry'].errors?.['expired']">Tarjeta caducada</span>
             </div>
 
             <div class="cf-group cf-group--cvv" [class.cf-group--focus]="focusedField === 'cvv'" [class.cf-group--valid]="cf['cvv'].valid && cf['cvv'].value" [class.cf-group--invalid]="cf['cvv'].touched && cf['cvv'].invalid">
