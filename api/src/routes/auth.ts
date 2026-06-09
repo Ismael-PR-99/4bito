@@ -7,6 +7,28 @@ import { signToken, EXPIRES } from '../jwt';
 import { validate, loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from '../validate';
 import { sendPasswordReset } from '../email';
 
+const REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+async function issueRefreshToken(userId: number): Promise<string> {
+  const token     = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+  await pool.query(
+    'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1,$2,$3)',
+    [userId, token, expiresAt]
+  );
+  return token;
+}
+
+function setRefreshCookie(res: import('express').Response, token: string): void {
+  res.cookie('refresh_token', token, {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: REFRESH_TTL_MS,
+    path: '/api/auth',
+  });
+}
+
 const router = Router();
 
 const loginLimiter = rateLimit({ windowMs: 5 * 60 * 1000, max: 5 });
@@ -41,7 +63,9 @@ router.post('/login', loginLimiter, validate(loginSchema), async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       maxAge: EXPIRES * 1000,
     };
+    const refreshToken = await issueRefreshToken(u.id);
     res.cookie('token', token, cookieOpts);
+    setRefreshCookie(res, refreshToken);
     res.json({ success: true, data: { token, usuario: { id: u.id, nombre: u.nombre, email: u.email, rol: u.rol } } });
   } catch (e) {
     console.error('[auth] login error:', e);
@@ -70,9 +94,42 @@ router.post('/register', validate(registerSchema), async (req, res) => {
   }
 });
 
-router.post('/logout', (_req, res) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production' });
+router.post('/logout', async (req, res) => {
+  const rt = (req as any).cookies?.refresh_token;
+  if (rt) {
+    await pool.query('UPDATE refresh_tokens SET revoked = 1 WHERE token = $1', [rt]).catch(() => {});
+  }
+  res.clearCookie('token',         { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production' });
+  res.clearCookie('refresh_token', { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production', path: '/api/auth' });
   res.json({ success: true });
+});
+
+router.post('/refresh', async (req, res) => {
+  try {
+    const rt = (req as any).cookies?.refresh_token;
+    if (!rt) { res.status(401).json({ error: 'No refresh token' }); return; }
+
+    const { rows } = await pool.query(
+      `SELECT rt.user_id, u.nombre, u.email, u.rol
+       FROM refresh_tokens rt JOIN usuarios u ON u.id = rt.user_id
+       WHERE rt.token = $1 AND rt.revoked = 0 AND rt.expires_at > NOW() LIMIT 1`,
+      [rt]
+    );
+    if (!rows.length) { res.status(401).json({ error: 'Refresh token inválido o expirado' }); return; }
+
+    const u     = rows[0];
+    const token = signToken({ id: u.user_id, nombre: u.nombre, email: u.email, rol: u.rol });
+    const cookieOpts = {
+      httpOnly: true, sameSite: 'strict' as const,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: EXPIRES * 1000,
+    };
+    res.cookie('token', token, cookieOpts);
+    res.json({ success: true, data: { token } });
+  } catch (e) {
+    console.error('[auth] refresh error:', e);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 const forgotLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });

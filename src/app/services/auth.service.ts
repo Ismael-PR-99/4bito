@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, map } from 'rxjs';
+import { Observable, tap, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface LoginResponse {
@@ -44,6 +44,18 @@ export class AuthService {
     this._token = null;
     localStorage.removeItem('usuario');
     this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe();
+  }
+
+  refresh(): Observable<string> {
+    return this.http.post<any>(`${this.apiUrl}/refresh`, {}, { withCredentials: true }).pipe(
+      map(res => res.data.token),
+      tap(token => { this._token = token; }),
+      catchError(err => {
+        this._token = null;
+        localStorage.removeItem('usuario');
+        return throwError(() => err);
+      }),
+    );
   }
 
   getToken(): string | null {

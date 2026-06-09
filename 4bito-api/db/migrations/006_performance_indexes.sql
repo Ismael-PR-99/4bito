@@ -26,6 +26,18 @@ CREATE INDEX IF NOT EXISTS idx_productos_fts
         to_tsvector('spanish', name || ' ' || team || ' ' || league)
     );
 
+-- refresh_tokens: tabla para renovación silenciosa de JWT
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER     NOT NULL,
+    token      VARCHAR(64) NOT NULL UNIQUE,
+    expires_at TIMESTAMP   NOT NULL,
+    revoked    SMALLINT    NOT NULL DEFAULT 0,
+    created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rt_token ON refresh_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_rt_user  ON refresh_tokens(user_id);
+
 -- password_resets: tabla para recuperación de contraseña (task 4)
 CREATE TABLE IF NOT EXISTS password_resets (
     id         SERIAL PRIMARY KEY,
