@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
@@ -77,10 +77,6 @@ export class AdminService {
   private router = inject(Router);
   private toast  = inject(ToastService);
 
-  private headers(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken() ?? ''}` });
-  }
-
   private handleAuthError(err: any): Observable<never> {
     if (err.status === 401 || err.status === 403) {
       this.auth.logout();
@@ -91,45 +87,52 @@ export class AdminService {
   }
 
   getMetricas(): Observable<Metricas> {
-    return this.http
-      .get<any>(`${this.apiBase}/admin/metrics`, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<Metricas>;
+    return this.http.get<any>(`${this.apiBase}/admin/metrics`).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    ) as Observable<Metricas>;
   }
 
   getPedidos(estado?: string): Observable<Pedido[]> {
     const q = estado && estado !== 'todos' ? `?estado=${estado}` : '';
-    return this.http
-      .get<any>(`${this.apiBase}/orders${q}`, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<Pedido[]>;
+    return this.http.get<any>(`${this.apiBase}/orders${q}`).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    ) as Observable<Pedido[]>;
   }
 
   getPedidoDetalle(id: number): Observable<Pedido> {
-    return this.http
-      .get<any>(`${this.apiBase}/orders/${id}`, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<Pedido>;
+    return this.http.get<any>(`${this.apiBase}/orders/${id}`).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    ) as Observable<Pedido>;
   }
 
   updateEstadoPedido(id: number, estado: string): Observable<any> {
-    return this.http
-      .put<any>(`${this.apiBase}/orders/${id}/status`, { estado }, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e)));
+    return this.http.put<any>(`${this.apiBase}/orders/${id}/status`, { estado }).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    );
   }
 
   getVentasChart(): Observable<VentaDia[]> {
-    return this.http
-      .get<any>(`${this.apiBase}/orders/stats?tipo=chart`, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<VentaDia[]>;
+    return this.http.get<any>(`${this.apiBase}/orders/stats?tipo=chart`).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    ) as Observable<VentaDia[]>;
   }
 
   getTopProductos(): Observable<{ productos: TopProducto[]; resumen: ResumenMes }> {
-    return this.http
-      .get<any>(`${this.apiBase}/orders/stats?tipo=top`, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e))) as Observable<{ productos: TopProducto[]; resumen: ResumenMes }>;
+    return this.http.get<any>(`${this.apiBase}/orders/stats?tipo=top`).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    ) as Observable<{ productos: TopProducto[]; resumen: ResumenMes }>;
   }
 
   updateStock(productoId: number, stock: Record<string, number>): Observable<any> {
-    return this.http
-      .put<any>(`${this.apiBase}/products/${productoId}/stock`, { stock }, { headers: this.headers() })
-      .pipe(map(res => res.data), catchError(e => this.handleAuthError(e)));
+    return this.http.put<any>(`${this.apiBase}/products/${productoId}/stock`, { stock }).pipe(
+      map(res => res.data),
+      catchError(e => this.handleAuthError(e))
+    );
   }
 }

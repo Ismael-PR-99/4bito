@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const SECRET = process.env.JWT_SECRET!;
-const EXPIRES = parseInt(process.env.JWT_EXPIRES_IN ?? '86400');
+export const EXPIRES = parseInt(process.env.JWT_EXPIRES_IN ?? '86400');
 
 export interface JwtPayload {
   id: number;

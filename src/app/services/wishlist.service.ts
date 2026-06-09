@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { AuthService } from './auth.service';
@@ -48,36 +48,28 @@ export class WishlistService {
     this._ids.set(newSet);
     this.persist();
 
-    // Sincronizar con API si logado
     if (this.auth.isLoggedIn()) {
-      const token = this.auth.getToken();
-      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-      this.http.post(`${this.apiUrl}/toggle`, { productId: product.id }, { headers })
+      this.http.post(`${this.apiUrl}/toggle`, { productId: product.id })
         .pipe(catchError(() => of(null)))
         .subscribe();
     }
   }
 
-  /** Carga wishlist desde API y fusiona con localStorage */
   syncFromApi(): Observable<any> {
     if (!this.auth.isLoggedIn()) return of(null);
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get<any>(`${this.apiUrl}`, { headers }).pipe(
+    return this.http.get<any>(this.apiUrl).pipe(
       map(res => res.data),
       tap(products => {
         const apiIds = new Set<number>((products ?? []).map((p: ProductoApi) => p.id));
         const localIds = this._ids();
-        // Subir a la API los IDs que están en local pero no en la BD
         localIds.forEach(id => {
           if (!apiIds.has(id)) {
-            this.http.post(`${this.apiUrl}/toggle`, { productId: id }, { headers })
+            this.http.post(`${this.apiUrl}/toggle`, { productId: id })
               .pipe(catchError(() => of(null)))
               .subscribe();
             apiIds.add(id);
           }
         });
-        // Unión de ambas fuentes
         this._ids.set(apiIds);
         this.persist();
       }),
@@ -87,10 +79,6 @@ export class WishlistService {
 
   getWishlistItems(): Observable<ProductoApi[]> {
     if (!this.auth.isLoggedIn()) return of([]);
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.get<any>(`${this.apiUrl}`, { headers }).pipe(
-      map(res => res.data)
-    );
+    return this.http.get<any>(this.apiUrl).pipe(map(res => res.data));
   }
 }

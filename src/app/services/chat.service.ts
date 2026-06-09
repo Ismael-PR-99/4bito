@@ -1,6 +1,5 @@
 import { Injectable, inject, signal, OnDestroy } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from './auth.service';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 export interface ChatMessage {
@@ -28,7 +27,6 @@ export interface ChatConversation {
 @Injectable({ providedIn: 'root' })
 export class ChatService implements OnDestroy {
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
   private api = `${environment.apiUrl}/chat`;
 
   messages = signal<ChatMessage[]>([]);
@@ -37,7 +35,6 @@ export class ChatService implements OnDestroy {
   isOpen = signal(false);
   loading = signal(false);
 
-  // Admin
   rooms = signal<ChatConversation[]>([]);
   activeRoom = signal<number | null>(null);
   activeMessages = signal<ChatMessage[]>([]);
@@ -46,11 +43,6 @@ export class ChatService implements OnDestroy {
   private adminPollTimer: any = null;
   private lastRealId = 0;
   private lastRealAdminId = 0;
-
-  private headers() {
-    const token = this.auth.getToken();
-    return token ? new HttpHeaders({ Authorization: 'Bearer ' + token }) : new HttpHeaders();
-  }
 
   toggle() {
     this.isOpen.update(v => !v);
@@ -66,12 +58,11 @@ export class ChatService implements OnDestroy {
     this.http.post<any>(`${this.api}/conversations`, {
       sessionId: this.sessionId(),
       subject: subject || 'Consulta general',
-    }, { headers: this.headers() }).subscribe({
+    }).subscribe({
       next: res => {
-        const data = res;
-        this.conversationId.set(data.conversationId);
-        this.sessionId.set(data.sessionId);
-        localStorage.setItem('chat_session', data.sessionId);
+        this.conversationId.set(res.conversationId);
+        this.sessionId.set(res.sessionId);
+        localStorage.setItem('chat_session', res.sessionId);
         this.lastRealId = 0;
         this.messages.set([]);
         this.loadMessages();
@@ -91,7 +82,6 @@ export class ChatService implements OnDestroy {
       if (msgs.length > 0) {
         this.lastRealId = Math.max(...msgs.map(m => m.id));
         this.messages.update(prev => {
-          // Remove local placeholders that now exist in DB
           const incoming = new Set(msgs.map(m => `${m.sender}|${m.message}`));
           const cleaned = prev.filter(m => !(m.id > 1_000_000_000 && incoming.has(`${m.sender}|${m.message}`)));
           return [...cleaned, ...msgs];
@@ -113,7 +103,6 @@ export class ChatService implements OnDestroy {
     });
   }
 
-  /** Añade un mensaje localmente sin enviar al backend */
   addLocalMessage(text: string, sender: 'user' | 'bot' | 'admin') {
     const now = new Date().toISOString();
     const msg: ChatMessage = {
@@ -136,11 +125,10 @@ export class ChatService implements OnDestroy {
     if (this.pollTimer) { clearInterval(this.pollTimer); this.pollTimer = null; }
   }
 
-  // Admin methods
   loadRooms(status?: string) {
     const params: any = {};
     if (status) params.status = status;
-    this.http.get<any>(`${this.api}/rooms`, { headers: this.headers(), params })
+    this.http.get<any>(`${this.api}/rooms`, { params })
       .subscribe(res => this.rooms.set(res.data));
   }
 
@@ -170,7 +158,7 @@ export class ChatService implements OnDestroy {
   }
 
   resolveConversation(convId: number) {
-    this.http.post<any>(`${this.api}/resolve`, { conversationId: convId }, { headers: this.headers() })
+    this.http.post<any>(`${this.api}/resolve`, { conversationId: convId })
       .subscribe(() => this.loadRooms());
   }
 

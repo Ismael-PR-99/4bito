@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
 import { pool } from '../db';
-import { signToken } from '../jwt';
+import { signToken, EXPIRES } from '../jwt';
 
 const router = Router();
 
@@ -35,6 +35,13 @@ router.post('/login', loginLimiter, async (req, res) => {
     }
 
     const token = signToken({ id: u.id, nombre: u.nombre, email: u.email, rol: u.rol });
+    const cookieOpts = {
+      httpOnly: true,
+      sameSite: 'strict' as const,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: EXPIRES * 1000,
+    };
+    res.cookie('token', token, cookieOpts);
     res.json({ success: true, data: { token, usuario: { id: u.id, nombre: u.nombre, email: u.email, rol: u.rol } } });
   } catch (e) {
     console.error('[auth] login error:', e);
@@ -64,6 +71,11 @@ router.post('/register', async (req, res) => {
     console.error('[auth] register error:', e);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
+});
+
+router.post('/logout', (_req, res) => {
+  res.clearCookie('token', { httpOnly: true, sameSite: 'strict', secure: process.env.NODE_ENV === 'production' });
+  res.json({ success: true });
 });
 
 export default router;

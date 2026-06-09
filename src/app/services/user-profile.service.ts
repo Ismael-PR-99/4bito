@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
 export interface UserSizes {
@@ -32,27 +31,20 @@ export class UserProfileService {
   private readonly sizesUrl = `${environment.apiUrl}/user/sizes`;
   private readonly ordersUrl = `${environment.apiUrl}/orders/user`;
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
-
-  private get headers(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken()}` });
-  }
 
   getSizes(): Observable<UserSizes> {
-    return this.http.get<any>(this.sizesUrl, { headers: this.headers }).pipe(
+    return this.http.get<any>(this.sizesUrl).pipe(
       map(res => res.data),
       catchError(() => of({ camisetas: null, chaquetas: null, pantalones: null }))
     );
   }
 
   saveSizes(sizes: UserSizes): Observable<any> {
-    return this.http.post(this.sizesUrl, sizes, {
-      headers: this.headers.set('Content-Type', 'application/json'),
-    });
+    return this.http.post(this.sizesUrl, sizes);
   }
 
   getOrders(): Observable<PedidoUsuario[]> {
-    return this.http.get<any>(this.ordersUrl, { headers: this.headers }).pipe(
+    return this.http.get<any>(this.ordersUrl).pipe(
       map(res => res.data),
       catchError(() => of([]))
     );

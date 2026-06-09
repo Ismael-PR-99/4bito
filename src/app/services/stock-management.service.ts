@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
 export interface StockMovement {
@@ -42,19 +41,9 @@ export interface WaitlistItem {
 export class StockManagementService {
   private readonly baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
 
-  private get headers(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getToken()}` });
-  }
-
-  private get jsonHeaders(): HttpHeaders {
-    return this.headers.set('Content-Type', 'application/json');
-  }
-
-  // ── Alertas ─────────────────────────────────────────────
   getAlerts(): Observable<{ alerts: StockAlert[]; total: number }> {
-    return this.http.get<any>(`${this.baseUrl}/alerts`, { headers: this.headers }).pipe(
+    return this.http.get<any>(`${this.baseUrl}/alerts`).pipe(
       map(res => res.data),
       catchError(() => of({ alerts: [], total: 0 }))
     );
@@ -64,16 +53,15 @@ export class StockManagementService {
     productId: number; productName: string; size: string;
     currentStock: number; threshold: number;
   }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/alerts/check`, data, { headers: this.jsonHeaders }).pipe(
+    return this.http.post(`${this.baseUrl}/alerts/check`, data).pipe(
       catchError(() => of(null))
     );
   }
 
   ignoreAlert(id: number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/alerts/ignore`, { id }, { headers: this.jsonHeaders });
+    return this.http.post(`${this.baseUrl}/alerts/ignore`, { id });
   }
 
-  // ── Movimientos ──────────────────────────────────────────
   getMovements(params: {
     product_id?: number;
     type?: string;
@@ -90,15 +78,14 @@ export class StockManagementService {
     if (params.limit)      q.set('limit',        String(params.limit));
     if (params.offset)     q.set('offset',       String(params.offset));
 
-    return this.http.get<any>(
-      `${this.baseUrl}/stock-movements?${q.toString()}`,
-      { headers: this.headers }
-    ).pipe(map(res => res.data), catchError(() => of({ movements: [], total: 0 })));
+    return this.http.get<any>(`${this.baseUrl}/stock-movements?${q.toString()}`).pipe(
+      map(res => res.data),
+      catchError(() => of({ movements: [], total: 0 }))
+    );
   }
 
-  // ── Lista de espera ──────────────────────────────────────
   getWaitlist(): Observable<WaitlistItem[]> {
-    return this.http.get<any>(`${this.baseUrl}/stock-notifications/waitlist`, { headers: this.headers }).pipe(
+    return this.http.get<any>(`${this.baseUrl}/stock-notifications/waitlist`).pipe(
       map(res => res.data),
       catchError(() => of([]))
     );

@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
 export interface ShippingData {
@@ -31,7 +30,6 @@ export interface CrearPedidoData {
 @Injectable({ providedIn: 'root' })
 export class CheckoutService {
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
   private readonly apiUrl = `${environment.apiUrl}/orders`;
   private _shippingData: ShippingData | null = null;
 
@@ -52,12 +50,6 @@ export class CheckoutService {
   }
 
   crearPedido(data: CrearPedidoData): Observable<{ pedidoId: number; mensaje: string }> {
-    const token = this.auth.getToken();
-    const headers = token
-      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
-      : new HttpHeaders();
-    return this.http.post<any>(
-      `${this.apiUrl}`, data, { headers }
-    ).pipe(map(res => res.data));
+    return this.http.post<any>(this.apiUrl, data).pipe(map(res => res.data));
   }
 }

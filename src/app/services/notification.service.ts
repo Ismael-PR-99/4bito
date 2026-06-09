@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, OnDestroy } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
@@ -26,10 +26,6 @@ export class NotificationService implements OnDestroy {
 
   private pollTimer: any = null;
 
-  private headers() {
-    return new HttpHeaders({ Authorization: 'Bearer ' + this.auth.getToken() });
-  }
-
   init() {
     if (!this.auth.isLoggedIn()) return;
     this.loadNotifications();
@@ -42,30 +38,25 @@ export class NotificationService implements OnDestroy {
 
   loadNotifications() {
     if (!this.auth.isLoggedIn()) return;
-    this.http.get<any>(`${this.api}`, { headers: this.headers() })
-      .subscribe(res => {
-        const data = res.data;
-        this.notifications.set(data);
-        this.unreadCount.set(data.filter((n: any) => !n.is_read).length);
-      });
+    this.http.get<any>(this.api).subscribe(res => {
+      const data = res.data;
+      this.notifications.set(data);
+      this.unreadCount.set(data.filter((n: any) => !n.is_read).length);
+    });
   }
 
   markAsRead(id: number) {
-    this.http.post(`${this.api}/mark-read`, { id }, { headers: this.headers() })
-      .subscribe(() => {
-        this.notifications.update(list =>
-          list.map(n => n.id === id ? { ...n, is_read: 1 } : n)
-        );
-        this.unreadCount.update(c => Math.max(0, c - 1));
-      });
+    this.http.post(`${this.api}/mark-read`, { id }).subscribe(() => {
+      this.notifications.update(list => list.map(n => n.id === id ? { ...n, is_read: 1 } : n));
+      this.unreadCount.update(c => Math.max(0, c - 1));
+    });
   }
 
   markAllAsRead() {
-    this.http.post(`${this.api}/mark-read`, {}, { headers: this.headers() })
-      .subscribe(() => {
-        this.notifications.update(list => list.map(n => ({ ...n, is_read: 1 })));
-        this.unreadCount.set(0);
-      });
+    this.http.post(`${this.api}/mark-read`, {}).subscribe(() => {
+      this.notifications.update(list => list.map(n => ({ ...n, is_read: 1 })));
+      this.unreadCount.set(0);
+    });
   }
 
   private startPolling() {

@@ -12,7 +12,8 @@ declare global {
 function extractToken(req: Request): string | null {
   const auth = req.headers.authorization ?? '';
   const m = auth.match(/^Bearer\s+(\S+)$/i);
-  return m ? m[1] : null;
+  if (m) return m[1];
+  return (req as any).cookies?.token ?? null;
 }
 
 export function optionalAuth(req: Request, _res: Response, next: NextFunction) {

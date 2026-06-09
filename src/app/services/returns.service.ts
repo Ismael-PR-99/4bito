@@ -1,7 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
-import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
 export interface ReturnRequest {
@@ -27,44 +26,33 @@ export interface ReturnRequest {
 @Injectable({ providedIn: 'root' })
 export class ReturnsService {
   private http = inject(HttpClient);
-  private auth = inject(AuthService);
   private api = `${environment.apiUrl}/returns`;
 
   returns = signal<ReturnRequest[]>([]);
   loading = signal(false);
 
-  private headers() {
-    return new HttpHeaders({ Authorization: 'Bearer ' + this.auth.getToken() });
-  }
-
   create(data: { orderId: number; products: any[]; reason: string; description: string; photos: string[]; resolution: string }) {
-    return this.http.post<any>(
-      `${this.api}`, data, { headers: this.headers() }
-    ).pipe(map(res => res.data));
+    return this.http.post<any>(`${this.api}`, data).pipe(map(res => res.data));
   }
 
   list(status?: string) {
     this.loading.set(true);
     const params: any = {};
     if (status) params.status = status;
-    this.http.get<any>(`${this.api}`, { headers: this.headers(), params })
-      .subscribe({
-        next: res => { this.returns.set(res.data); this.loading.set(false); },
-        error: () => this.loading.set(false),
-      });
+    this.http.get<any>(`${this.api}`, { params }).subscribe({
+      next: res => { this.returns.set(res.data); this.loading.set(false); },
+      error: () => this.loading.set(false),
+    });
   }
 
   get(id: number) {
-    return this.http.get<any>(`${this.api}/${id}`, { headers: this.headers() }).pipe(
-      map(res => res.data)
-    );
+    return this.http.get<any>(`${this.api}/${id}`).pipe(map(res => res.data));
   }
 
   updateStatus(id: number, status: string, adminNotes?: string) {
     return this.http.put<any>(
       `${this.api}/${id}`,
-      { status, admin_notes: adminNotes || '' },
-      { headers: this.headers() }
+      { status, admin_notes: adminNotes || '' }
     ).pipe(map(res => res.data));
   }
 }

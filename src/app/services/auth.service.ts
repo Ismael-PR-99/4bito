@@ -20,43 +20,42 @@ export interface RegistroResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
+  private _token: string | null = null;
 
   constructor(private http: HttpClient) {}
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
+    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true }).pipe(
       map(res => res.data),
       tap((res) => {
-        localStorage.setItem('token', res.token);
+        this._token = res.token;
         localStorage.setItem('usuario', JSON.stringify(res.usuario));
       })
     );
   }
 
   registro(nombre: string, email: string, password: string): Observable<RegistroResponse> {
-    return this.http.post<any>(`${this.apiUrl}/register`, {
-      nombre,
-      email,
-      password,
-    }).pipe(map(res => res.data));
+    return this.http.post<any>(`${this.apiUrl}/register`, { nombre, email, password }).pipe(
+      map(res => res.data)
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    this._token = null;
     localStorage.removeItem('usuario');
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe();
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return this._token;
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this._token || !!localStorage.getItem('usuario');
   }
 
   isAdmin(): boolean {
-    const usuario = this.getUsuario();
-    return usuario?.rol === 'admin';
+    return this.getUsuario()?.rol === 'admin';
   }
 
   getUsuario(): { id: number; nombre: string; email: string; rol: string } | null {
