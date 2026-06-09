@@ -10,6 +10,11 @@ export interface UserSizes {
   pantalones: string | null;
 }
 
+export interface HistorialEstado {
+  estado: string;
+  fecha: string;
+}
+
 export interface PedidoUsuario {
   id: number;
   nombre_cliente: string;
@@ -19,6 +24,7 @@ export interface PedidoUsuario {
   fecha_creacion: string;
   paypal_transaction_id: string | null;
   productos_json: any[];
+  historialEstados: HistorialEstado[];
   direccion: string;
   ciudad: string;
   cp: string;

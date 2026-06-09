@@ -9,6 +9,17 @@ import { validate, createProductSchema, updateProductSchema } from '../validate'
 
 const router = Router();
 
+const listCache = new Map<string, { payload: unknown; ts: number }>();
+const CACHE_TTL = 60_000; // 60 s
+
+function cacheGet(key: string): unknown | null {
+  const hit = listCache.get(key);
+  if (!hit || Date.now() - hit.ts > CACHE_TTL) return null;
+  return hit.payload;
+}
+function cacheSet(key: string, payload: unknown): void { listCache.set(key, { payload, ts: Date.now() }); }
+function cacheBust(): void { listCache.clear(); }
+
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? '../uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -59,6 +70,10 @@ function mapRow(row: any) {
 // GET /api/products
 router.get('/', async (req, res) => {
   try {
+    const cacheKey = JSON.stringify(req.query);
+    const cached = cacheGet(cacheKey);
+    if (cached) { res.json(cached); return; }
+
     const { category, decade, new: isNew, sort = 'newest', search } = req.query as Record<string, string>;
     const page  = Math.max(1, parseInt(String(req.query.page  ?? '1')));
     const limit = Math.min(48, Math.max(1, parseInt(String(req.query.limit ?? '24'))));
@@ -102,10 +117,12 @@ router.get('/', async (req, res) => {
       pool.query(`SELECT COUNT(*) FROM productos ${whereSQL}`, params),
     ]);
 
-    res.json({
+    const response = {
       success: true,
       data: { products: rows.map(mapRow), total: parseInt(countRows[0].count), page, limit },
-    });
+    };
+    cacheSet(cacheKey, response);
+    res.json(response);
   } catch (e) {
     console.error('[products] GET / error:', e);
     res.status(500).json({ error: 'Error interno del servidor' });
@@ -172,6 +189,7 @@ router.post('/', requireAdmin, upload.single('image'), validate(createProductSch
     const catAbbrev = category.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
     const sku = `4BT-${catAbbrev}-${year}-${String(newId).padStart(4, '0')}`;
     await pool.query('UPDATE productos SET sku = $1 WHERE id = $2', [sku, newId]);
+    cacheBust();
 
     res.status(201).json({
       success: true,
@@ -222,6 +240,7 @@ router.put('/:id', requireAdmin, upload.single('image'), validate(updateProductS
     );
 
     const { rows } = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
+    cacheBust();
     res.json({ success: true, data: { mensaje: 'Producto actualizado', producto: mapRow(rows[0]) } });
   } catch (e) {
     cleanupFile();
@@ -236,6 +255,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     const id = parseInt(req.params.id);
     const { rowCount } = await pool.query('DELETE FROM productos WHERE id = $1', [id]);
     if (!rowCount) { res.status(404).json({ error: 'Producto no encontrado' }); return; }
+    cacheBust();
     res.json({ success: true, data: { mensaje: 'Producto eliminado', id } });
   } catch (e) {
     console.error('[products] DELETE /:id error:', e);
@@ -259,6 +279,7 @@ router.put('/:id/stock', requireAdmin, async (req, res) => {
     }
 
     await pool.query('UPDATE productos SET sizes = $1 WHERE id = $2', [JSON.stringify(sizes), id]);
+    cacheBust();
     res.json({ success: true, data: { mensaje: 'Stock actualizado' } });
   } catch (e) {
     console.error('[products] PUT /:id/stock error:', e);

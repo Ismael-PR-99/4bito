@@ -6,6 +6,8 @@ import path from 'path';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { validateEnv } from './startup';
+import { logger } from './logger';
+import { pool } from './db';
 
 validateEnv();
 
@@ -88,4 +90,19 @@ app.use('/api/user',                userRoutes);
 app.use('/api/discounts',           discountLimiter, discountsRoutes);
 app.use('/api/health',              healthRoutes);
 
-app.listen(PORT, () => console.log(`4BITO API running on http://localhost:${PORT}`));
+const server = app.listen(PORT, () =>
+  logger.info('4BITO API started', { port: PORT, env: process.env.NODE_ENV ?? 'development' })
+);
+
+async function shutdown(signal: string): Promise<void> {
+  logger.info(`${signal} received — shutting down`);
+  server.close(async () => {
+    await pool.end();
+    process.exit(0);
+  });
+  // Force exit if graceful shutdown exceeds 10s
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+process.on('SIGTERM', () => { shutdown('SIGTERM'); });
+process.on('SIGINT',  () => { shutdown('SIGINT'); });

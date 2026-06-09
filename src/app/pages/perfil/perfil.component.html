@@ -130,6 +130,21 @@
                 </div>
               }
 
+              <!-- Historial de estados -->
+              @if (pedido.historialEstados?.length > 1) {
+                <div class="pedido-historial">
+                  <p class="historial-title">HISTORIAL</p>
+                  <ul class="historial-list">
+                    @for (h of pedido.historialEstados; track $index) {
+                      <li class="historial-item">
+                        <span class="historial-badge estado-{{ h.estado }}">{{ h.estado.toUpperCase() }}</span>
+                        <span class="historial-fecha">{{ formatDate(h.fecha) }}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+
               <!-- Productos del pedido -->
               <div class="pedido-productos">
                 @for (item of pedido.productos_json; track $index) {

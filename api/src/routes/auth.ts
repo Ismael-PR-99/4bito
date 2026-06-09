@@ -105,17 +105,36 @@ router.post('/logout', async (req, res) => {
 });
 
 router.post('/refresh', async (req, res) => {
-  try {
-    const rt = (req as any).cookies?.refresh_token;
-    if (!rt) { res.status(401).json({ error: 'No refresh token' }); return; }
+  const rt = (req as any).cookies?.refresh_token;
+  if (!rt) { res.status(401).json({ error: 'No refresh token' }); return; }
 
-    const { rows } = await pool.query(
-      `SELECT rt.user_id, u.nombre, u.email, u.rol
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows } = await client.query(
+      `SELECT rt.id, rt.user_id, u.nombre, u.email, u.rol
        FROM refresh_tokens rt JOIN usuarios u ON u.id = rt.user_id
-       WHERE rt.token = $1 AND rt.revoked = 0 AND rt.expires_at > NOW() LIMIT 1`,
+       WHERE rt.token = $1 AND rt.revoked = 0 AND rt.expires_at > NOW() LIMIT 1
+       FOR UPDATE OF rt`,
       [rt]
     );
-    if (!rows.length) { res.status(401).json({ error: 'Refresh token inválido o expirado' }); return; }
+    if (!rows.length) {
+      await client.query('ROLLBACK');
+      res.status(401).json({ error: 'Refresh token inválido o expirado' }); return;
+    }
+
+    // Rotate: revoke old, issue new
+    await client.query('UPDATE refresh_tokens SET revoked = 1 WHERE id = $1', [rows[0].id]);
+
+    const newRt      = crypto.randomBytes(32).toString('hex');
+    const expiresAt  = new Date(Date.now() + REFRESH_TTL_MS);
+    await client.query(
+      'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1,$2,$3)',
+      [rows[0].user_id, newRt, expiresAt]
+    );
+
+    await client.query('COMMIT');
 
     const u     = rows[0];
     const token = signToken({ id: u.user_id, nombre: u.nombre, email: u.email, rol: u.rol });
@@ -125,10 +144,14 @@ router.post('/refresh', async (req, res) => {
       maxAge: EXPIRES * 1000,
     };
     res.cookie('token', token, cookieOpts);
+    setRefreshCookie(res, newRt);
     res.json({ success: true, data: { token } });
   } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('[auth] refresh error:', e);
     res.status(500).json({ error: 'Error interno del servidor' });
+  } finally {
+    client.release();
   }
 });
 

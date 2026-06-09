@@ -128,10 +128,14 @@ router.get('/', requireAdmin, async (req, res) => {
 // GET /api/orders/user
 router.get('/user', requireAuth, async (req, res) => {
   const { rows } = await pool.query(
-    'SELECT * FROM pedidos WHERE user_id = $1 ORDER BY fecha_creacion DESC',
+    `SELECT p.*, COALESCE(
+       (SELECT json_agg(json_build_object('estado',h.estado,'fecha',h.fecha) ORDER BY h.fecha)
+        FROM pedido_historial h WHERE h.pedido_id = p.id), '[]'
+     ) as historial
+     FROM pedidos p WHERE p.user_id = $1 ORDER BY p.fecha_creacion DESC`,
     [req.user!.id]
   );
-  res.json({ success: true, data: rows });
+  res.json({ success: true, data: rows.map(mapPedido) });
 });
 
 // GET /api/orders/stats
